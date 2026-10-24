@@ -1,14 +1,15 @@
-/* Colours shared by the popup and the dashboard. data-theme is set by theme.js; before it runs, and
-   if it never does, the page follows the system. */
+/* Colours and shapes shared by the popup and the dashboard: warm orange on cream, or on dark
+   brown, with a green for what reached the goal, and no rounded corner anywhere. data-theme is set
+   by theme.js; before it runs, and if it never does, the page follows the system. */
 :root {
   --bg: #fdf6ee;
   --card: #ffffff;
   --text: #2b2118;
   --muted: #7a6a5a;
-  --accent: #e8590c;
-  --accent-strong: #c2410c;
-  --track: #f5e7d6;
-  --border: #f1dcc3;
+  --line: #f1dcc3;
+  --strong: #e8590c;
+  --on-strong: #ffffff;
+  --good: #2f9e44;
   --heat-0: #f1ece5;
   --heat-1: #fde2c3;
   --heat-2: #fbc27f;
@@ -24,10 +25,10 @@
     --card: #231f17;
     --text: #f3ebe0;
     --muted: #a39786;
-    --accent: #fb923c;
-    --accent-strong: #fdba74;
-    --track: #2e281d;
-    --border: #35301f;
+    --line: #35301f;
+    --strong: #fb923c;
+    --on-strong: #19160f;
+    --good: #5fbf70;
     --heat-0: #2a261d;
     --heat-1: #4a3417;
     --heat-2: #7a4a15;
@@ -43,10 +44,10 @@
   --card: #231f17;
   --text: #f3ebe0;
   --muted: #a39786;
-  --accent: #fb923c;
-  --accent-strong: #fdba74;
-  --track: #2e281d;
-  --border: #35301f;
+  --line: #35301f;
+  --strong: #fb923c;
+  --on-strong: #19160f;
+  --good: #5fbf70;
   --heat-0: #2a261d;
   --heat-1: #4a3417;
   --heat-2: #7a4a15;
@@ -58,6 +59,7 @@
 
 * {
   box-sizing: border-box;
+  border-radius: 0 !important;
 }
 
 body {
@@ -69,29 +71,38 @@ body {
     sans-serif;
 }
 
+h1 {
+  margin: 0;
+  color: var(--strong);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
 .icon-button {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--strong);
   background: var(--card);
-  color: var(--text);
-  font-size: 16px;
+  color: var(--strong);
+  font-size: 15px;
   cursor: pointer;
 }
 
 .stat {
-  padding: 14px 8px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  padding: 10px 6px;
+  border: 1px solid var(--line);
   background: var(--card);
   text-align: center;
 }
 
 .stat-value {
   margin: 0;
-  color: var(--accent);
-  font-size: 22px;
+  color: var(--strong);
+  font-size: 18px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -99,7 +110,22 @@ body {
 .stat-label {
   margin: 2px 0 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.button {
+  padding: 10px 14px;
+  border: 1px solid var(--strong);
+  background: var(--card);
+  color: var(--strong);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button.primary {
+  background: var(--strong);
+  color: var(--on-strong);
 }
