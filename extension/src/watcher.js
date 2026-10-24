@@ -1,0 +1,58 @@
+import { Tracker } from "./tracker.js";
+
+/**
+ * Joins the tracker with the verdict about the language of the current video, and decides what is
+ * worth saving. It knows nothing about the page: the content script feeds it events and a clock,
+ * and gives it a `send(seconds)` function, so it can be tested.
+ *
+ * While the language is still unknown (the page has not shown the captions yet), the time is kept
+ * and credited as soon as the video turns out to be German, or dropped if it is not.
+ */
+export class Watcher {
+  #tracker = new Tracker();
+  #german = null;
+  #send;
+
+  constructor({ send }) {
+    this.#send = send;
+  }
+
+  play(now, rate) {
+    this.#tracker.play(now, rate);
+  }
+
+  pause(now) {
+    this.#tracker.pause(now);
+    this.flush(now);
+  }
+
+  setRate(now, rate) {
+    this.#tracker.setRate(now, rate);
+  }
+
+  /** The language of the current video is known: `true` for German, `false` for anything else. */
+  setGerman(now, german) {
+    this.#tracker.tick(now);
+    this.#german = german;
+    this.flush(now);
+  }
+
+  /** Another video starts: the time of the last one is settled and the verdict is forgotten. */
+  newVideo(now) {
+    this.flush(now);
+    this.#tracker.take();
+    this.#german = null;
+  }
+
+  /** Saves what has been counted if the video is German. Called every few seconds while playing. */
+  flush(now) {
+    this.#tracker.tick(now);
+    if (this.#german === null) {
+      return;
+    }
+    const seconds = this.#tracker.take();
+    if (this.#german && seconds > 0) {
+      this.#send(seconds);
+    }
+  }
+}
