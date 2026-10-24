@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deuchan</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Deuchan</h1>
+      <p class="streak"><span id="streak">0</span> day streak</p>
+    </header>
+
+    <section class="hero">
+      <p class="hero-value" id="today">0 min</p>
+      <p class="hero-label">German today</p>
+    </section>
+
+    <section class="bars" id="bars" aria-label="Last 7 days"></section>
+
+    <dl class="totals">
+      <div>
+        <dt>7 days</dt>
+        <dd id="week">0 min</dd>
+      </div>
+      <div>
+        <dt>30 days</dt>
+        <dd id="month">0 min</dd>
+      </div>
+      <div>
+        <dt>All time</dt>
+        <dd id="total">0 min</dd>
+      </div>
+    </dl>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
