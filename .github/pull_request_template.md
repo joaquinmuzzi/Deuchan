@@ -15,7 +15,7 @@
 - [ ] The title follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (`fix(tracker): ...`), in English.
 - [ ] Tests cover the change, and `npm test` passes.
 - [ ] `npm run lint` and `npm run format:check` pass.
-- [ ] If the shape of the stored data changed: `STORAGE_VERSION` in `extension/src/storage.js` is bumped and old data is migrated.
+- [ ] If the shape of the stored data changed: `STORAGE_VERSION` in `extension/src/log.js` is bumped and old data is migrated.
 - [ ] Documentation is updated (README, CONTRIBUTING), if needed.
 - [ ] I have read and understood every line of the change, and I ran the checks above myself.
 
