@@ -1,0 +1,46 @@
+name: Bug report
+description: Something does not work (the time is not counted, the popup is empty, the page looks broken...).
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Include the error message, if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a German video on YouTube
+        2. Watch it for two minutes
+        3. Open the Deuchan popup
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: input
+    id: video
+    attributes:
+      label: Link to the video
+      description: A public YouTube link helps a lot.
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome
+        - Edge
+        - Brave
+        - Other Chromium browser
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Deuchan version
+      description: Shown in chrome://extensions.

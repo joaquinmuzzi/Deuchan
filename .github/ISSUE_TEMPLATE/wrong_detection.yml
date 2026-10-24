@@ -1,0 +1,25 @@
+name: Wrong language detection
+description: A German video was not counted, or a video that is not German was.
+labels: ["detection"]
+body:
+  - type: input
+    id: video
+    attributes:
+      label: Link to the video
+      description: A public YouTube link, so the video can be checked.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong?
+      options:
+        - A German video was not counted
+        - A video that is not German was counted
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: The language of the audio, whether it has captions (automatic or uploaded) and in which languages.
