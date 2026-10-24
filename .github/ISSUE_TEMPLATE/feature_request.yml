@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest an idea for Deuchan.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: The problem or the use case, rather than the solution.
+      placeholder: "When I watch a series I want to see my time per channel..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: How could Deuchan help?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have considered

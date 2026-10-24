@@ -1,0 +1,29 @@
+# Keeps GitHub Actions and npm dependencies up to date with monthly, grouped PRs.
+# Commit prefixes produce Conventional Commit PR titles such as "ci(deps): bump ...".
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      npm:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: build
+      include: scope
