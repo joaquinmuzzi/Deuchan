@@ -1,18 +1,30 @@
 // The only place that writes the log, so that several YouTube tabs cannot overwrite each other:
-// every update waits for the one before it.
+// every update waits for the one before it. It also counts the time two tabs played at once only
+// once (see coverage.js).
+import { addCoverage, isValidInterval } from "./coverage.js";
 import { addSeconds, dayKey, migrate } from "./log.js";
 
 let queue = Promise.resolve();
 
-async function save(seconds) {
-  const { log } = await chrome.storage.local.get("log");
-  await chrome.storage.local.set({ log: addSeconds(migrate(log), dayKey(new Date()), seconds) });
+async function save(intervals) {
+  const stored = await chrome.storage.local.get(["log", "covered"]);
+  let log = migrate(stored.log);
+  let covered = Array.isArray(stored.covered) ? stored.covered : [];
+  const now = Date.now() / 1000;
+
+  for (const interval of intervals.filter((interval) => isValidInterval(interval, now))) {
+    const result = addCoverage(covered, interval);
+    covered = result.covered;
+    // The day is the one in which the interval ended
+    log = addSeconds(log, dayKey(new Date(interval.to * 1000)), result.newSeconds);
+  }
+  await chrome.storage.local.set({ log, covered });
 }
 
 chrome.runtime.onMessage.addListener((message, sender) => {
   // Only the content script of this extension, in a YouTube tab, can add time
-  if (sender.id !== chrome.runtime.id || message?.type !== "watched" || !(message.seconds > 0)) {
+  if (sender.id !== chrome.runtime.id || message?.type !== "watched" || !Array.isArray(message.intervals)) {
     return;
   }
-  queue = queue.then(() => save(message.seconds)).catch(() => {});
+  queue = queue.then(() => save(message.intervals)).catch(() => {});
 });

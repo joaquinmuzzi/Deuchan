@@ -11,9 +11,11 @@
   const LANGUAGE_RETRY_MS = 1_000;
   const LANGUAGE_ATTEMPTS = 15;
 
-  const now = () => performance.now() / 1000;
+  // The wall clock, not performance.now(): every tab has to measure on the same clock, so that the
+  // background script can see when two tabs played at the same time
+  const now = () => Date.now() / 1000;
   const watcher = new Watcher({
-    send: (seconds) => chrome.runtime.sendMessage({ type: "watched", seconds }).catch(() => {}),
+    send: (intervals) => chrome.runtime.sendMessage({ type: "watched", intervals }).catch(() => {}),
   });
 
   let currentVideoId = null;
@@ -48,12 +50,11 @@
       return;
     }
     video.dataset.deuchan = "attached";
-    const startIfPlaying = () => !video.paused && watcher.play(now(), video.playbackRate);
+    const startIfPlaying = () => !video.paused && watcher.play(now());
     video.addEventListener("playing", startIfPlaying);
     video.addEventListener("pause", () => watcher.pause(now()));
     video.addEventListener("waiting", () => watcher.pause(now()));
     video.addEventListener("ended", () => watcher.pause(now()));
-    video.addEventListener("ratechange", () => watcher.setRate(now(), video.playbackRate));
     startIfPlaying();
   }
 

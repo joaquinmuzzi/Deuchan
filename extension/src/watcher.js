@@ -3,7 +3,7 @@ import { Tracker } from "./tracker.js";
 /**
  * Joins the tracker with the verdict about the language of the current video, and decides what is
  * worth saving. It knows nothing about the page: the content script feeds it events and a clock,
- * and gives it a `send(seconds)` function, so it can be tested.
+ * and gives it a `send(intervals)` function, so it can be tested.
  *
  * While the language is still unknown (the page has not shown the captions yet), the time is kept
  * and credited as soon as the video turns out to be German, or dropped if it is not.
@@ -22,17 +22,13 @@ export class Watcher {
     return { german: this.#german, playing: this.#tracker.isPlaying };
   }
 
-  play(now, rate) {
-    this.#tracker.play(now, rate);
+  play(now) {
+    this.#tracker.play(now);
   }
 
   pause(now) {
     this.#tracker.pause(now);
     this.flush(now);
-  }
-
-  setRate(now, rate) {
-    this.#tracker.setRate(now, rate);
   }
 
   /** The language of the current video is known: `true` for German, `false` for anything else. */
@@ -55,9 +51,9 @@ export class Watcher {
     if (this.#german === null) {
       return;
     }
-    const seconds = this.#tracker.take();
-    if (this.#german && seconds > 0) {
-      this.#send(seconds);
+    const intervals = this.#tracker.take();
+    if (this.#german && intervals.length > 0) {
+      this.#send(intervals);
     }
   }
 }

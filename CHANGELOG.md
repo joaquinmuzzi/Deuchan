@@ -11,8 +11,9 @@ note on what to update.
 
 ### Added
 
-- A browser extension that counts the time you watch German videos on YouTube. It handles
-  pausing, rewinding, looping and playback speed, decides the language of each video from its
+- A browser extension that counts the time you watch German videos on YouTube. It counts real
+  seconds of the clock, whatever the playback speed, and counts the time two tabs play at once only
+  once. It handles pausing, rewinding and looping, decides the language of each video from its
   automatic captions (or, without them, its title and description), and keeps the log by day in
   your browser.
 - A popup with today's time, the last 7 days, totals for 7 and 30 days and for all time, and your
