@@ -15,6 +15,7 @@ header {
 }
 
 .status {
+  border-radius: var(--radius);
   margin: 12px 0;
   padding: 10px 12px;
   border: 1px solid var(--line);
@@ -32,6 +33,7 @@ header {
 }
 
 .goal {
+  border-radius: var(--radius);
   display: flex;
   align-items: baseline;
   justify-content: space-between;

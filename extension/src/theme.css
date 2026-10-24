@@ -1,5 +1,6 @@
 /* Colours and shapes shared by the popup and the dashboard: warm orange on cream, or on dark
-   brown, with a green for what reached the goal, and no rounded corner anywhere. data-theme is set
+   brown, with a green for what reached the goal. Sections, cards, buttons and fields have rounded corners
+   of --radius; the small marks inside a chart (cells, bars, tracks) stay square. data-theme is set
    by theme.js; before it runs, and if it never does, the page follows the system. */
 :root {
   --bg: #fdf6ee;
@@ -10,6 +11,7 @@
   --strong: #e8590c;
   --on-strong: #ffffff;
   --good: #2f9e44;
+  --radius: 11px;
   --heat-0: #f1ece5;
   --heat-1: #fde2c3;
   --heat-2: #fbc27f;
@@ -59,7 +61,7 @@
 
 * {
   box-sizing: border-box;
-  border-radius: 0 !important;
+  border-radius: 0;
 }
 
 body {
@@ -80,6 +82,7 @@ h1 {
 }
 
 .icon-button {
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,6 +96,7 @@ h1 {
 }
 
 .stat {
+  border-radius: var(--radius);
   padding: 10px 6px;
   border: 1px solid var(--line);
   background: var(--card);
@@ -116,6 +120,7 @@ h1 {
 }
 
 .button {
+  border-radius: var(--radius);
   padding: 10px 14px;
   border: 1px solid var(--strong);
   background: var(--card);

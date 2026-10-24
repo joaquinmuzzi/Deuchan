@@ -26,4 +26,4 @@ note on what to update.
 - The toolbar icon turns orange, in the tab, while the video you are watching is in German, and is
   grey otherwise.
 - The daily goal is set in the dashboard, with the gear button, as a number of minutes from 1 to 600.
-- Light and dark mode with a button to choose, in warm orange. No corner is rounded.
+- Light and dark mode with a button to choose, in warm orange, with rounded sections.
