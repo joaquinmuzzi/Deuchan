@@ -6,7 +6,7 @@ import {
   addSeconds,
   dayKey,
   emptyLog,
-  formatDuration,
+  formatClock,
   lastDays,
   migrate,
   streak,
@@ -83,10 +83,12 @@ test("no German yesterday or today means no streak", () => {
   assert.equal(streak(emptyLog(), TODAY), 0);
 });
 
-test("formatDuration", () => {
-  assert.equal(formatDuration(0), "0 min");
-  assert.equal(formatDuration(20), "< 1 min");
-  assert.equal(formatDuration(1500), "25 min");
-  assert.equal(formatDuration(5400), "1 h 30 min");
-  assert.equal(formatDuration(7200), "2 h 00 min");
+test("formatClock shows seconds, and hours only when there are some", () => {
+  assert.equal(formatClock(0), "0:00");
+  assert.equal(formatClock(20), "0:20");
+  assert.equal(formatClock(20.9), "0:20");
+  assert.equal(formatClock(1500), "25:00");
+  assert.equal(formatClock(5430), "1:30:30");
+  assert.equal(formatClock(36000), "10:00:00");
+  assert.equal(formatClock(-3), "0:00");
 });

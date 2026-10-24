@@ -75,12 +75,11 @@ export function streak(log, today) {
   return count;
 }
 
-/** `5400` as `1 h 30 min`, `1500` as `25 min` and `20` as `< 1 min`. */
-export function formatDuration(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 1) {
-    return seconds > 0 ? "< 1 min" : "0 min";
-  }
-  const hours = Math.floor(minutes / 60);
-  return hours > 0 ? `${hours} h ${String(minutes % 60).padStart(2, "0")} min` : `${minutes} min`;
+/** `5430` as `1:30:30`, `1500` as `25:00` and `20` as `0:20`: hours only when there are some. */
+export function formatClock(seconds) {
+  const total = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const rest = String(total % 60).padStart(2, "0");
+  return hours > 0 ? `${hours}:${String(minutes).padStart(2, "0")}:${rest}` : `${minutes}:${rest}`;
 }
