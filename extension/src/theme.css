@@ -1,0 +1,105 @@
+/* Colours shared by the popup and the dashboard. data-theme is set by theme.js; before it runs, and
+   if it never does, the page follows the system. */
+:root {
+  --bg: #fdf6ee;
+  --card: #ffffff;
+  --text: #2b2118;
+  --muted: #7a6a5a;
+  --accent: #e8590c;
+  --accent-strong: #c2410c;
+  --track: #f5e7d6;
+  --border: #f1dcc3;
+  --heat-0: #f1ece5;
+  --heat-1: #fde2c3;
+  --heat-2: #fbc27f;
+  --heat-3: #f59a3c;
+  --heat-4: #e8590c;
+  --heat-5: #b83a05;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #19160f;
+    --card: #231f17;
+    --text: #f3ebe0;
+    --muted: #a39786;
+    --accent: #fb923c;
+    --accent-strong: #fdba74;
+    --track: #2e281d;
+    --border: #35301f;
+    --heat-0: #2a261d;
+    --heat-1: #4a3417;
+    --heat-2: #7a4a15;
+    --heat-3: #b8660f;
+    --heat-4: #f08a1c;
+    --heat-5: #ffb35c;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #19160f;
+  --card: #231f17;
+  --text: #f3ebe0;
+  --muted: #a39786;
+  --accent: #fb923c;
+  --accent-strong: #fdba74;
+  --track: #2e281d;
+  --border: #35301f;
+  --heat-0: #2a261d;
+  --heat-1: #4a3417;
+  --heat-2: #7a4a15;
+  --heat-3: #b8660f;
+  --heat-4: #f08a1c;
+  --heat-5: #ffb35c;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    14px/1.4 system-ui,
+    sans-serif;
+}
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.stat {
+  padding: 14px 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  text-align: center;
+}
+
+.stat-value {
+  margin: 0;
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
