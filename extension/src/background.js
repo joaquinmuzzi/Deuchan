@@ -4,6 +4,7 @@
 import { addCoverage, isValidInterval } from "./coverage.js";
 import { IDLE_COLOR, drawIcons, iconColor } from "./icon.js";
 import { addSeconds, dayKey, migrate } from "./log.js";
+import { isVideoId, withOverride } from "./overrides.js";
 
 let queue = Promise.resolve();
 
@@ -22,6 +23,11 @@ async function save(intervals) {
   await chrome.storage.local.set({ log, covered });
 }
 
+async function saveOverride(videoId, german) {
+  const { overrides } = await chrome.storage.local.get("overrides");
+  await chrome.storage.local.set({ overrides: withOverride(overrides, videoId, german) });
+}
+
 // The icon of every tab starts grey; a tab with a German video paints its own in orange
 chrome.action.setIcon({ imageData: drawIcons(IDLE_COLOR) });
 
@@ -32,6 +38,12 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   }
   if (message?.type === "watched" && Array.isArray(message.intervals)) {
     queue = queue.then(() => save(message.intervals)).catch(() => {});
+  } else if (
+    message?.type === "override" &&
+    isVideoId(message.videoId) &&
+    typeof message.german === "boolean"
+  ) {
+    queue = queue.then(() => saveOverride(message.videoId, message.german)).catch(() => {});
   } else if (message?.type === "language" && sender.tab?.id !== undefined) {
     chrome.action.setIcon({ tabId: sender.tab.id, imageData: drawIcons(iconColor(message.german)) });
   }

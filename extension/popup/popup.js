@@ -25,10 +25,29 @@ async function renderStatus() {
   const reply = tab
     ? await chrome.tabs.sendMessage(tab.id, { type: "status" }).catch(() => undefined)
     : undefined;
-  const { kind, text } = describeStatus(reply);
-  byId("status").textContent = text;
+  const { kind, text, hint, action } = describeStatus(reply);
   byId("status").dataset.kind = kind;
+  byId("statusText").textContent = text;
+  byId("statusHint").textContent = hint ?? "";
+  byId("statusHint").hidden = !hint;
+  const button = byId("override");
+  button.hidden = !action;
+  if (action) {
+    button.textContent = action.label;
+    button.dataset.german = String(action.german);
+  }
 }
+
+// Corrects the guess about the language of the video in the tab, and remembers it for that video
+byId("override").addEventListener("click", async (event) => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab) {
+    await chrome.tabs
+      .sendMessage(tab.id, { type: "setGerman", german: event.currentTarget.dataset.german === "true" })
+      .catch(() => {});
+  }
+  renderStatus();
+});
 
 byId("dashboard").addEventListener("click", () => {
   chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/dashboard.html") });

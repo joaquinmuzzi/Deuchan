@@ -28,7 +28,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/tracker.js", "src/watcher.js", "src/language.js"],
+      "resources": ["src/tracker.js", "src/watcher.js", "src/language.js", "src/overrides.js"],
       "matches": ["https://www.youtube.com/*"]
     }
   ]

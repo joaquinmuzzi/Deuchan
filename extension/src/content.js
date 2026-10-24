@@ -2,9 +2,10 @@
 // German were watched. The logic is in watcher.js and language.js; this file only connects them to
 // the page.
 (async () => {
-  const [{ Watcher }, { detectGerman }] = await Promise.all([
+  const [{ Watcher }, { detectGerman }, { verdict }] = await Promise.all([
     import(chrome.runtime.getURL("src/watcher.js")),
     import(chrome.runtime.getURL("src/language.js")),
+    import(chrome.runtime.getURL("src/overrides.js")),
   ]);
 
   const FLUSH_EVERY_MS = 2_000;
@@ -37,17 +38,25 @@
     }
   }
 
-  window.addEventListener("message", (event) => {
+  function setVerdict(german) {
+    watcher.setGerman(now(), german);
+    announce(german);
+  }
+
+  window.addEventListener("message", async (event) => {
     if (event.source !== window || event.data?.type !== "deuchan:video" || !event.data.videoId) {
       return;
     }
-    if (event.data.videoId !== currentVideoId) {
+    const videoId = event.data.videoId;
+    if (videoId !== currentVideoId) {
       watcher.newVideo(now());
-      currentVideoId = event.data.videoId;
+      currentVideoId = videoId;
     }
-    const { german } = detectGerman(event.data);
-    watcher.setGerman(now(), german);
-    announce(german);
+    // What the user decided about this video wins over the guess
+    const { overrides } = await chrome.storage.local.get("overrides");
+    if (videoId === currentVideoId) {
+      setVerdict(verdict(overrides, videoId, detectGerman(event.data).german));
+    }
   });
 
   function attach(video) {
@@ -80,10 +89,18 @@
   });
   new MutationObserver(lookForVideo).observe(document.documentElement, { childList: true, subtree: true });
 
-  // The popup asks what the current tab is doing
+  // The popup asks what the current tab is doing, and can correct the guess about the language
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (sender.id === chrome.runtime.id && message?.type === "status") {
+    if (sender.id !== chrome.runtime.id) {
+      return;
+    }
+    if (message?.type === "status") {
       sendResponse(watcher.status);
+    } else if (message?.type === "setGerman" && typeof message.german === "boolean" && currentVideoId) {
+      setVerdict(message.german);
+      chrome.runtime
+        .sendMessage({ type: "override", videoId: currentVideoId, german: message.german })
+        .catch(() => {});
     }
   });
 
