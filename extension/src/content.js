@@ -73,6 +73,13 @@
   });
   new MutationObserver(lookForVideo).observe(document.documentElement, { childList: true, subtree: true });
 
+  // The popup asks what the current tab is doing
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (sender.id === chrome.runtime.id && message?.type === "status") {
+      sendResponse(watcher.status);
+    }
+  });
+
   setInterval(() => watcher.flush(now()), FLUSH_EVERY_MS);
   document.addEventListener("visibilitychange", () => document.hidden && watcher.flush(now()));
   window.addEventListener("pagehide", () => watcher.flush(now()));

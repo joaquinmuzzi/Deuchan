@@ -4,35 +4,38 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Deuchan</title>
+    <link rel="stylesheet" href="../src/theme.css" />
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <header>
-      <h1>Deuchan</h1>
-      <p class="streak"><span id="streak">0</span> day streak</p>
+      <div>
+        <h1>Deuchan</h1>
+        <p class="tagline">German immersion time tracker</p>
+      </div>
+      <button class="icon-button" id="theme" type="button"></button>
     </header>
 
-    <section class="hero">
-      <p class="hero-value" id="today">0 min</p>
-      <p class="hero-label">German today</p>
+    <button class="primary" id="dashboard" type="button">Open dashboard</button>
+
+    <p class="status" id="status" data-kind="idle">Not on YouTube</p>
+
+    <section class="stats">
+      <div class="stat">
+        <p class="stat-value" id="today">0:00</p>
+        <p class="stat-label">Today</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" id="week">0:00</p>
+        <p class="stat-label">7 days</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" id="month">0:00</p>
+        <p class="stat-label">30 days</p>
+      </div>
     </section>
 
-    <section class="bars" id="bars" aria-label="Last 7 days"></section>
-
-    <dl class="totals">
-      <div>
-        <dt>7 days</dt>
-        <dd id="week">0 min</dd>
-      </div>
-      <div>
-        <dt>30 days</dt>
-        <dd id="month">0 min</dd>
-      </div>
-      <div>
-        <dt>All time</dt>
-        <dd id="total">0 min</dd>
-      </div>
-    </dl>
+    <p class="streak"><span id="streak">0</span> day streak</p>
 
     <script type="module" src="popup.js"></script>
   </body>

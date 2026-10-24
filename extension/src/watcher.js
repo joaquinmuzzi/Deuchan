@@ -17,6 +17,11 @@ export class Watcher {
     this.#send = send;
   }
 
+  /** What the popup shows: the verdict on the language (`null` while unknown) and whether it plays. */
+  get status() {
+    return { german: this.#german, playing: this.#tracker.isPlaying };
+  }
+
   play(now, rate) {
     this.#tracker.play(now, rate);
   }

@@ -1,105 +1,66 @@
-:root {
-  --bg: #fafaf7;
-  --text: #1f1f1c;
-  --muted: #6b6b64;
-  --accent: #c2410c;
-  --track: #ebe9e2;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1b1b19;
-    --text: #ecebe6;
-    --muted: #9a9a92;
-    --accent: #fb923c;
-    --track: #2b2b28;
-  }
-}
-
-* {
-  box-sizing: border-box;
-}
-
 body {
-  width: 300px;
-  margin: 0;
+  width: 340px;
   padding: 16px;
-  background: var(--bg);
-  color: var(--text);
-  font:
-    14px/1.4 system-ui,
-    sans-serif;
 }
 
 header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
+  margin-bottom: 14px;
 }
 
 h1 {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
+  color: var(--accent);
+  font-size: 22px;
 }
 
-.streak {
+.tagline {
   margin: 0;
   color: var(--muted);
   font-size: 12px;
 }
 
-.hero {
-  margin: 20px 0 16px;
-  text-align: center;
-}
-
-.hero-value {
-  margin: 0;
-  font-size: 34px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.hero-label {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.bars {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  height: 64px;
-  align-items: end;
-}
-
-.bar {
-  min-height: 3px;
-  border-radius: 3px;
-  background: var(--track);
-}
-
-.bar.has-time {
+.primary {
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
   background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.totals {
+.status {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--muted);
+  border-radius: 12px;
+  background: var(--card);
+  font-weight: 600;
+}
+
+.status[data-kind="counting"] {
+  border-left-color: #2f9e44;
+}
+
+.status[data-kind="off"] {
+  border-left-color: var(--accent);
+}
+
+.stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  margin: 16px 0 0;
 }
 
-.totals dt {
+.streak {
+  margin: 14px 0 0;
   color: var(--muted);
-  font-size: 11px;
-}
-
-.totals dd {
-  margin: 0;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  text-align: center;
 }
