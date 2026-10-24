@@ -11,8 +11,9 @@ so you can see how much input you really get.
 
 ## Why Deuchan?
 
-- **Automatic.** Pausing, rewinding, looping and changing the speed are handled; it only counts
-  while the video plays.
+- **Automatic, in real time.** It counts the seconds of the clock while a video plays: pausing,
+  rewinding and looping are handled, and at 2x a minute is still a minute. Two tabs playing at the
+  same time count once.
 - **Only German.** It works out the language of each video and ignores the rest. You can correct
   it for a video when it is wrong.
 - **Local and private.** The log stays in your browser. Nothing is sent anywhere.

@@ -1,9 +1,10 @@
 /**
- * Counts how long a video really plays.
+ * Counts how long a video really plays, as real seconds of the clock.
  *
- * It does not read `currentTime`: rewinding, looping and seeking move it back and forth, but all
- * of that is still time spent listening. Instead it measures the clock while the video is playing
- * and multiplies by the playback speed, so a minute at 1.5x counts as 1.5 minutes of German.
+ * It does not read `currentTime` and it does not look at the playback speed: rewinding, looping
+ * and seeking still count, and a minute at 2x is a minute, not two. What it keeps are the
+ * intervals of the clock in which the video was playing, not just their length, so that the
+ * background script can tell when two tabs were playing at the same time and count that time once.
  */
 
 /**
@@ -14,20 +15,18 @@ export const MAX_GAP_SECONDS = 5;
 
 export class Tracker {
   #playingSince = null;
-  #rate = 1;
-  #pending = 0;
+  #intervals = [];
 
   get isPlaying() {
     return this.#playingSince !== null;
   }
 
   /** The video started or resumed playing. `now` is a timestamp in seconds. */
-  play(now, rate = 1) {
+  play(now) {
     if (this.isPlaying) {
       this.tick(now);
     }
     this.#playingSince = now;
-    this.#rate = rate;
   }
 
   /** The video paused, ended, is buffering or its tab closed. */
@@ -36,30 +35,28 @@ export class Tracker {
     this.#playingSince = null;
   }
 
-  /** The playback speed changed. */
-  setRate(now, rate) {
-    if (this.isPlaying) {
-      this.tick(now);
-    }
-    this.#rate = rate;
-  }
-
   /** Moves the clock forward without stopping, so the time can be saved while the video plays. */
   tick(now) {
     if (!this.isPlaying) {
       return;
     }
-    const elapsed = now - this.#playingSince;
+    const from = this.#playingSince;
     this.#playingSince = now;
-    if (elapsed > 0 && elapsed <= MAX_GAP_SECONDS) {
-      this.#pending += elapsed * this.#rate;
+    if (now - from <= 0 || now - from > MAX_GAP_SECONDS) {
+      return;
+    }
+    const last = this.#intervals.at(-1);
+    if (last && last.to === from) {
+      last.to = now;
+    } else {
+      this.#intervals.push({ from, to: now });
     }
   }
 
-  /** The seconds counted since the last call, to be saved. Starts again from zero. */
+  /** The intervals counted since the last call, to be saved. Starts again from nothing. */
   take() {
-    const seconds = this.#pending;
-    this.#pending = 0;
-    return seconds;
+    const intervals = this.#intervals;
+    this.#intervals = [];
+    return intervals;
   }
 }
