@@ -18,6 +18,9 @@
     send: (intervals) => chrome.runtime.sendMessage({ type: "watched", intervals }).catch(() => {}),
   });
 
+  // The toolbar icon of this tab turns orange while the video is German
+  const announce = (german) => chrome.runtime.sendMessage({ type: "language", german }).catch(() => {});
+
   let currentVideoId = null;
   let attempts = 0;
 
@@ -42,7 +45,9 @@
       watcher.newVideo(now());
       currentVideoId = event.data.videoId;
     }
-    watcher.setGerman(now(), detectGerman(event.data).german);
+    const { german } = detectGerman(event.data);
+    watcher.setGerman(now(), german);
+    announce(german);
   });
 
   function attach(video) {
@@ -69,6 +74,7 @@
   document.addEventListener("yt-navigate-finish", () => {
     currentVideoId = null;
     attempts = 0;
+    announce(null);
     lookForVideo();
     findLanguage();
   });

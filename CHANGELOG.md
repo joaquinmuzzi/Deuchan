@@ -23,5 +23,7 @@ note on what to update.
   averages; an activity heatmap; a time per day chart you can set to 7 days, 15 days (the default),
   1 month, 3 months or 1 year (a year has 4 days in each bar), with the daily goal as a line and the
   days that reached it in green; and your average for each weekday. The page keeps a maximum width.
+- The toolbar icon turns orange, in the tab, while the video you are watching is in German, and is
+  grey otherwise.
 - The daily goal is set in the dashboard, with the gear button, as a number of minutes from 1 to 600.
 - Light and dark mode with a button to choose, in warm orange. No corner is rounded.
