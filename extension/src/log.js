@@ -40,7 +40,7 @@ export function addSeconds(log, key, seconds) {
 }
 
 /** The day `count` days before `date`, at noon so that daylight saving changes cannot skip a day. */
-function daysBefore(date, count) {
+export function daysBefore(date, count) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - count, 12);
 }
 
