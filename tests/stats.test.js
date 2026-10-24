@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { emptyLog } from "../extension/src/log.js";
 import {
   DEFAULT_RANGE,
-  HEATMAP_WEEKS,
+  HEATMAP_MONTHS,
   RANGES,
   dailyAverage,
   dashboardData,
@@ -51,29 +51,60 @@ test("level goes from 0 for nothing to 5 for the most", () => {
   assert.equal(level(5, 0), 0);
 });
 
-test("the heatmap has one column per week, each a Sunday to Saturday", () => {
-  const weeks = heatmap(emptyLog(), TODAY, 4);
-  assert.equal(weeks.length, 4);
-  // 24 October 2026 is a Saturday: the last week is complete and ends today
-  assert.equal(weeks[3][0].day, "2026-10-18");
-  assert.equal(weeks[3][6].day, "2026-10-24");
-  assert.equal(weeks[0][0].day, "2026-09-27");
+test("the heatmap has one block per month, the last one this month", () => {
+  const months = heatmap(emptyLog(), TODAY, 3);
+  assert.deepEqual(
+    months.map(({ month }) => month),
+    ["2026-08", "2026-09", "2026-10"],
+  );
 });
 
-test("the days after today are empty cells", () => {
+test("a month starts on the weekday of the 1st, with the days before it empty", () => {
+  // 1 August 2026 is a Saturday
+  const august = heatmap(emptyLog(), TODAY, 3)[0];
+  assert.deepEqual(august.weeks[0].slice(0, 6), [null, null, null, null, null, null]);
+  assert.equal(august.weeks[0][6].day, "2026-08-01");
+  // the next column is a whole week, Sunday the 2nd to Saturday the 8th
+  assert.equal(august.weeks[1][0].day, "2026-08-02");
+  assert.equal(august.weeks[1][6].day, "2026-08-08");
+});
+
+test("a month ends on its last day, and a week across two months is split", () => {
+  const august = heatmap(emptyLog(), TODAY, 3)[0];
+  const september = heatmap(emptyLog(), TODAY, 3)[1];
+  // 31 August 2026 is a Monday: the last column has Sunday the 30th and Monday the 31st
+  const last = august.weeks.at(-1);
+  assert.equal(last[0].day, "2026-08-30");
+  assert.equal(last[1].day, "2026-08-31");
+  assert.equal(last[2], null);
+  // 1 September is a Tuesday: its first column starts there, while the 30th and 31st are in August
+  assert.equal(september.weeks[0][1], null);
+  assert.equal(september.weeks[0][2].day, "2026-09-01");
+});
+
+test("every day of every month is in the heatmap once", () => {
+  const days = heatmap(emptyLog(), TODAY, 3)
+    .flatMap(({ weeks }) => weeks.flat())
+    .filter(Boolean)
+    .map((cell) => cell.day);
+  assert.equal(new Set(days).size, days.length);
+  assert.equal(days.length, 31 + 30 + 24); // August, September and October up to the 24th
+});
+
+test("the current month stops at today", () => {
   const wednesday = new Date(2026, 9, 21, 10);
-  const last = heatmap(emptyLog(), wednesday, 2).at(-1);
-  assert.equal(last[3].day, "2026-10-21");
-  assert.equal(last[4], null);
-  assert.equal(last[6], null);
+  const october = heatmap(emptyLog(), wednesday, 1)[0];
+  const days = october.weeks.flat().filter(Boolean);
+  assert.equal(days.at(-1).day, "2026-10-21");
+  assert.equal(days.length, 21);
 });
 
 test("the heatmap gives the busiest day level 5", () => {
   const log = logWith({ "2026-10-24": 600, "2026-10-23": 60 });
-  const week = heatmap(log, TODAY, 1)[0];
-  assert.equal(week[6].level, 5);
-  assert.equal(week[5].level, 1);
-  assert.equal(week[0].level, 0);
+  const cells = heatmap(log, TODAY, 1)[0].weeks.flat().filter(Boolean);
+  assert.equal(cells.find((cell) => cell.day === "2026-10-24").level, 5);
+  assert.equal(cells.find((cell) => cell.day === "2026-10-23").level, 1);
+  assert.equal(cells.find((cell) => cell.day === "2026-10-01").level, 0);
 });
 
 test("the default range is one of the ranges, and is 15 days", () => {
@@ -149,6 +180,6 @@ test("dashboardData gathers the cards, the heatmap and the weekdays", () => {
   assert.equal(data.cards.today, "1:02:05");
   assert.equal(data.cards.total, "1:02:05");
   assert.equal(data.cards.dailyAverage, "1:02:05");
-  assert.equal(data.heatmap.length, HEATMAP_WEEKS);
+  assert.equal(data.heatmap.length, HEATMAP_MONTHS);
   assert.equal(data.weekdays.length, 7);
 });

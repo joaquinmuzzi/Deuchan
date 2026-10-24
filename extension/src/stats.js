@@ -10,8 +10,8 @@ export const RANGES = [
 ];
 export const DEFAULT_RANGE = 15;
 
-/** The weeks of the activity heatmap: about nine months, enough to fill the width of the page. */
-export const HEATMAP_WEEKS = 40;
+/** The months of the activity heatmap, this one included: enough to fill the width of the page. */
+export const HEATMAP_MONTHS = 8;
 
 /** A year of one bar per day does not fit, so long ranges put several days in each bar. */
 export const groupSize = (days) => (days > 90 ? 4 : 1);
@@ -63,30 +63,33 @@ export function level(seconds, most) {
 }
 
 /**
- * The activity heatmap: `weeks` columns of 7 days, from Sunday to Saturday, the last one ending
- * today. Days after today are `null`, so the last column can be shorter.
+ * The activity heatmap, one block per month, the last one this month, up to today. Each block has
+ * its weeks as columns of 7 days, from Sunday to Saturday, and only holds days of that month: the
+ * first column starts on the weekday of the 1st, and a week that crosses two months is split
+ * between them. The places of the days that are not in the month are `null`.
  */
-export function heatmap(log, today, weeks) {
-  const lastSunday = daysBefore(today, today.getDay());
-  const cells = [];
-  for (let week = weeks - 1; week >= 0; week -= 1) {
-    const sunday = daysBefore(lastSunday, week * 7);
-    cells.push(
-      Array.from({ length: 7 }, (_, weekday) => {
-        const date = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + weekday, 12);
-        return date > today && dayKey(date) !== dayKey(today)
-          ? null
-          : { day: dayKey(date), seconds: log.days[dayKey(date)] ?? 0, level: 0 };
-      }),
-    );
-  }
-  const most = Math.max(0, ...cells.flat().map((cell) => cell?.seconds ?? 0));
-  for (const cell of cells.flat()) {
-    if (cell) {
-      cell.level = level(cell.seconds, most);
+export function heatmap(log, today, months) {
+  const groups = [];
+  for (let back = months - 1; back >= 0; back -= 1) {
+    const first = new Date(today.getFullYear(), today.getMonth() - back, 1, 12);
+    const offset = first.getDay(); // the weekday of the 1st, Sunday is 0
+    const lastDay =
+      back === 0 ? today.getDate() : new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    const weeks = [];
+    for (let day = 1; day <= lastDay; day += 1) {
+      const week = Math.floor((day - 1 + offset) / 7);
+      weeks[week] ??= Array(7).fill(null);
+      const key = dayKey(new Date(first.getFullYear(), first.getMonth(), day, 12));
+      weeks[week][(day - 1 + offset) % 7] = { day: key, seconds: log.days[key] ?? 0, level: 0 };
     }
+    groups.push({ month: dayKey(first).slice(0, 7), weeks });
   }
-  return cells;
+  const cells = groups.flatMap((group) => group.weeks.flat()).filter(Boolean);
+  const most = Math.max(0, ...cells.map((cell) => cell.seconds));
+  for (const cell of cells) {
+    cell.level = level(cell.seconds, most);
+  }
+  return groups;
 }
 
 /**
@@ -135,7 +138,7 @@ export function dashboardData(log, today) {
       dailyAverage: formatClock(dailyAverage(log, today)),
       monthlyAverage: formatClock(monthlyAverage(log, today)),
     },
-    heatmap: heatmap(log, today, HEATMAP_WEEKS),
+    heatmap: heatmap(log, today, HEATMAP_MONTHS),
     weekdays: weekdayAverages(log, today),
   };
 }
