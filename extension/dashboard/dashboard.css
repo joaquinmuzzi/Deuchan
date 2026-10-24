@@ -55,11 +55,10 @@ header {
 
 .panel h2 {
   margin: 0;
-  padding: 6px 10px;
-  background: var(--strong);
-  color: var(--on-strong);
-  font-size: 11px;
-  font-weight: 600;
+  padding: 12px 12px 0;
+  color: var(--strong);
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -72,24 +71,37 @@ header {
   padding: 12px;
 }
 
-/* The weeks share the whole width: the squares grow with the panel, up to the width of the page. */
+/* The months share the whole width, each as wide as its weeks, so the squares grow with the panel
+   and every one has the same size. */
 .heatmap {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.month {
+  min-width: 0;
+}
+
+.weeks {
   display: grid;
-  grid-template-columns: repeat(var(--weeks, 40), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--weeks), minmax(0, 1fr));
   gap: 3px;
 }
 
 .heatmap .column {
   display: grid;
-  grid-template-rows: 16px repeat(7, auto);
+  grid-template-rows: repeat(7, auto);
   gap: 3px;
+  align-content: start;
 }
 
-.month-label {
+.month-name {
+  display: block;
+  margin-top: 8px;
   color: var(--muted);
-  font-size: 10px;
-  line-height: 16px;
-  white-space: nowrap;
+  font-size: 11px;
+  text-align: center;
 }
 
 .cell {
@@ -258,11 +270,10 @@ dialog::backdrop {
 
 dialog h2 {
   margin: 0;
-  padding: 8px 14px;
-  background: var(--strong);
-  color: var(--on-strong);
-  font-size: 11px;
-  font-weight: 600;
+  padding: 14px 16px 0;
+  color: var(--strong);
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }

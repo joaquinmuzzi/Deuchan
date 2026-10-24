@@ -27,26 +27,27 @@ const dateOf = (key) => {
   return new Date(year, month - 1, day, 12);
 };
 
-function renderHeatmap(weeks) {
-  let lastMonth = null;
-  byId("heatmap").style.setProperty("--weeks", String(weeks.length));
+function renderHeatmap(months) {
   byId("heatmap").replaceChildren(
-    ...weeks.map((week) => {
-      const column = element("div", "column");
-      // The month is written above the first week that starts in it
-      const start = dateOf(week[0].day);
-      column.append(
-        element("span", "month-label", start.getMonth() === lastMonth ? "" : monthName.format(start)),
-      );
-      lastMonth = start.getMonth();
-      for (const cell of week) {
-        const square = element("span", cell ? `cell level-${cell.level}` : "cell empty");
-        if (cell) {
-          square.title = `${cell.day}: ${formatClock(cell.seconds)}`;
+    ...months.map(({ month, weeks }) => {
+      const block = element("div", "month");
+      // A month is as wide as its weeks, so that every square has the same size
+      block.style.flex = `${weeks.length} 1 0`;
+      const grid = element("div", "weeks");
+      grid.style.setProperty("--weeks", String(weeks.length));
+      for (const week of weeks) {
+        const column = element("div", "column");
+        for (const cell of week) {
+          const square = element("span", cell ? `cell level-${cell.level}` : "cell empty");
+          if (cell) {
+            square.title = `${cell.day}: ${formatClock(cell.seconds)}`;
+          }
+          column.append(square);
         }
-        column.append(square);
+        grid.append(column);
       }
-      return column;
+      block.append(grid, element("span", "month-name", monthName.format(dateOf(`${month}-01`))));
+      return block;
     }),
   );
 }
