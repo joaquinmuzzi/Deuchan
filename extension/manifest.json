@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Deuchan",
+  "version": "0.1.0",
+  "description": "Counts the time you spend watching German on YouTube.",
+  "minimum_chrome_version": "111",
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["src/page-bridge.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["src/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/tracker.js", "src/watcher.js", "src/language.js"],
+      "matches": ["https://www.youtube.com/*"]
+    }
+  ]
+}
