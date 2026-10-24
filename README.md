@@ -15,7 +15,9 @@ really get.
 - **Automatic, in real time.** It counts the seconds of the clock while a video plays: pausing,
   rewinding and looping are handled, and at 2x a minute is still a minute. Two tabs playing at the
   same time count once.
-- **Only German.** It works out the language of each video and ignores the rest.
+- **Only German.** It works out the language of each video and ignores the rest. When it gets
+  one wrong, a button in the popup marks that video as German, or as not German, and it is
+  remembered.
 - **Local and private.** The log stays in your browser. Nothing is sent anywhere.
 
 ## Status

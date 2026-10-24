@@ -15,7 +15,11 @@
 
     <button class="button primary" id="dashboard" type="button">Open dashboard</button>
 
-    <p class="status" id="status" data-kind="idle">Not on YouTube</p>
+    <section class="status" id="status" data-kind="idle">
+      <p class="status-text" id="statusText">Not on YouTube</p>
+      <p class="status-hint" id="statusHint" hidden></p>
+      <button class="button" id="override" type="button" hidden></button>
+    </section>
 
     <section class="goal">
       <p class="goal-value" id="today">0:00</p>
