@@ -5,6 +5,10 @@
   "description": "Counts the time you spend watching German on YouTube.",
   "minimum_chrome_version": "111",
   "permissions": ["storage"],
+  "action": {
+    "default_title": "Deuchan",
+    "default_popup": "popup/popup.html"
+  },
   "background": {
     "service_worker": "src/background.js",
     "type": "module"
