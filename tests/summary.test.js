@@ -8,8 +8,8 @@ const TODAY = new Date(2026, 9, 24, 12);
 
 test("an empty log shows zeros and flat bars", () => {
   const summary = summarize(emptyLog(), TODAY);
-  assert.equal(summary.today, "0 min");
-  assert.equal(summary.total, "0 min");
+  assert.equal(summary.today, "0:00");
+  assert.equal(summary.total, "0:00");
   assert.equal(summary.streak, 0);
   assert.equal(summary.bars.length, 7);
   assert.ok(summary.bars.every((bar) => bar.height === 0));
@@ -21,10 +21,10 @@ test("sums today, the week, the month and everything", () => {
     days: { "2026-10-24": 1800, "2026-10-20": 3600, "2026-10-01": 600, "2026-08-01": 60 },
   };
   const summary = summarize(log, TODAY);
-  assert.equal(summary.today, "30 min");
-  assert.equal(summary.week, "1 h 30 min");
-  assert.equal(summary.month, "1 h 40 min");
-  assert.equal(summary.total, "1 h 41 min");
+  assert.equal(summary.today, "30:00");
+  assert.equal(summary.week, "1:30:00");
+  assert.equal(summary.month, "1:40:00");
+  assert.equal(summary.total, "1:41:00");
 });
 
 test("the tallest day of the week fills its bar and the others are in proportion", () => {

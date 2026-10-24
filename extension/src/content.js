@@ -7,7 +7,7 @@
     import(chrome.runtime.getURL("src/language.js")),
   ]);
 
-  const FLUSH_EVERY_MS = 10_000;
+  const FLUSH_EVERY_MS = 2_000;
   const LANGUAGE_RETRY_MS = 1_000;
   const LANGUAGE_ATTEMPTS = 15;
 
