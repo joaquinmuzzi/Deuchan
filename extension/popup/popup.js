@@ -1,3 +1,4 @@
+import { goalMinutesOf } from "../src/goal.js";
 import { migrate } from "../src/log.js";
 import { describeStatus } from "../src/status.js";
 import { summarize } from "../src/summary.js";
@@ -5,9 +6,14 @@ import { setUpTheme } from "../src/theme.js";
 
 const byId = (id) => document.getElementById(id);
 
-function render(log) {
-  const summary = summarize(migrate(log), new Date());
+let log;
+let goalMinutes;
+
+function render() {
+  const summary = summarize(migrate(log), new Date(), goalMinutes);
   byId("today").textContent = summary.today;
+  byId("today").dataset.met = String(summary.goalMet);
+  byId("goal").textContent = summary.goal;
   byId("week").textContent = summary.week;
   byId("month").textContent = summary.month;
   byId("streak").textContent = String(summary.streak);
@@ -30,10 +36,20 @@ byId("dashboard").addEventListener("click", () => {
 });
 
 setUpTheme(byId("theme"));
-const { log } = await chrome.storage.local.get("log");
-render(log);
+const stored = await chrome.storage.local.get(["log", "goalMinutes"]);
+log = stored.log;
+goalMinutes = goalMinutesOf(stored.goalMinutes);
+render();
 renderStatus();
 
-// The popup can stay open while a video plays
-chrome.storage.onChanged.addListener((changes) => changes.log && render(changes.log.newValue));
+// The popup can stay open while a video plays or the goal changes
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.log) {
+    log = changes.log.newValue;
+  }
+  if (changes.goalMinutes) {
+    goalMinutes = goalMinutesOf(changes.goalMinutes.newValue);
+  }
+  render();
+});
 setInterval(renderStatus, 1000);

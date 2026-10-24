@@ -9,22 +9,20 @@
   </head>
   <body>
     <header>
-      <div>
-        <h1>Deuchan</h1>
-        <p class="tagline">German immersion time tracker</p>
-      </div>
+      <h1>Deuchan</h1>
       <button class="icon-button" id="theme" type="button"></button>
     </header>
 
-    <button class="primary" id="dashboard" type="button">Open dashboard</button>
+    <button class="button primary" id="dashboard" type="button">Open dashboard</button>
 
     <p class="status" id="status" data-kind="idle">Not on YouTube</p>
 
+    <section class="goal">
+      <p class="goal-value" id="today">0:00</p>
+      <p class="goal-label">of <span id="goal">30:00</span> daily goal</p>
+    </section>
+
     <section class="stats">
-      <div class="stat">
-        <p class="stat-value" id="today">0:00</p>
-        <p class="stat-label">Today</p>
-      </div>
       <div class="stat">
         <p class="stat-value" id="week">0:00</p>
         <p class="stat-label">7 days</p>
@@ -33,9 +31,11 @@
         <p class="stat-value" id="month">0:00</p>
         <p class="stat-label">30 days</p>
       </div>
+      <div class="stat">
+        <p class="stat-value" id="streak">0</p>
+        <p class="stat-label">Streak</p>
+      </div>
     </section>
-
-    <p class="streak"><span id="streak">0</span> day streak</p>
 
     <script type="module" src="popup.js"></script>
   </body>

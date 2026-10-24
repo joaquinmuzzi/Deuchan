@@ -1,91 +1,88 @@
+/* The page does not stretch with a wide window: it stays a column in the middle. */
 main {
-  max-width: 900px;
+  max-width: 840px;
   margin: 0 auto;
   padding: 28px 20px 48px;
 }
 
 header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
-h1 {
-  margin: 0;
-  color: var(--accent);
-  font-size: 30px;
-}
-
-.tagline {
-  margin: 2px 0 0;
-  color: var(--muted);
-}
-
-h2 {
-  margin: 0 0 14px;
-  color: var(--accent-strong);
-  font-size: 14px;
+.icons {
+  display: flex;
+  gap: 8px;
 }
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.cards .stat-value {
-  font-size: 28px;
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 0.9fr);
+  gap: 10px;
+  align-items: stretch;
 }
 
 .panel {
-  margin-bottom: 16px;
-  padding: 18px 20px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  display: flex;
   background: var(--card);
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--strong);
 }
 
-.two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+.panel h2 {
+  margin: 0;
+  padding: 6px 10px;
+  background: var(--strong);
+  color: var(--on-strong);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.two .panel {
-  margin-bottom: 0;
-}
-
-.heatmap-scroll {
-  overflow-x: auto;
+.panel .body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 12px;
 }
 
 .heatmap {
   display: flex;
-  gap: 3px;
-  width: max-content;
-  margin: 0 auto;
+  gap: 2px;
+  justify-content: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .heatmap .column {
   display: grid;
-  grid-template-rows: 14px repeat(7, 12px);
-  gap: 3px;
+  grid-template-rows: 14px repeat(7, 8px);
+  gap: 2px;
 }
 
 .month-label {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 9px;
   line-height: 14px;
   white-space: nowrap;
 }
 
 .cell {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  display: block;
+  width: 8px;
+  height: 8px;
 }
 
 .cell.empty {
@@ -111,101 +108,175 @@ h2 {
   background: var(--heat-5);
 }
 
-.legend {
+.ranges {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-top: 12px;
-  color: var(--muted);
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-bottom: 12px;
   font-size: 11px;
 }
 
-.legend .cell {
+.ranges label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.ranges label:has(input:checked) {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ranges input {
+  appearance: none;
   width: 11px;
   height: 11px;
+  margin: 0;
+  border: 1px solid var(--strong);
+  background: var(--card);
 }
 
-.week {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  height: 170px;
+.ranges input:checked {
+  background: var(--strong);
+  box-shadow: inset 0 0 0 2px var(--card);
 }
 
-.day {
-  display: grid;
-  grid-template-rows: 1fr auto auto;
-  gap: 4px;
-  min-width: 0;
-  text-align: center;
-}
-
-.day .bar-area {
+.chart {
+  position: relative;
   display: flex;
+  gap: var(--bar-gap, 2px);
   align-items: flex-end;
+  height: 110px;
+  margin-top: auto;
 }
 
-.day .bar {
-  width: 100%;
-  min-height: 4px;
-  border-radius: 4px;
-  background: var(--track);
+.bar {
+  flex: 1;
+  min-width: 1px;
+  min-height: 2px;
+  background: var(--strong);
 }
 
-.day .bar.has-time {
-  background: var(--accent);
+.bar.hit {
+  background: var(--good);
 }
 
-.day .value {
+.bar.empty {
+  background: var(--heat-0);
+}
+
+.goal-line {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 1px dashed var(--muted);
+  pointer-events: none;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
   color: var(--muted);
   font-size: 10px;
-  font-variant-numeric: tabular-nums;
 }
 
-.day .name {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.months {
+.weekdays {
   display: grid;
   gap: 8px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
-.month {
+.weekday {
   display: grid;
-  grid-template-columns: 34px 1fr 64px;
-  gap: 8px;
+  grid-template-columns: 28px 1fr 44px;
+  gap: 6px;
   align-items: center;
-  color: var(--muted);
   font-size: 11px;
 }
 
-.month .track {
-  height: 14px;
-  border-radius: 7px;
-  background: var(--track);
+.weekday .track {
+  height: 10px;
+  background: var(--heat-0);
 }
 
-.month .fill {
+.weekday .fill {
   height: 100%;
-  min-width: 6px;
-  border-radius: 7px;
-  background: var(--accent);
+  background: var(--strong);
 }
 
-.month .amount {
+.weekday .amount {
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
+dialog {
+  width: 280px;
+  padding: 0;
+  border: 1px solid var(--strong);
+  background: var(--card);
+  color: var(--text);
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 50%);
+}
+
+dialog h2 {
+  margin: 0;
+  padding: 8px 14px;
+  background: var(--strong);
+  color: var(--on-strong);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dialog-body {
+  padding: 16px;
+}
+
+.dialog-body label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dialog-body input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--strong);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.error {
+  min-height: 18px;
+  margin: 6px 0 10px;
+  color: #c0392b;
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 @media (max-width: 720px) {
   .cards {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .two {
-    grid-template-columns: 1fr;
+  .row {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
