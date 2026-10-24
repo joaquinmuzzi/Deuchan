@@ -19,15 +19,27 @@ header {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cards .stat {
+  padding: 18px 8px;
+}
+
+.cards .stat-value {
+  font-size: 28px;
+}
+
+.activity {
+  margin-bottom: 14px;
 }
 
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 0.9fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
   align-items: stretch;
 }
 
@@ -60,31 +72,46 @@ header {
   padding: 12px;
 }
 
+/* The weeks share the whole width: the squares grow with the panel, up to the width of the page. */
 .heatmap {
-  display: flex;
-  gap: 2px;
-  justify-content: center;
-  margin-top: auto;
-  margin-bottom: auto;
+  display: grid;
+  grid-template-columns: repeat(var(--weeks, 40), minmax(0, 1fr));
+  gap: 3px;
 }
 
 .heatmap .column {
   display: grid;
-  grid-template-rows: 14px repeat(7, 8px);
-  gap: 2px;
+  grid-template-rows: 16px repeat(7, auto);
+  gap: 3px;
 }
 
 .month-label {
   color: var(--muted);
-  font-size: 9px;
-  line-height: 14px;
+  font-size: 10px;
+  line-height: 16px;
   white-space: nowrap;
 }
 
 .cell {
   display: block;
-  width: 8px;
-  height: 8px;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.swatch {
+  display: block;
+  width: 12px;
+  height: 12px;
 }
 
 .cell.empty {
@@ -278,7 +305,7 @@ dialog h2 {
 
 @media (max-width: 720px) {
   .cards {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .row {

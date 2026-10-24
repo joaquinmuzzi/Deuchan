@@ -20,7 +20,7 @@ note on what to update.
   30 days and your streak. Times show seconds, and the popup says what the current tab is doing:
   counting German, not German, paused or not on YouTube.
 - A dashboard, opened from the popup: today, 7 days, 30 days, all time and the daily and monthly
-  averages; an activity heatmap; a time per day chart you can set to 7 days, 15 days (the default),
+  averages in six cards; an activity heatmap of the last 40 weeks across the whole width; a time per day chart you can set to 7 days, 15 days (the default),
   1 month, 3 months or 1 year (a year has 4 days in each bar), with the daily goal as a line and the
   days that reached it in green; and your average for each weekday. The page keeps a maximum width.
 - The toolbar icon turns orange, in the tab, while the video you are watching is in German, and is

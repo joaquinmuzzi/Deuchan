@@ -29,6 +29,7 @@ const dateOf = (key) => {
 
 function renderHeatmap(weeks) {
   let lastMonth = null;
+  byId("heatmap").style.setProperty("--weeks", String(weeks.length));
   byId("heatmap").replaceChildren(
     ...weeks.map((week) => {
       const column = element("div", "column");

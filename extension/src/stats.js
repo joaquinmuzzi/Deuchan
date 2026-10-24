@@ -10,6 +10,9 @@ export const RANGES = [
 ];
 export const DEFAULT_RANGE = 15;
 
+/** The weeks of the activity heatmap: about nine months, enough to fill the width of the page. */
+export const HEATMAP_WEEKS = 40;
+
 /** A year of one bar per day does not fit, so long ranges put several days in each bar. */
 export const groupSize = (days) => (days > 90 ? 4 : 1);
 
@@ -132,7 +135,7 @@ export function dashboardData(log, today) {
       dailyAverage: formatClock(dailyAverage(log, today)),
       monthlyAverage: formatClock(monthlyAverage(log, today)),
     },
-    heatmap: heatmap(log, today, 18),
+    heatmap: heatmap(log, today, HEATMAP_WEEKS),
     weekdays: weekdayAverages(log, today),
   };
 }

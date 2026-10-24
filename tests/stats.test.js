@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { emptyLog } from "../extension/src/log.js";
 import {
   DEFAULT_RANGE,
+  HEATMAP_WEEKS,
   RANGES,
   dailyAverage,
   dashboardData,
@@ -148,6 +149,6 @@ test("dashboardData gathers the cards, the heatmap and the weekdays", () => {
   assert.equal(data.cards.today, "1:02:05");
   assert.equal(data.cards.total, "1:02:05");
   assert.equal(data.cards.dailyAverage, "1:02:05");
-  assert.equal(data.heatmap.length, 18);
+  assert.equal(data.heatmap.length, HEATMAP_WEEKS);
   assert.equal(data.weekdays.length, 7);
 });
