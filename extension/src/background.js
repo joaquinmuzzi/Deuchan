@@ -1,7 +1,8 @@
 // The only place that writes the log, so that several YouTube tabs cannot overwrite each other:
 // every update waits for the one before it. It also counts the time two tabs played at once only
-// once (see coverage.js).
+// once (see coverage.js), and paints the toolbar icon of each tab.
 import { addCoverage, isValidInterval } from "./coverage.js";
+import { IDLE_COLOR, drawIcons, iconColor } from "./icon.js";
 import { addSeconds, dayKey, migrate } from "./log.js";
 
 let queue = Promise.resolve();
@@ -21,10 +22,17 @@ async function save(intervals) {
   await chrome.storage.local.set({ log, covered });
 }
 
+// The icon of every tab starts grey; a tab with a German video paints its own in orange
+chrome.action.setIcon({ imageData: drawIcons(IDLE_COLOR) });
+
 chrome.runtime.onMessage.addListener((message, sender) => {
-  // Only the content script of this extension, in a YouTube tab, can add time
-  if (sender.id !== chrome.runtime.id || message?.type !== "watched" || !Array.isArray(message.intervals)) {
+  // Only the content script of this extension, in a YouTube tab, can speak to us
+  if (sender.id !== chrome.runtime.id) {
     return;
   }
-  queue = queue.then(() => save(message.intervals)).catch(() => {});
+  if (message?.type === "watched" && Array.isArray(message.intervals)) {
+    queue = queue.then(() => save(message.intervals)).catch(() => {});
+  } else if (message?.type === "language" && sender.tab?.id !== undefined) {
+    chrome.action.setIcon({ tabId: sender.tab.id, imageData: drawIcons(iconColor(message.german)) });
+  }
 });
