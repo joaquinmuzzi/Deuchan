@@ -119,11 +119,12 @@ h1 {
   text-transform: uppercase;
 }
 
+/* One line, also in the narrow popup: the labels are short so that they fit */
 .footer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
+  gap: 4px 14px;
   justify-content: center;
+  white-space: nowrap;
   margin-top: 20px;
 }
 
