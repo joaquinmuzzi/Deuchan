@@ -10,71 +10,120 @@ header {
   margin-bottom: 14px;
 }
 
-.button {
-  width: 100%;
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-.status {
-  border-radius: var(--radius);
-  margin: 12px 0;
-  padding: 10px 12px;
+/* The way to the dashboard is a small link: it is used less than what the popup shows */
+.link {
+  padding: 6px 10px;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--muted);
+  border-radius: var(--radius);
   background: var(--card);
+  color: var(--strong);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.status-text {
-  margin: 0;
+.link:hover,
+.link:focus-visible {
+  border-color: var(--strong);
+}
+
+.live {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
   font-weight: 600;
 }
 
-.status-hint {
-  margin: 2px 0 0;
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.live[data-kind="counting"] .dot {
+  background: var(--good);
+}
+
+.live[data-kind="off"] .dot {
+  background: var(--strong);
+}
+
+.quiet {
+  margin-left: auto;
+  padding: 4px 0;
+  border: 0;
+  background: none;
   color: var(--muted);
+  font: inherit;
   font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
-.status .button {
-  width: auto;
-  margin-top: 10px;
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.status[data-kind="counting"] {
-  border-left-color: var(--good);
-}
-
-.status[data-kind="off"] {
-  border-left-color: var(--strong);
+.quiet:hover,
+.quiet:focus-visible {
+  color: var(--strong);
 }
 
 .goal {
+  margin-bottom: 12px;
+  padding: 14px 12px;
+  border: 1px solid var(--line);
   border-radius: var(--radius);
+  background: var(--card);
+}
+
+.goal-top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  background: var(--card);
 }
 
 .goal-value {
   margin: 0;
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-}
-
-.goal-value[data-met="true"] {
-  color: var(--good);
 }
 
 .goal-label {
   margin: 0;
   color: var(--muted);
   font-size: 11px;
+}
+
+.bar {
+  margin-top: 10px;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--heat-0);
+}
+
+.fill {
+  width: 0;
+  height: 100%;
+  border-radius: var(--radius);
+  background: var(--strong);
+}
+
+.goal[data-met="true"] .goal-value {
+  color: var(--good);
+}
+
+.goal[data-met="true"] .fill {
+  background: var(--good);
 }
 
 .stats {
