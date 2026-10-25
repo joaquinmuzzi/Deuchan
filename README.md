@@ -26,7 +26,8 @@ Deuchan is under development and is not published yet. See the [changelog](CHANG
 
 ## Support
 
-If Deuchan is useful to you, you can [support it on Ko-fi](https://ko-fi.com/muzzijoaquin).
+If Deuchan is useful to you, you can give it a star on [GitHub](https://github.com/joaquinmuzzi/deuchan)
+or [support it on Ko-fi](https://ko-fi.com/muzzijoaquin).
 
 ## Contributing
 

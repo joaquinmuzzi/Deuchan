@@ -7,25 +7,39 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (file) => readFileSync(resolve(ROOT, file), "utf8");
 
+const PAGES = ["extension/popup/popup.html", "extension/dashboard/dashboard.html"];
+
+const AUTHOR = "https://github.com/joaquinmuzzi";
+const REPOSITORY = "https://github.com/joaquinmuzzi/deuchan";
 const KOFI = "https://ko-fi.com/muzzijoaquin";
 
-for (const page of ["extension/popup/popup.html", "extension/dashboard/dashboard.html"]) {
-  test(`${page} links to Ko-fi in a new tab, without giving it access to the extension`, () => {
-    const anchor = read(page).match(/<a\s[^>]*class="support"[^>]*>/s)?.[0];
-    assert.ok(anchor, "there is a support link");
-    assert.match(anchor, new RegExp(`href="${KOFI}"`));
-    assert.match(anchor, /target="_blank"/);
-    assert.match(anchor, /rel="noopener noreferrer"/);
+/** The `<a>` tags of the footer of a page. */
+const footerLinks = (page) => {
+  const footer = read(page).match(/<footer class="footer">([\s\S]*?)<\/footer>/)?.[1] ?? "";
+  return footer.match(/<a\s[^>]*>/g) ?? [];
+};
+
+for (const page of PAGES) {
+  test(`${page}: the footer links to the author, the repository and Ko-fi, in that order`, () => {
+    const hrefs = footerLinks(page).map((anchor) => anchor.match(/href="([^"]+)"/)?.[1]);
+    assert.deepEqual(hrefs, [AUTHOR, REPOSITORY, KOFI]);
+  });
+
+  test(`${page}: the footer links open in a new tab, without giving access to the extension`, () => {
+    for (const anchor of footerLinks(page)) {
+      assert.match(anchor, /target="_blank"/);
+      assert.match(anchor, /rel="noopener noreferrer"/);
+    }
+  });
+
+  test(`${page}: those are the only addresses it links to or loads from`, () => {
+    const urls = read(page).match(/https?:\/\/[^"'\s)]+/g) ?? [];
+    assert.deepEqual([...new Set(urls)].sort(), [AUTHOR, REPOSITORY, KOFI].sort());
   });
 }
 
-test("every external link of the pages is to Ko-fi: nothing else is loaded or linked from them", () => {
-  for (const page of ["extension/popup/popup.html", "extension/dashboard/dashboard.html"]) {
-    const urls = read(page).match(/https?:\/\/[^"'\s)]+/g) ?? [];
-    assert.deepEqual([...new Set(urls)], [KOFI], page);
-  }
-});
-
-test("the README links to Ko-fi too", () => {
-  assert.ok(read("README.md").includes(KOFI));
+test("the README links to the repository and to Ko-fi", () => {
+  const readme = read("README.md");
+  assert.ok(readme.includes(REPOSITORY));
+  assert.ok(readme.includes(KOFI));
 });

@@ -120,18 +120,21 @@ h1 {
 }
 
 .footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  justify-content: center;
   margin-top: 20px;
-  text-align: center;
 }
 
-.support {
+.footer a {
   color: var(--muted);
   font-size: 12px;
   text-decoration: none;
 }
 
-.support:hover,
-.support:focus-visible {
+.footer a:hover,
+.footer a:focus-visible {
   color: var(--strong);
   text-decoration: underline;
 }
