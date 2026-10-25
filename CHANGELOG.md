@@ -16,9 +16,10 @@ note on what to update.
   once. It handles pausing, rewinding and looping, decides the language of each video from its
   automatic captions (or, without them, its title and description), and keeps the log by day in
   your browser.
-- A popup with today's time against a daily goal (30 minutes until you change it), the last 7 and
-  30 days and your streak. Times show seconds, and the popup says what the current tab is doing:
-  counting German, not German, paused or not on YouTube.
+- A popup that answers how you are doing today: the time of today against the daily goal (30
+  minutes until you change it), with what is left and a progress bar, what the current tab is doing
+  (counting German, not German, paused or not on YouTube), your streak, your daily average and your
+  last 7 days. Times show seconds. The way to the dashboard is a small link.
 - A dashboard, opened from the popup: today, 7 days, 30 days, all time and the daily and monthly
   averages in six cards; an activity heatmap of the last 8 months across the whole width, a block for each month and
   a column for each week; a time per day chart you can set to 7 days, 15 days (the default),

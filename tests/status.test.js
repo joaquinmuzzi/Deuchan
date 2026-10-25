@@ -8,7 +8,7 @@ test("no reply means the tab is not YouTube, and there is nothing to override", 
   assert.deepEqual(describeStatus(undefined), { kind: "idle", text: "Not on YouTube" });
 });
 
-test("an unknown language is being detected, with no button yet", () => {
+test("an unknown language is being detected, with no link yet", () => {
   const status = describeStatus({ german: null, playing: true });
   assert.equal(status.text, "Detecting the language…");
   assert.equal(status.action, undefined);
@@ -19,7 +19,6 @@ test("a video that is not German can be marked as German, playing or not", () =>
     assert.deepEqual(describeStatus({ german: false, playing }), {
       kind: "off",
       text: "Not German, not counted",
-      hint: "Use the button below to override",
       action: { german: true, label: "Mark as German" },
     });
   }
@@ -28,11 +27,12 @@ test("a video that is not German can be marked as German, playing or not", () =>
 test("a German video counts only while it plays, and can be marked as not German", () => {
   const playing = describeStatus({ german: true, playing: true });
   assert.equal(playing.kind, "counting");
-  assert.deepEqual(playing.action, { german: false, label: "Mark as not German" });
+  assert.deepEqual(playing.action, { german: false, label: "Not German?" });
 
   const paused = describeStatus({ german: true, playing: false });
+  assert.equal(paused.kind, "idle");
   assert.equal(paused.text, "German video, paused");
-  assert.deepEqual(paused.action, { german: false, label: "Mark as not German" });
+  assert.deepEqual(paused.action, { german: false, label: "Not German?" });
 });
 
 test("the watcher reports what the status needs", () => {

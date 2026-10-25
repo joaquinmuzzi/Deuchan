@@ -10,34 +10,40 @@
   <body>
     <header>
       <h1>Deuchan</h1>
-      <button class="icon-button" id="theme" type="button"></button>
+      <div class="actions">
+        <button class="link" id="dashboard" type="button">Dashboard</button>
+        <button class="icon-button" id="theme" type="button"></button>
+      </div>
     </header>
 
-    <button class="button primary" id="dashboard" type="button">Open dashboard</button>
+    <div class="live" id="status" data-kind="idle">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="statusText">Not on YouTube</span>
+      <button class="quiet" id="override" type="button" hidden></button>
+    </div>
 
-    <section class="status" id="status" data-kind="idle">
-      <p class="status-text" id="statusText">Not on YouTube</p>
-      <p class="status-hint" id="statusHint" hidden></p>
-      <button class="button" id="override" type="button" hidden></button>
-    </section>
-
-    <section class="goal">
-      <p class="goal-value" id="today">0:00</p>
-      <p class="goal-label">of <span id="goal">30:00</span> daily goal</p>
+    <section class="goal" id="goalBlock" data-met="false">
+      <div class="goal-top">
+        <p class="goal-value" id="today">0:00</p>
+        <p class="goal-label" id="goalText">30:00 left of 30:00</p>
+      </div>
+      <div class="bar" role="progressbar" aria-label="Daily goal" aria-valuemin="0" aria-valuemax="100">
+        <div class="fill" id="progress"></div>
+      </div>
     </section>
 
     <section class="stats">
       <div class="stat">
+        <p class="stat-value" id="streak">0 days</p>
+        <p class="stat-label">Streak</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" id="dailyAverage">0:00</p>
+        <p class="stat-label">Daily avg</p>
+      </div>
+      <div class="stat">
         <p class="stat-value" id="week">0:00</p>
         <p class="stat-label">7 days</p>
-      </div>
-      <div class="stat">
-        <p class="stat-value" id="month">0:00</p>
-        <p class="stat-label">30 days</p>
-      </div>
-      <div class="stat">
-        <p class="stat-value" id="streak">0</p>
-        <p class="stat-label">Streak</p>
       </div>
     </section>
 

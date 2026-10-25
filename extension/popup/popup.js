@@ -12,11 +12,13 @@ let goalMinutes;
 function render() {
   const summary = summarize(migrate(log), new Date(), goalMinutes);
   byId("today").textContent = summary.today;
-  byId("today").dataset.met = String(summary.goalMet);
-  byId("goal").textContent = summary.goal;
+  byId("goalText").textContent = summary.goalText;
+  byId("goalBlock").dataset.met = String(summary.goalMet);
+  byId("progress").style.width = `${Math.round(summary.progress * 100)}%`;
+  byId("progress").parentElement.setAttribute("aria-valuenow", String(Math.round(summary.progress * 100)));
+  byId("streak").textContent = summary.streak;
+  byId("dailyAverage").textContent = summary.dailyAverage;
   byId("week").textContent = summary.week;
-  byId("month").textContent = summary.month;
-  byId("streak").textContent = String(summary.streak);
 }
 
 async function renderStatus() {
@@ -25,11 +27,9 @@ async function renderStatus() {
   const reply = tab
     ? await chrome.tabs.sendMessage(tab.id, { type: "status" }).catch(() => undefined)
     : undefined;
-  const { kind, text, hint, action } = describeStatus(reply);
+  const { kind, text, action } = describeStatus(reply);
   byId("status").dataset.kind = kind;
   byId("statusText").textContent = text;
-  byId("statusHint").textContent = hint ?? "";
-  byId("statusHint").hidden = !hint;
   const button = byId("override");
   button.hidden = !action;
   if (action) {
