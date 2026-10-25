@@ -24,6 +24,10 @@ really get.
 
 Deuchan is under development and is not published yet. See the [changelog](CHANGELOG.md).
 
+## Support
+
+If Deuchan is useful to you, you can [support it on Ko-fi](https://ko-fi.com/muzzijoaquin).
+
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Security problems: [SECURITY.md](SECURITY.md).

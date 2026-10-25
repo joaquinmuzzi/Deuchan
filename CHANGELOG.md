@@ -24,6 +24,7 @@ note on what to update.
   a column for each week; a time per day chart you can set to 7 days, 15 days (the default),
   1 month, 3 months or 1 year (a year has 4 days in each bar), with the daily goal as a line and the
   days that reached it in green; and your average for each weekday. The page keeps a maximum width.
+- A link to support the project on Ko-fi, at the bottom of the popup and of the dashboard.
 - A button in the popup to mark the video of the tab as not German, or as German when it was
   left out by mistake. It says what the guess was, applies at once and is remembered for that video.
 - The toolbar icon turns orange, in the tab, while the video you are watching is in German, and is

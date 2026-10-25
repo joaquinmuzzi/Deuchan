@@ -119,6 +119,23 @@ h1 {
   text-transform: uppercase;
 }
 
+.footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.support {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.support:hover,
+.support:focus-visible {
+  color: var(--strong);
+  text-decoration: underline;
+}
+
 .button {
   border-radius: var(--radius);
   padding: 10px 14px;
