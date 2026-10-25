@@ -13,6 +13,8 @@ const files = [
   ...manifest.content_scripts.flatMap((script) => script.js),
   ...manifest.web_accessible_resources.flatMap((entry) => entry.resources),
   ...(manifest.action?.default_popup ? [manifest.action.default_popup] : []),
+  ...Object.values(manifest.icons ?? {}),
+  ...Object.values(manifest.action?.default_icon ?? {}),
 ];
 
 test("every file the manifest names exists", () => {

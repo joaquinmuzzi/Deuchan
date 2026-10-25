@@ -29,6 +29,8 @@ note on what to update.
   project a star on GitHub and a link to support it on Ko-fi.
 - A button in the popup to mark the video of the tab as not German, or as German when it was
   left out by mistake. It says what the guess was, applies at once and is remembered for that video.
+- An icon for the app: a D made of the little squares of the activity heatmap, white on a rounded
+  square, with the PNG files of the manifest drawn by `npm run icons`.
 - The toolbar icon turns orange, in the tab, while the video you are watching is in German, and is
   grey otherwise.
 - The daily goal is set in the dashboard, with the gear button, as a number of minutes from 1 to 600.
