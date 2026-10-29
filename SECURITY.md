@@ -21,8 +21,10 @@ can share it. What the server receives and can do:
   with a key made from your sync key that never leaves your browser. The server cannot read the data and
   cannot change it without the change being noticed.
 - **It does not know who you are.** There are no accounts, emails or passwords. The server stores the
-  block under the hash of a token that is made from your sync key, and keeps no address, no log of
-  requests with keys, and nothing about the videos you watched.
+  block under the hash of a token that is made from your sync key, and its own code stores and logs no
+  address and no token, and knows nothing about the videos you watched. Its host (Railway) does record
+  the address, the browser, the path, the status and the time of every request in its own access logs;
+  they do not include the token, which is sent in a header. See the [privacy policy](PRIVACY.md).
 - **Anyone who has your sync key can read your synced time**, so keep it private. The key is stored in
   your browser while sync is on.
 - **You can delete it**: "Delete synced data" in the dashboard removes the block from the server. A

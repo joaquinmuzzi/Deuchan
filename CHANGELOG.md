@@ -15,6 +15,9 @@ note on what to update.
 
 ### Added
 
+- A privacy policy (`PRIVACY.md`), the text and the images for the Chrome Web Store listing (`docs/`),
+  and `npm run package`, which makes the zip to upload with only what is in `extension/`. The summary
+  in the manifest says more about what the extension does, and it has a `homepage_url`.
 - Optional sync between computers, off by default. Turn it on in the dashboard (the cloud button) to
   get a sync key, and enter that key on your other computers: they share their time per day and all show
   the total. The data is encrypted on your computer before it is sent, so the server cannot read it, and
