@@ -1,0 +1,14 @@
+{
+  "name": "deuchan-sync",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Keeps one encrypted block of data for each sync key of Deuchan.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
