@@ -31,8 +31,12 @@ export const DEFAULTS = {
   /** Requests a minute from one address, and from one key. */
   perMinutePerAddress: 120,
   perMinutePerToken: 30,
-  /** How many proxies are between the internet and the server: the address is read from the end. */
-  proxyHops: 1,
+  /**
+   * The header in which the host puts the address of the client, such as `x-real-ip` on Railway. By
+   * default there is none and the address is the one of the connection: a header that the host does
+   * not write is written by the client, and believing it would let anyone dodge the limit.
+   */
+  addressHeader: null,
 };
 
 const DAY_MS = 24 * 3600 * 1000;
@@ -198,12 +202,17 @@ export function createServer(options) {
   }
 
   function clientAddress(request) {
-    const forwarded = String(request.headers["x-forwarded-for"] ?? "")
-      .split(",")
-      .map((part) => part.trim())
-      .filter(Boolean);
-    // The proxies add the address they saw at the end; what comes before it is written by the client
-    return forwarded.at(-config.proxyHops) ?? request.socket.remoteAddress ?? "unknown";
+    if (config.addressHeader) {
+      // A list is read from the end: what a proxy adds is last, and what is before it was sent by the client
+      const value = String(request.headers[config.addressHeader] ?? "")
+        .split(",")
+        .at(-1)
+        .trim();
+      if (value) {
+        return value;
+      }
+    }
+    return request.socket.remoteAddress ?? "unknown";
   }
 
   async function handleBlob(request, response, token) {

@@ -195,22 +195,45 @@ test("when the server is full no new block is created, but existing ones can cha
   });
 });
 
-test("an address that asks too often is slowed down, and other addresses are not", async () => {
-  await withServer({ perMinutePerAddress: 3, proxyHops: 1 }, async ({ base }) => {
-    const from = (address) => ({ headers: { "X-Forwarded-For": address } });
+test("an address that asks too often is slowed down", async () => {
+  await withServer({ perMinutePerAddress: 3 }, async ({ base }) => {
     for (let index = 0; index < 3; index += 1) {
-      assert.equal((await request(base, "GET", from("10.0.0.1"))).status, 404);
+      assert.equal((await request(base, "GET")).status, 404);
     }
-    const slowed = await request(base, "GET", from("10.0.0.1"));
+    const slowed = await request(base, "GET");
     assert.equal(slowed.status, 429);
     assert.equal(slowed.headers.get("retry-after"), "60");
-    assert.equal((await request(base, "GET", from("10.0.0.2"))).status, 404);
   });
 });
 
-test("an address cannot dodge the limit by writing its own forwarded address", async () => {
-  await withServer({ perMinutePerAddress: 2, proxyHops: 1 }, async ({ base }) => {
-    // The proxy adds the real address at the end; what the client writes before it is not believed
+test("by default no header is believed: writing another address does not dodge the limit", async () => {
+  await withServer({ perMinutePerAddress: 2 }, async ({ base }) => {
+    const statuses = [];
+    for (const fake of ["1.1.1.1", "2.2.2.2", "3.3.3.3"]) {
+      const headers = { "X-Forwarded-For": fake, "X-Real-IP": fake };
+      statuses.push((await request(base, "GET", { headers })).status);
+    }
+    assert.deepEqual(statuses, [404, 404, 429]);
+  });
+});
+
+test("behind a host that writes the address of the client in a header, it counts by that address", async () => {
+  await withServer({ perMinutePerAddress: 2, addressHeader: "x-real-ip" }, async ({ base }) => {
+    const from = (address) => ({ headers: { "X-Real-IP": address } });
+    for (let index = 0; index < 2; index += 1) {
+      assert.equal((await request(base, "GET", from("10.0.0.1"))).status, 404);
+    }
+    assert.equal((await request(base, "GET", from("10.0.0.1"))).status, 429);
+    assert.equal(
+      (await request(base, "GET", from("10.0.0.2"))).status,
+      404,
+      "another address is not slowed down",
+    );
+  });
+});
+
+test("a list of addresses in that header is read from the end, where the proxy writes", async () => {
+  await withServer({ perMinutePerAddress: 2, addressHeader: "x-forwarded-for" }, async ({ base }) => {
     const statuses = [];
     for (const fake of ["1.1.1.1", "2.2.2.2", "3.3.3.3"]) {
       statuses.push(
@@ -218,6 +241,13 @@ test("an address cannot dodge the limit by writing its own forwarded address", a
       );
     }
     assert.deepEqual(statuses, [404, 404, 429]);
+  });
+});
+
+test("if the header is not there, the address of the connection is used", async () => {
+  await withServer({ perMinutePerAddress: 1, addressHeader: "x-real-ip" }, async ({ base }) => {
+    assert.equal((await request(base, "GET")).status, 404);
+    assert.equal((await request(base, "GET")).status, 429);
   });
 });
 

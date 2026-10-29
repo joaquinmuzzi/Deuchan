@@ -13,7 +13,6 @@ note on what to update.
 
 - A small sync server (`server/`), for syncing the time between computers: it keeps one encrypted
   block for each sync key, cannot read it, and has no accounts.
-
 - A browser extension that counts the time you watch German videos on YouTube. It counts real
   seconds of the clock, whatever the playback speed, and counts the time two tabs play at once only
   once. It handles pausing, rewinding and looping, decides the language of each video from its

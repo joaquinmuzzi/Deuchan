@@ -1,5 +1,6 @@
 // Starts the sync server: `node server/index.js`. It is configured with the environment:
-// PORT (default 3000), DATA_DIR (where the blocks are kept; on the host, a volume).
+// PORT (default 3000), DATA_DIR (where the blocks are kept; on the host, a volume), and ADDRESS_HEADER
+// (the header where the host writes the address of the client: `x-real-ip` on Railway).
 import { createServer, DEFAULTS } from "./server.js";
 
 const port = Number(process.env.PORT ?? 3000);
@@ -8,11 +9,14 @@ const options = { dataDir };
 for (const [variable, name] of [
   ["MAX_BLOBS", "maxBlobs"],
   ["TTL_DAYS", "ttlDays"],
-  ["PROXY_HOPS", "proxyHops"],
 ]) {
   if (process.env[variable] !== undefined) {
     options[name] = Number(process.env[variable]);
   }
+}
+// The header with the address of the client, if the host writes one (`x-real-ip` on Railway)
+if (process.env.ADDRESS_HEADER) {
+  options.addressHeader = process.env.ADDRESS_HEADER.toLowerCase();
 }
 
 const app = createServer(options);
