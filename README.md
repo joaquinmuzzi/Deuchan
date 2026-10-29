@@ -33,6 +33,12 @@ Deuchan is under development and is not published yet. See the [changelog](CHANG
 If Deuchan is useful to you, you can give it a star on [GitHub](https://github.com/joaquinmuzzi/deuchan)
 or [support it on Ko-fi](https://ko-fi.com/muzzijoaquin).
 
+## Privacy
+
+The [privacy policy](PRIVACY.md) says what Deuchan keeps, what leaves your browser when you turn
+on sync, and for how long. The text for the Chrome Web Store is in
+[docs/store-listing.md](docs/store-listing.md).
+
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Security problems: [SECURITY.md](SECURITY.md).

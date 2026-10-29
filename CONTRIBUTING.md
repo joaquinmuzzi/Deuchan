@@ -66,7 +66,9 @@ extension/
   src/               modules without browser APIs, covered by tests
   popup/ dashboard/  the pages of the extension
 server/              the sync server (no dependencies); see its tests in tests/server.test.js
-scripts/             tools, such as the one that draws the icons
+scripts/             tools: the one that draws the icons (`npm run icons`) and the one that makes the
+                     zip for the Chrome Web Store (`npm run package`)
+docs/                the listing for the store, with its images
 tests/               node:test tests
 ```
 
