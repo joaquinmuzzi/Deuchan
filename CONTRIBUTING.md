@@ -64,6 +64,9 @@ heuristic.
 extension/
   manifest.json      the extension (Manifest V3)
   src/               modules without browser APIs, covered by tests
+  popup/ dashboard/  the pages of the extension
+server/              the sync server (no dependencies); see its tests in tests/server.test.js
+scripts/             tools, such as the one that draws the icons
 tests/               node:test tests
 ```
 

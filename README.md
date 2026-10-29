@@ -18,7 +18,11 @@ really get.
 - **Only German.** It works out the language of each video and ignores the rest. When it gets
   one wrong, a button in the popup marks that video as German, or as not German, and it is
   remembered.
-- **Local and private.** The log stays in your browser. Nothing is sent anywhere.
+- **Local and private.** The log stays in your browser. Nothing is sent anywhere unless you turn on
+  sync, and then only your time per day, encrypted on your computer.
+- **Sync between computers, if you want it.** Turn it on in the dashboard, enter the key on your other
+  computers, and they share their progress. There are no accounts: the server only holds encrypted data
+  that it cannot read, and you can delete it whenever you want.
 
 ## Status
 

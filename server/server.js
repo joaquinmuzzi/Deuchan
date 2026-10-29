@@ -7,7 +7,7 @@
  * first, so it cannot read the data and cannot tell whose it is. There are no accounts, no emails
  * and no passwords.
  *
- * - `GET /v1/blob`    the block, with its revision in the `ETag`; 404 if there is none.
+ * - `GET /v1/blob`    the block, with its revision in the `ETag` and in `X-Revision`; 404 if there is none.
  * - `PUT /v1/blob`    replaces it. `If-Match` says which revision the client saw (`"0"` to create), so
  *                     that two computers cannot overwrite each other: a 412 means "read, merge, retry".
  * - `DELETE /v1/blob` deletes it, which is how a person erases their data.
@@ -42,6 +42,12 @@ export const DEFAULTS = {
 const DAY_MS = 24 * 3600 * 1000;
 const TOKEN = /^[A-Za-z0-9_-]{43}$/;
 const BASE64URL = /^[A-Za-z0-9_-]*$/;
+
+/**
+ * The revision, twice. A host in front of the server may compress the answer and, when it does, turns a
+ * strong `ETag` into a weak one (`W/"2"`); a header of our own is left as it is.
+ */
+const revisionHeaders = (rev) => ({ ETag: `"${rev}"`, "X-Revision": String(rev) });
 
 const hashOf = (token) => createHash("sha256").update(token).digest("hex");
 
@@ -228,7 +234,7 @@ export function createServer(options) {
         if (now() - (record.accessedAt ?? 0) > DAY_MS) {
           await store(id, { ...record, accessedAt: now() });
         }
-        return sendJson(response, 200, record.block, { ETag: `"${record.rev}"` });
+        return sendJson(response, 200, record.block, revisionHeaders(record.rev));
       });
     }
 
@@ -247,7 +253,9 @@ export function createServer(options) {
 
     if (request.method === "PUT") {
       const ifMatch = request.headers["if-match"];
-      if (typeof ifMatch !== "string" || !/^"\d{1,12}"$/.test(ifMatch)) {
+      // A weak validator (W/"2") is the same revision: a proxy may have turned the strong one into it
+      const seenMatch = /^(?:W\/)?"(\d{1,12})"$/.exec(typeof ifMatch === "string" ? ifMatch : "");
+      if (!seenMatch) {
         return fail(response, 428, 'send If-Match with the revision you saw, or "0" to create');
       }
       if (!String(request.headers["content-type"] ?? "").startsWith("application/json")) {
@@ -267,12 +275,12 @@ export function createServer(options) {
       if (!validBlock(block)) {
         return fail(response, 400, "not a block");
       }
-      const seen = Number(ifMatch.slice(1, -1));
+      const seen = Number(seenMatch[1]);
       return serialized(id, async () => {
         const record = await load(id);
         const rev = record?.rev ?? 0;
         if (seen !== rev) {
-          return fail(response, 412, "the block changed: read it again", { ETag: `"${rev}"` });
+          return fail(response, 412, "the block changed: read it again", revisionHeaders(rev));
         }
         if (!record && (await countBlobs()) >= config.maxBlobs) {
           return fail(response, 507, "the server is full");
@@ -281,7 +289,7 @@ export function createServer(options) {
         if (!record) {
           count += 1;
         }
-        return sendJson(response, record ? 200 : 201, { rev: rev + 1 }, { ETag: `"${rev + 1}"` });
+        return sendJson(response, record ? 200 : 201, { rev: rev + 1 }, revisionHeaders(rev + 1));
       });
     }
 

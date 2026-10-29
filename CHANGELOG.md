@@ -15,6 +15,12 @@ note on what to update.
 
 ### Added
 
+- Optional sync between computers, off by default. Turn it on in the dashboard (the cloud button) to
+  get a sync key, and enter that key on your other computers: they share their time per day and all show
+  the total. The data is encrypted on your computer before it is sent, so the server cannot read it, and
+  there are no accounts. You can turn sync off or delete your data from the server in the same panel.
+  The extension asks for the alarms permission, to sync every few minutes, and for one address, the
+  sync server.
 - A small sync server (`server/`), for syncing the time between computers: it keeps one encrypted
   block for each sync key, cannot read it, and has no accounts.
 - A browser extension that counts the time you watch German videos on YouTube. It counts real

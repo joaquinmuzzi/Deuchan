@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "description": "Counts the time you spend watching German on YouTube.",
   "minimum_chrome_version": "111",
-  "permissions": ["storage"],
+  "permissions": ["storage", "alarms"],
+  "host_permissions": ["https://sync-production-78f2.up.railway.app/*"],
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
