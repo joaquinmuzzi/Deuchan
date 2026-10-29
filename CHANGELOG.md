@@ -9,6 +9,10 @@ note on what to update.
 
 ## [Unreleased]
 
+### Fixed
+
+- The dashboard drew no chart on a new install, before the first video had been watched.
+
 ### Added
 
 - A small sync server (`server/`), for syncing the time between computers: it keeps one encrypted
