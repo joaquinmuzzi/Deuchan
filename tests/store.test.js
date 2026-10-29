@@ -10,7 +10,8 @@ import { fileURLToPath } from "node:url";
 import { SYNC_URL } from "../extension/src/sync-config.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const read = (file) => readFileSync(resolve(ROOT, file), "utf8");
+// On Windows git checks files out with CRLF line endings, and the patterns below look for LF
+const read = (file) => readFileSync(resolve(ROOT, file), "utf8").replaceAll("\r\n", "\n");
 const manifest = JSON.parse(read("extension/manifest.json"));
 const listing = read("docs/store-listing.md");
 const policy = read("PRIVACY.md");
