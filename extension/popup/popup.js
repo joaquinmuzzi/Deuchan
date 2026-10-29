@@ -2,15 +2,17 @@ import { goalMinutesOf } from "../src/goal.js";
 import { migrate } from "../src/log.js";
 import { describeStatus } from "../src/status.js";
 import { summarize } from "../src/summary.js";
+import { effectiveLog } from "../src/sync-data.js";
 import { setUpTheme } from "../src/theme.js";
 
 const byId = (id) => document.getElementById(id);
 
 let log;
+let others;
 let goalMinutes;
 
 function render() {
-  const summary = summarize(migrate(log), new Date(), goalMinutes);
+  const summary = summarize(effectiveLog(migrate(log), others), new Date(), goalMinutes);
   byId("today").textContent = summary.today;
   byId("goalText").textContent = summary.goalText;
   byId("goalBlock").dataset.met = String(summary.goalMet);
@@ -55,8 +57,9 @@ byId("dashboard").addEventListener("click", () => {
 });
 
 setUpTheme(byId("theme"));
-const stored = await chrome.storage.local.get(["log", "goalMinutes"]);
+const stored = await chrome.storage.local.get(["log", "others", "goalMinutes"]);
 log = stored.log;
+others = stored.others;
 goalMinutes = goalMinutesOf(stored.goalMinutes);
 render();
 renderStatus();
@@ -65,6 +68,9 @@ renderStatus();
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.log) {
     log = changes.log.newValue;
+  }
+  if (changes.others) {
+    others = changes.others.newValue;
   }
   if (changes.goalMinutes) {
     goalMinutes = goalMinutesOf(changes.goalMinutes.newValue);

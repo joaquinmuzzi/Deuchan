@@ -1,6 +1,7 @@
 import { goalMinutesOf, goalSeconds, parseGoalMinutes } from "../src/goal.js";
 import { formatClock, migrate } from "../src/log.js";
 import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js";
+import { effectiveLog } from "../src/sync-data.js";
 import { setUpTheme } from "../src/theme.js";
 
 const byId = (id) => document.getElementById(id);
@@ -9,7 +10,12 @@ const dayName = new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 let log;
+let others;
 let goalMinutes;
+
+// What is shown: the time of this computer plus the time of the others, and an empty log until
+// something has been saved (the storage has nothing at all on a new install)
+const current = () => effectiveLog(migrate(log), others);
 let range = DEFAULT_RANGE;
 
 function element(tag, className, text) {
@@ -68,7 +74,7 @@ function renderRanges() {
 }
 
 function renderChart() {
-  const bars = timeline(log, new Date(), range);
+  const bars = timeline(current(), new Date(), range);
   const goal = goalSeconds(goalMinutes);
   // The goal stays inside the chart even if no day came close to it, and the tallest bar has room
   const scale = Math.max(...bars.map((bar) => bar.perDay), goal) * 1.15;
@@ -110,7 +116,7 @@ function renderWeekdays(averages) {
 }
 
 function render() {
-  const data = dashboardData(migrate(log), new Date());
+  const data = dashboardData(current(), new Date());
   for (const [id, value] of Object.entries(data.cards)) {
     byId(id).textContent = value;
   }
@@ -151,8 +157,9 @@ byId("ranges").addEventListener("change", (event) => {
 });
 
 setUpTheme(byId("theme"));
-const stored = await chrome.storage.local.get(["log", "goalMinutes", "range"]);
+const stored = await chrome.storage.local.get(["log", "others", "goalMinutes", "range"]);
 log = stored.log;
+others = stored.others;
 goalMinutes = goalMinutesOf(stored.goalMinutes);
 range = RANGES.some(({ days }) => days === stored.range) ? stored.range : DEFAULT_RANGE;
 renderRanges();
@@ -162,6 +169,9 @@ render();
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.log) {
     log = changes.log.newValue;
+  }
+  if (changes.others) {
+    others = changes.others.newValue;
   }
   if (changes.goalMinutes) {
     goalMinutes = goalMinutesOf(changes.goalMinutes.newValue);
