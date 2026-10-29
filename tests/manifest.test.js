@@ -4,6 +4,8 @@ import { dirname, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { SYNC_URL } from "../extension/src/sync-config.js";
+
 const EXTENSION = resolve(dirname(fileURLToPath(import.meta.url)), "..", "extension");
 const manifest = JSON.parse(readFileSync(resolve(EXTENSION, "manifest.json"), "utf8"));
 const packageJson = JSON.parse(readFileSync(resolve(EXTENSION, "..", "package.json"), "utf8"));
@@ -27,12 +29,16 @@ test("it is Manifest V3", () => {
   assert.equal(manifest.manifest_version, 3);
 });
 
-test("it asks for no more than the storage permission and runs on YouTube only", () => {
-  assert.deepEqual(manifest.permissions, ["storage"]);
-  assert.equal(manifest.host_permissions, undefined);
+test("it asks for storage and alarms only, and runs on YouTube only", () => {
+  assert.deepEqual(manifest.permissions, ["storage", "alarms"]);
   for (const script of manifest.content_scripts) {
     assert.deepEqual(script.matches, ["https://www.youtube.com/*"]);
   }
+});
+
+test("the only address it may talk to is the sync server, and it is the one the code uses", () => {
+  assert.deepEqual(manifest.host_permissions, [`${SYNC_URL}/*`]);
+  assert.match(SYNC_URL, /^https:\/\/[a-z0-9.-]+$/, "https, and no path");
 });
 
 test("the modules the content script imports can be reached from the page", () => {

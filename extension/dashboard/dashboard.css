@@ -323,3 +323,101 @@ dialog h2 {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* The sync panel */
+#syncDialog {
+  width: 360px;
+}
+
+.sync-status {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--muted);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sync-status[data-tone="ok"] {
+  border-left-color: var(--good);
+}
+
+.sync-status[data-tone="warn"] {
+  border-left-color: var(--strong);
+}
+
+.sync .note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sync .label {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sync .or {
+  margin-top: 16px;
+}
+
+.button.wide {
+  width: 100%;
+}
+
+.button.small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.button.danger {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.key-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* The whole key on its own line: it has to be read in full to be typed on another computer */
+.key-row code {
+  flex: 1 1 100%;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  user-select: all;
+  white-space: nowrap;
+}
+
+.join {
+  display: flex;
+  gap: 6px;
+}
+
+.join input {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.actions.spread {
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+}

@@ -28,6 +28,21 @@
               <circle cx="12" cy="12" r="3" />
             </svg>
           </button>
+          <button class="icon-button" id="sync" type="button" aria-label="Sync between computers">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M7 18a4.5 4.5 0 0 1-.5-8.97A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5Z" />
+            </svg>
+          </button>
           <button class="icon-button" id="theme" type="button"></button>
         </div>
       </header>
@@ -112,6 +127,61 @@
           </div>
         </div>
       </form>
+    </dialog>
+
+    <dialog id="syncDialog" aria-labelledby="syncTitle">
+      <div class="sync">
+        <h2 id="syncTitle">Sync</h2>
+        <div class="dialog-body">
+          <p class="sync-status" id="syncStatus" data-tone="off">Sync is off</p>
+
+          <div id="syncOff">
+            <p class="note">
+              Keep the same progress on all your computers. Your time per day is encrypted on this computer
+              before it is sent, so the server cannot read it.
+            </p>
+            <button class="button primary wide" id="syncCreate" type="button">Turn on sync</button>
+            <label for="syncJoinInput" class="or">Or use the key of another computer</label>
+            <div class="join">
+              <input
+                id="syncJoinInput"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="ABCD-EFGH-IJKM-…"
+              />
+              <button class="button" id="syncJoin" type="button">Join</button>
+            </div>
+          </div>
+
+          <div id="syncOn" hidden>
+            <p class="label">Your sync key</p>
+            <div class="key-row">
+              <code id="syncKeyText" aria-live="polite">••••-••••-••••-••••-••••-••••-••••-••••</code>
+              <button class="button small" id="syncReveal" type="button">Show</button>
+              <button class="button small" id="syncCopy" type="button">Copy</button>
+            </div>
+            <p class="note">
+              Enter this key on your other computers. Keep it private: anyone with it can read your synced
+              time.
+            </p>
+            <div class="actions spread">
+              <button class="button primary" id="syncNow" type="button">Sync now</button>
+              <button class="button" id="syncDisable" type="button">Turn off</button>
+              <button class="button danger" id="syncErase" type="button">Delete synced data</button>
+            </div>
+          </div>
+
+          <p class="note" id="syncEraseNote" hidden>
+            Deleting removes the copy from the server. A computer that still has sync on sends its time again,
+            so turn sync off on all of them first.
+          </p>
+          <p class="error" id="syncError" role="alert"></p>
+          <div class="actions">
+            <button class="button" id="syncClose" type="button">Close</button>
+          </div>
+        </div>
+      </div>
     </dialog>
 
     <script type="module" src="dashboard.js"></script>

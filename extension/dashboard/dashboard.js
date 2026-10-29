@@ -3,6 +3,7 @@ import { formatClock, migrate } from "../src/log.js";
 import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js";
 import { effectiveLog } from "../src/sync-data.js";
 import { setUpTheme } from "../src/theme.js";
+import { setUpSyncPanel } from "./sync-panel.js";
 
 const byId = (id) => document.getElementById(id);
 const monthName = new Intl.DateTimeFormat("en", { month: "short" });
@@ -157,6 +158,7 @@ byId("ranges").addEventListener("change", (event) => {
 });
 
 setUpTheme(byId("theme"));
+setUpSyncPanel();
 const stored = await chrome.storage.local.get(["log", "others", "goalMinutes", "range"]);
 log = stored.log;
 others = stored.others;
