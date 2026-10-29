@@ -27,6 +27,8 @@ export function setUpSyncPanel() {
     const status = byId("syncStatus");
     status.textContent = busy ? "Working…" : described.text;
     status.dataset.tone = busy ? "busy" : described.tone;
+    // The words are for everybody; what exactly happened is a hint for who has to find out why
+    status.title = state?.status === "error" ? (state.detail ?? "") : "";
 
     byId("syncOff").hidden = Boolean(key);
     byId("syncOn").hidden = !key;

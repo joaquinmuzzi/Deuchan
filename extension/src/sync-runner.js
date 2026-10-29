@@ -95,7 +95,14 @@ export function createSyncRunner({ storage, alarms, baseUrl, fetchImpl = globalT
         mustExist,
       });
       await storage.set({ others: result.others });
-      await setState({ status: "ok", lastSync: now(), devices: result.devices, error: null, retryAt: null });
+      await setState({
+        status: "ok",
+        lastSync: now(),
+        devices: result.devices,
+        error: null,
+        detail: null,
+        retryAt: null,
+      });
       return { ok: true, uploaded: result.uploaded, devices: result.devices };
     } catch (error) {
       const kind = error instanceof SyncError ? error.kind : "unknown";
@@ -103,6 +110,8 @@ export function createSyncRunner({ storage, alarms, baseUrl, fetchImpl = globalT
         ...previous,
         status: "error",
         error: kind,
+        // What happened, in a few words, for whoever has to find out why: the panel shows it as a hint
+        detail: String(error?.message ?? "").slice(0, 200),
         retryAt: kind === "rate-limited" ? now() + (error.retryAfter ?? 60) * 1000 : null,
       });
       throw error instanceof SyncError ? error : new SyncError("unknown", "sync failed");

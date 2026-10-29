@@ -28,6 +28,7 @@ const ERRORS = {
   conflict: "Two computers synced at once. It will try again soon.",
   server: "The server has a problem. It will try again soon.",
   "no-data": "No data was found for that key. Check it.",
+  invalid: "The server's answer was not understood. It will try again later.",
   "invalid-key": "That is not a sync key. It has 32 letters and digits.",
 };
 

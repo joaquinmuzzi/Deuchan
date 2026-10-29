@@ -23,9 +23,17 @@ export class SyncError extends Error {
 
 const TIMEOUT_MS = 15_000;
 
-/** The revision in an `ETag` header such as `"3"`, or `null`. */
-function revisionOf(response) {
-  const match = /^"(\d{1,12})"$/.exec(response.headers.get("etag") ?? "");
+/**
+ * The revision of an answer, or `null`: from the `X-Revision` header of the server, or from the `ETag`,
+ * strong (`"3"`) or weak (`W/"3"`). A host that compresses the answer makes the `ETag` weak, and a
+ * client that only knew the strong form could not read any answer that was big enough to be compressed.
+ */
+export function revisionOf(response) {
+  const own = /^\d{1,12}$/.exec(response.headers.get("x-revision") ?? "");
+  if (own) {
+    return Number(own[0]);
+  }
+  const match = /^(?:W\/)?"(\d{1,12})"$/.exec(response.headers.get("etag") ?? "");
   return match ? Number(match[1]) : null;
 }
 

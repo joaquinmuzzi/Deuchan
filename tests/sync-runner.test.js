@@ -205,12 +205,18 @@ test("a server that is down is an error in the state, the key stays, and the nex
     assert.deepEqual(await a.runner.run(), { error: "network" });
     assert.equal(a.storage.data.syncState.status, "error");
     assert.equal(a.storage.data.syncState.error, "network");
+    assert.match(
+      a.storage.data.syncState.detail,
+      /could not be reached/,
+      "and it says what happened, for the hint",
+    );
     assert.equal(a.storage.data.syncState.lastSync > 0, true, "it remembers the last good sync");
     assert.ok(a.storage.data.syncKey);
     up = true;
     assert.equal((await a.runner.run()).ok, true);
     assert.equal(a.storage.data.syncState.status, "ok");
     assert.equal(a.storage.data.syncState.error, null);
+    assert.equal(a.storage.data.syncState.detail, null, "and the hint goes away");
   });
 });
 
