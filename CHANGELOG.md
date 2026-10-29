@@ -9,6 +9,10 @@ note on what to update.
 
 ## [Unreleased]
 
+### Fixed
+
+- The dashboard drew no chart on a new install, before the first video had been watched.
+
 ### Added
 
 - A browser extension that counts the time you watch German videos on YouTube. It counts real
