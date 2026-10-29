@@ -12,7 +12,7 @@ export default [
     },
   },
   {
-    files: ["tests/**/*.js", "scripts/**/*.mjs", "*.js"],
+    files: ["tests/**/*.js", "scripts/**/*.mjs", "server/**/*.js", "*.js"],
     languageOptions: { sourceType: "module", globals: globals.node },
   },
 ];
