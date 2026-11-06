@@ -13,13 +13,17 @@ import { blobOf, mergeDevices, receive, sanitizeDevices } from "./sync-data.js";
 /** How many times a round starts again after a conflict before it gives up until the next one. */
 const ATTEMPTS = 3;
 
-/** Whether two sets of devices have the same days with the same seconds. */
+/** Whether two sets of devices have the same days with the same seconds, and the same corrections. */
 function sameDevices(first, second) {
   const normal = (devices) =>
     JSON.stringify(
       Object.entries(devices)
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([id, device]) => [id, Object.entries(device.days).sort(([a], [b]) => a.localeCompare(b))]),
+        .map(([id, device]) => [
+          id,
+          Object.entries(device.days).sort(([a], [b]) => a.localeCompare(b)),
+          Object.entries(device.adjust ?? {}).sort(([a], [b]) => a.localeCompare(b)),
+        ]),
     );
   return normal(first) === normal(second);
 }

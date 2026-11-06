@@ -129,6 +129,25 @@
       </form>
     </dialog>
 
+    <dialog id="dayDialog" aria-labelledby="dayTitle">
+      <form id="dayForm" method="dialog" novalidate>
+        <h2 id="dayTitle"></h2>
+        <div class="dialog-body day">
+          <p class="day-total"><strong id="dayTotal"></strong> counted</p>
+          <p class="label">Videos watched on this computer</p>
+          <ul class="day-videos" id="dayVideos"></ul>
+          <p class="note" id="dayNote"></p>
+          <label for="dayInput">Minutes you really watched</label>
+          <input id="dayInput" type="text" inputmode="numeric" autocomplete="off" />
+          <p class="error" id="dayError" role="alert"></p>
+          <div class="actions">
+            <button class="button" id="dayCancel" type="button">Cancel</button>
+            <button class="button primary" type="submit">Save</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
     <dialog id="syncDialog" aria-labelledby="syncTitle">
       <div class="sync">
         <h2 id="syncTitle">Sync</h2>

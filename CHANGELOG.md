@@ -15,6 +15,12 @@ note on what to update.
 
 ### Added
 
+- Click a day in the dashboard (a square of the activity map, or a bar of the chart) to see which videos
+  made it up, on this computer, for the last 60 days. "Not German" takes a video out of the day and stops
+  counting it. The list is kept only on this computer and is never synced.
+- Correct a day: say how many minutes you really watched. The correction is synced as its own value, so
+  the day shows the same on all your computers and the old time does not come back; time counted after it
+  is added on top. This changes the synced data (version 2): update the extension on all your computers.
 - A privacy policy (`PRIVACY.md`), the text and the images for the Chrome Web Store listing (`docs/`),
   and `npm run package`, which makes the zip to upload with only what is in `extension/`. The summary
   in the manifest says more about what the extension does, and it has a `homepage_url`.

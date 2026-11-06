@@ -8,6 +8,7 @@ import { createServer } from "../server/server.js";
 import { SyncError, createClient } from "../extension/src/sync-client.js";
 import { deriveKeys, newSyncKey, parseSyncKey } from "../extension/src/sync-crypto.js";
 import { syncOnce } from "../extension/src/sync-engine.js";
+import { correctDay } from "../extension/src/corrections.js";
 import { effectiveLog, newDeviceId } from "../extension/src/sync-data.js";
 
 /** Starts a real server on a free port, runs `body` with its address, and cleans up. */
@@ -308,4 +309,41 @@ test("what the server says is checked: an answer with no revision, or that is no
       (error) => error instanceof SyncError && error.kind === "invalid",
     );
   }
+});
+
+test("a corrected day shows the same on every computer, and syncing again does not bring the time back", async () => {
+  await withServer({}, async ({ baseUrl }) => {
+    const { keys, device } = await person(baseUrl);
+    const a = device({ "2026-10-24": 600 });
+    const b = device({ "2026-10-24": 3600 });
+    for (let round = 0; round < 2; round += 1) {
+      await sync(a, keys);
+      await sync(b, keys);
+    }
+    assert.equal(total(a, "2026-10-24"), 4200);
+
+    // the person says, on A, that the day was 15 minutes: B counted most of it
+    a.log = correctDay(a.log, a.others, "2026-10-24", 900, Date.now());
+    for (let round = 0; round < 4; round += 1) {
+      await sync(a, keys);
+      await sync(b, keys);
+    }
+    assert.equal(total(a, "2026-10-24"), 900);
+    assert.equal(total(b, "2026-10-24"), 900);
+
+    // B counts a little more, and a computer that joins later sees the corrected day
+    b.log = { version: 1, days: { "2026-10-24": 3660 } };
+    await sync(b, keys);
+    await sync(a, keys);
+    const c = device({});
+    await sync(c, keys, { mustExist: true });
+    assert.equal(total(a, "2026-10-24"), 960);
+    assert.equal(total(c, "2026-10-24"), 960);
+
+    // and the correction can be undone, by correcting again
+    a.log = correctDay(a.log, a.others, "2026-10-24", 4260, Date.now());
+    await sync(a, keys);
+    await sync(c, keys);
+    assert.equal(total(c, "2026-10-24"), 4260);
+  });
 });

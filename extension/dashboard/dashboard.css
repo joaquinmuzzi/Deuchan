@@ -324,6 +324,71 @@ dialog h2 {
   }
 }
 
+/* The detail of a day */
+#dayDialog {
+  width: 420px;
+  max-width: calc(100vw - 32px);
+}
+
+.cell[data-day],
+.bar[data-day] {
+  cursor: pointer;
+}
+
+.day-total {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.day-total strong {
+  color: var(--strong);
+  font-size: 18px;
+}
+
+.day .label {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.day-videos {
+  max-height: 220px;
+  margin: 0 0 8px;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.day-videos li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--heat-0);
+  font-size: 13px;
+}
+
+.day-videos a {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-videos .time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.day .note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 /* The sync panel */
 #syncDialog {
   width: 360px;

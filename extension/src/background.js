@@ -3,18 +3,21 @@
 // once (see coverage.js), and paints the toolbar icon of each tab.
 import { addCoverage, isValidInterval } from "./coverage.js";
 import { IDLE_COLOR, drawIcons, iconColor } from "./icon.js";
+import { correctDay, dayTotal, isDayKey } from "./corrections.js";
 import { addSeconds, dayKey, migrate } from "./log.js";
 import { isVideoId, withOverride } from "./overrides.js";
 import { SYNC_URL } from "./sync-config.js";
 import { createSyncRunner } from "./sync-runner.js";
+import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
 
 let queue = Promise.resolve();
 
 const sync = createSyncRunner({ storage: chrome.storage.local, alarms: chrome.alarms, baseUrl: SYNC_URL });
 
-async function save(intervals) {
-  const stored = await chrome.storage.local.get(["log", "covered"]);
+async function save(intervals, video) {
+  const stored = await chrome.storage.local.get(["log", "covered", "videos"]);
   let log = migrate(stored.log);
+  let videos = stored.videos ?? {};
   let covered = Array.isArray(stored.covered) ? stored.covered : [];
   const now = Date.now() / 1000;
 
@@ -22,9 +25,11 @@ async function save(intervals) {
     const result = addCoverage(covered, interval);
     covered = result.covered;
     // The day is the one in which the interval ended
-    log = addSeconds(log, dayKey(new Date(interval.to * 1000)), result.newSeconds);
+    const day = dayKey(new Date(interval.to * 1000));
+    log = addSeconds(log, day, result.newSeconds);
+    videos = addVideoSeconds(videos, day, video, result.newSeconds);
   }
-  await chrome.storage.local.set({ log, covered });
+  await chrome.storage.local.set({ log, covered, videos });
   // The time of this computer changed: share it a little later, once
   await sync.soon().catch(() => {});
 }
@@ -32,6 +37,31 @@ async function save(intervals) {
 async function saveOverride(videoId, german) {
   const { overrides } = await chrome.storage.local.get("overrides");
   await chrome.storage.local.set({ overrides: withOverride(overrides, videoId, german) });
+}
+
+/** Runs `task` after what was asked before it, as the log has a single writer. */
+function enqueue(task) {
+  const result = queue.then(task);
+  queue = result.catch(() => {});
+  return result;
+}
+
+/** The day of the dashboard is corrected: it shows what the person says it was. */
+async function correct(day, seconds) {
+  const stored = await chrome.storage.local.get(["log", "others"]);
+  const log = correctDay(migrate(stored.log), stored.others, day, seconds, Date.now());
+  await chrome.storage.local.set({ log });
+  await sync.soon().catch(() => {});
+}
+
+/** A video of a day was not German: the day loses its time, and it will not count again. */
+async function removeFromDay(day, videoId) {
+  const stored = await chrome.storage.local.get(["log", "others", "videos"]);
+  const seconds = stored.videos?.[day]?.[videoId]?.seconds ?? 0;
+  const total = dayTotal(migrate(stored.log), stored.others, day);
+  await chrome.storage.local.set({ videos: removeVideo(stored.videos, day, videoId) });
+  await saveOverride(videoId, false);
+  await correct(day, Math.max(0, Math.round(total - seconds)));
 }
 
 // The alarms that start the sync are kept by the browser, but this makes sure they are there
@@ -46,6 +76,14 @@ const CONTROLS = {
   "sync:now": () => sync.run({ manual: true }),
   "sync:disable": () => sync.disable().then(() => ({})),
   "sync:erase": () => sync.erase(),
+  "day:correct": (message) =>
+    isDayKey(message.day) && Number.isFinite(message.seconds)
+      ? enqueue(() => correct(message.day, message.seconds)).then(() => ({}))
+      : Promise.resolve({ error: "invalid" }),
+  "day:remove-video": (message) =>
+    isDayKey(message.day) && isVideoId(message.videoId)
+      ? enqueue(() => removeFromDay(message.day, message.videoId)).then(() => ({}))
+      : Promise.resolve({ error: "invalid" }),
 };
 
 // The icon of every tab starts grey; a tab with a German video paints its own in orange
@@ -68,7 +106,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
   if (message?.type === "watched" && Array.isArray(message.intervals)) {
-    queue = queue.then(() => save(message.intervals)).catch(() => {});
+    const video = cleanVideo(message.video);
+    queue = queue.then(() => save(message.intervals, video)).catch(() => {});
   } else if (
     message?.type === "override" &&
     isVideoId(message.videoId) &&
