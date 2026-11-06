@@ -29,6 +29,8 @@ WHAT YOU GET
 • Only German. It works out the language of each video from its captions (or its title and description) and
   ignores the rest. When it gets one wrong, a button in the popup marks that video as German, or as not
   German, and it is remembered.
+• Click a day to see which videos made it up, take out the ones that were not German, or correct the
+  minutes if the day looks wrong. The correction shows on all your computers.
 • A daily goal that you set, with what is left today and a progress bar, and your streak.
 • A dashboard: totals, daily and monthly averages, an activity heatmap by month, a chart of your time per
   day (7 days to 1 year, with your goal as a line) and your average for each weekday.
@@ -75,12 +77,12 @@ Google. YouTube is a trademark of Google LLC.
 
 **Permission justifications:**
 
-| Permission                                                      | Why                                                                                                                                                                                              |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `storage`                                                       | Keeps, in the browser of the user, the seconds watched per day, the daily goal, the settings and the decisions of the user about which videos are in German.                                     |
-| `alarms`                                                        | Starts the sync of the progress every few minutes, only while the user has sync on. A service worker cannot keep a timer, so it needs an alarm.                                                  |
-| Host permission `https://sync-production-78f2.up.railway.app/*` | The sync server. Used only when the user turns sync on, to send and receive one encrypted block with the progress. It is the only address the extension can talk to.                             |
-| Content scripts on `https://www.youtube.com/*`                  | Read, in the page of the video, whether it is playing and the language of its captions, title and description, to count only the time of German videos. Nothing from the page is stored or sent. |
+| Permission                                                      | Why                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storage`                                                       | Keeps, in the browser of the user, the seconds watched per day, the videos of the last 60 days with their title and seconds (never sent), the daily goal, the settings and the decisions of the user about which videos are in German.                |
+| `alarms`                                                        | Starts the sync of the progress every few minutes, only while the user has sync on. A service worker cannot keep a timer, so it needs an alarm.                                                                                                       |
+| Host permission `https://sync-production-78f2.up.railway.app/*` | The sync server. Used only when the user turns sync on, to send and receive one encrypted block with the progress. It is the only address the extension can talk to.                                                                                  |
+| Content scripts on `https://www.youtube.com/*`                  | Read, in the page of the video, whether it is playing and the language of its captions, title and description, to count only the time of German videos. Only the id and the title of the video that is counted are kept, on the computer of the user. |
 
 **Remote code:** No. All the code is in the package; the extension loads nothing from the internet.
 
@@ -90,10 +92,13 @@ could not see it):
 - _User activity_: **yes, if you consider the seconds watched per day to be it.** It is the only data that
   leaves the browser, and only when the user turns sync on, encrypted so that the developer cannot read it.
 - _Website content_: the extension reads the title, description and caption language of a video, only in the
-  browser and only to decide if it is German; it does not keep or send them. If the form counts local
-  processing, tick this too.
+  browser and only to decide if it is German. It keeps the title and id of the German videos of the last 60
+  days, on the computer only, never sent, so that the user can see what made up a day. If the form counts
+  local processing, tick this too.
+- _Web history_: the list of videos above is a list of pages visited. It never leaves the computer, and the
+  form asks about data that is collected, but if its definition counts data kept locally, tick this too.
 - Leave the rest unticked: no personally identifiable information, health, financial, authentication,
-  personal communications, location or web history is handled.
+  personal communications or location is handled.
 
 **Certifications** (all three can be ticked as they are true): the data is not sold to third parties, not
 used for purposes unrelated to the single purpose, and not used to decide credit or lending.

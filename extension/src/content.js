@@ -15,8 +15,11 @@
   // The wall clock, not performance.now(): every tab has to measure on the same clock, so that the
   // background script can see when two tabs played at the same time
   const now = () => Date.now() / 1000;
+  // The video that is playing, so that the time can be explained afterwards: which videos made a day
+  let currentVideo = null;
   const watcher = new Watcher({
-    send: (intervals) => chrome.runtime.sendMessage({ type: "watched", intervals }).catch(() => {}),
+    send: (intervals) =>
+      chrome.runtime.sendMessage({ type: "watched", intervals, video: currentVideo }).catch(() => {}),
   });
 
   // The toolbar icon of this tab turns orange while the video is German
@@ -52,6 +55,7 @@
       watcher.newVideo(now());
       currentVideoId = videoId;
     }
+    currentVideo = { id: videoId, title: event.data.title };
     // What the user decided about this video wins over the guess
     const { overrides } = await chrome.storage.local.get("overrides");
     if (videoId === currentVideoId) {
@@ -88,6 +92,13 @@
     findLanguage();
   });
   new MutationObserver(lookForVideo).observe(document.documentElement, { childList: true, subtree: true });
+
+  // A decision about a video made somewhere else (the dashboard) applies to the one that is playing now
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.overrides && currentVideoId) {
+      askForVideo();
+    }
+  });
 
   // The popup asks what the current tab is doing, and can correct the guess about the language
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

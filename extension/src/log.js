@@ -5,6 +5,8 @@
  * shape is `{ version, days: { "2026-10-24": 3600 } }`; see `storage.js` for where it is kept.
  */
 
+import { sanitizeAdjust } from "./sync-data.js";
+
 /** Bump it when the shape changes, and migrate the old data in `migrate`. */
 export const STORAGE_VERSION = 1;
 
@@ -28,7 +30,11 @@ export function migrate(saved) {
       days[key] = seconds;
     }
   }
-  return { version: STORAGE_VERSION, days };
+  // The corrections of this device are kept as they are, if they make sense
+  const adjust = sanitizeAdjust(saved.adjust);
+  return Object.keys(adjust).length > 0
+    ? { version: STORAGE_VERSION, days, adjust }
+    : { version: STORAGE_VERSION, days };
 }
 
 /** A new log with `seconds` added to a day; the given log is not changed. */
