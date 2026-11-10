@@ -137,3 +137,27 @@ test("a day key is a date, and minutes are a whole number up to a day", () => {
     assert.equal(parseDayMinutes(bad), null, String(bad));
   }
 });
+
+test("correcting the same day on two computers does not add the corrections up: the newest one counts", () => {
+  // what really happened: 4659 seconds counted, and each computer was told the day was 15 and 14
+  // minutes, before knowing about the other
+  const counted = 4659.2449996471405;
+  const first = correctDay(logWith({ [DAY]: counted }), {}, DAY, 900, 1000);
+  const second = correctDay(logWith({}), { [A]: { days: { [DAY]: counted } } }, DAY, 840, 2000);
+  const onA = effectiveLog(first, { [B]: { days: {}, adjust: second.adjust } });
+  const onB = effectiveLog(second, { [A]: { days: { [DAY]: counted }, adjust: first.adjust } });
+  assert.equal(Math.round(onA.days[DAY]), 840);
+  assert.equal(Math.round(onB.days[DAY]), 840);
+  // and the other way round, if the 15 minutes were the later one
+  const later = correctDay(logWith({ [DAY]: counted }), {}, DAY, 900, 3000);
+  assert.equal(Math.round(effectiveLog(later, { [B]: { days: {}, adjust: second.adjust } }).days[DAY]), 900);
+});
+
+test("a correction made on a computer whose clock is behind still counts as the newest", () => {
+  const first = correctDay(logWith({ [DAY]: 4000 }), {}, DAY, 900, 50_000);
+  const known = { [A]: { days: {}, adjust: first.adjust } };
+  // this clock says 1000, a minute behind the other's
+  const second = correctDay(logWith({ [DAY]: 0 }), known, DAY, 1800, 1000);
+  assert.ok(second.adjust[DAY].at > first.adjust[DAY].at);
+  assert.equal(effectiveLog(second, known).days[DAY], 1800);
+});

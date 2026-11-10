@@ -15,7 +15,9 @@
  * The days only grow, so a day cannot be lowered by writing a smaller number: the larger copy would
  * win again. A correction is kept apart, as `adjust`: for a day, a number of seconds (negative to
  * take time away) that is added to the sum of the devices, with the moment it was made. The newer
- * copy of an adjustment wins, so it can be changed and undone. Each device only makes its own.
+ * copy of an adjustment wins, so it can be changed and undone. Each device only makes its own, but
+ * for a day only the newest one of all the devices counts: two computers that correct the same day
+ * do not add up, the last one to say how long the day was is right.
  *
  * Everything that comes from outside is checked (`sanitizeDevices`): it may be old, or damaged.
  */
@@ -158,10 +160,15 @@ export function effectiveLog(log, others) {
     }
     adjustments.push(device.adjust ?? {});
   }
+  // Of all the corrections of a day, from any device, only the newest counts
+  const newest = {};
   for (const adjust of adjustments) {
-    for (const [key, { seconds }] of Object.entries(adjust)) {
-      days[key] = (days[key] ?? 0) + seconds;
+    for (const [key, entry] of Object.entries(adjust)) {
+      newest[key] = newerAdjustment(newest[key], entry);
     }
+  }
+  for (const [key, { seconds }] of Object.entries(newest)) {
+    days[key] = (days[key] ?? 0) + seconds;
   }
   for (const [key, seconds] of Object.entries(days)) {
     if (!(seconds > 0)) {
