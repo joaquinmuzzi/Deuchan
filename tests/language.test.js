@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { detectGerman, germanScore, isGermanCode } from "../extension/src/language.js";
+import { audioLanguage, detectGerman, germanScore, isGermanCode } from "../extension/src/language.js";
 
 test("isGermanCode accepts German variants and nothing else", () => {
   for (const code of ["de", "de-DE", "de-AT", "DE", "de_CH"]) {
@@ -64,4 +64,63 @@ test("germanScore counts function words and umlauts", () => {
   assert.deepEqual(germanScore(""), { hits: 0, share: 0 });
   assert.equal(germanScore("und der das").hits, 3);
   assert.equal(germanScore("Müller Straße").hits, 2);
+});
+
+/** The id of an audio track as the player gives it: the itag, and the tags in base64 without padding. */
+function audioId(content, lang) {
+  const text = `\n\x14\n\x05acont\x12${String.fromCharCode(content.length)}${content}\n\r\n\x04lang\x12${String.fromCharCode(lang.length)}${lang}`;
+  return `251;${btoa(text).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "")}`;
+}
+
+test("audioLanguage reads the language of the track that is playing, as the player gives it", () => {
+  // taken from a real video: the Spanish automatic dubbing
+  assert.equal(audioLanguage("251;ChQKBWFjb250EgtkdWJiZWQtYXV0bwoNCgRsYW5nEgVlcy1VUw"), "es-US");
+  assert.equal(audioLanguage(audioId("original", "en-US")), "en-US");
+  assert.equal(audioLanguage(audioId("dubbed-auto", "de-DE")), "de-DE");
+  assert.equal(audioLanguage(audioId("original", "de")), "de");
+  for (const none of ["251;", "140", "", null, undefined, 5, "251;!!!", "251;AAAA"]) {
+    assert.equal(audioLanguage(none), null, String(none));
+  }
+});
+
+// What YouTube gives for a video with automatic dubbing: captions in every language of the dubbing
+const manyAutomatic = ["de", "ar", "bn", "ko", "es", "fr", "en", "ja"].map((languageCode) => ({
+  languageCode,
+  kind: "asr",
+}));
+
+test("an English video with automatic German captions among many is not German if the audio is Spanish or English", () => {
+  const english = { title: "The Game That Changed Horror FOREVER", description: "NEW GAME. Hope you Enjoy!" };
+  for (const audioTrackId of [audioId("dubbed-auto", "es-US"), audioId("original", "en-US")]) {
+    assert.deepEqual(detectGerman({ ...english, captionTracks: manyAutomatic, audioTrackId }), {
+      german: false,
+      reason: "audio",
+    });
+  }
+  // and without knowing the audio, so many automatic captions say nothing about the language
+  assert.equal(detectGerman({ ...english, captionTracks: manyAutomatic }).german, false);
+});
+
+test("the audio that is heard decides: an English video dubbed into German is German, a German one dubbed into Spanish is not", () => {
+  const dubbedIntoGerman = detectGerman({
+    captionTracks: manyAutomatic,
+    audioTrackId: audioId("dubbed-auto", "de-DE"),
+    title: "An English title",
+  });
+  assert.deepEqual(dubbedIntoGerman, { german: true, reason: "audio" });
+  const germanDubbedIntoSpanish = detectGerman({
+    captionTracks: [{ languageCode: "de", kind: "asr" }],
+    audioTrackId: audioId("dubbed-auto", "es-US"),
+    title: "Das ist nicht mein Tag und ich habe keine Lust",
+  });
+  assert.deepEqual(germanDubbedIntoSpanish, { german: false, reason: "audio" });
+});
+
+test("a German title can still decide a video with many automatic captions and no audio information", () => {
+  const video = {
+    captionTracks: manyAutomatic,
+    title: "Das ist nicht mein Tag und ich habe keine Lust",
+    description: "Heute sprechen wir über das Wetter und wir haben viel zu erzählen",
+  };
+  assert.deepEqual(detectGerman(video), { german: true, reason: "text" });
 });

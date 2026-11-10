@@ -11,6 +11,12 @@ note on what to update.
 
 ### Fixed
 
+- A video with automatic dubbing was taken for German because YouTube makes automatic captions in all the
+  languages of the dubbing, German among them. Now the audio track that is playing decides, so an English
+  video that plays in Spanish is not counted, and one that plays in German is. Without that information
+  (a video with a single audio track) the automatic captions still decide, if there is only one of them,
+  then the title and the description.
+
 - The dashboard drew no chart on a new install, before the first video had been watched.
 
 ### Added

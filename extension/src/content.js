@@ -10,6 +10,7 @@
 
   const FLUSH_EVERY_MS = 2_000;
   const LANGUAGE_RETRY_MS = 1_000;
+  const RECHECK_EVERY_MS = 5_000;
   const LANGUAGE_ATTEMPTS = 15;
 
   // The wall clock, not performance.now(): every tab has to measure on the same clock, so that the
@@ -26,6 +27,9 @@
   const announce = (german) => chrome.runtime.sendMessage({ type: "language", german }).catch(() => {});
 
   let currentVideoId = null;
+  // What the language of the video was taken to be the last time, so that the same answer is not
+  // given again and again
+  let decided = null;
   let attempts = 0;
 
   function askForVideo() {
@@ -54,12 +58,17 @@
     if (videoId !== currentVideoId) {
       watcher.newVideo(now());
       currentVideoId = videoId;
+      decided = null;
     }
     currentVideo = { id: videoId, title: event.data.title };
     // What the user decided about this video wins over the guess
     const { overrides } = await chrome.storage.local.get("overrides");
     if (videoId === currentVideoId) {
-      setVerdict(verdict(overrides, videoId, detectGerman(event.data).german));
+      const german = verdict(overrides, videoId, detectGerman(event.data).german);
+      if (german !== decided) {
+        decided = german;
+        setVerdict(german);
+      }
     }
   });
 
@@ -86,6 +95,7 @@
   // YouTube is a single page app: the video element stays and the page changes under it
   document.addEventListener("yt-navigate-finish", () => {
     currentVideoId = null;
+    decided = null;
     attempts = 0;
     announce(null);
     lookForVideo();
@@ -108,6 +118,7 @@
     if (message?.type === "status") {
       sendResponse(watcher.status);
     } else if (message?.type === "setGerman" && typeof message.german === "boolean" && currentVideoId) {
+      decided = message.german;
       setVerdict(message.german);
       chrome.runtime
         .sendMessage({ type: "override", videoId: currentVideoId, german: message.german })
@@ -116,6 +127,8 @@
   });
 
   setInterval(() => watcher.flush(now()), FLUSH_EVERY_MS);
+  // The audio track can change while the video plays (the viewer picks another language)
+  setInterval(() => currentVideoId && askForVideo(), RECHECK_EVERY_MS);
   document.addEventListener("visibilitychange", () => document.hidden && watcher.flush(now()));
   window.addEventListener("pagehide", () => watcher.flush(now()));
 

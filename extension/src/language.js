@@ -1,9 +1,12 @@
 /**
  * Decides whether a YouTube video is in German.
  *
- * YouTube does not say which language is spoken, so this combines two clues, from the most to the
+ * YouTube does not say which language is spoken, so this combines three clues, from the most to the
  * least reliable:
  *
+ * 0. The audio track that is playing. A video can have several, made by automatic dubbing, and
+ *    YouTube plays the one in the language of the viewer: what is heard is what counts, a German
+ *    video dubbed into Spanish is not German to the ears, and an English one dubbed into German is.
  * 1. The automatic captions. YouTube makes them by recognising the speech, in the language it
  *    recognised, so a video with automatic German captions is German and one with automatic
  *    English captions is not. Uploaded captions say nothing: they are often translations.
@@ -28,6 +31,27 @@ const MIN_GERMAN_WORDS = 3;
 /** Titles and descriptions mix names and English tags, so the share does not need to be high. */
 const MIN_GERMAN_SHARE = 0.12;
 
+/**
+ * The language of the audio track that is playing, from its id. The player gives it as
+ * `"251;<xtags>"`, where the tags are a base64 text that says, among other things, `lang` (for
+ * example `es-US`) and whether the track is the original or dubbed. A video with a single audio track
+ * has no language there, and the answer is `null`.
+ */
+export function audioLanguage(audioTrackId) {
+  const tags = typeof audioTrackId === "string" ? audioTrackId.split(";")[1] : undefined;
+  if (!tags) {
+    return null;
+  }
+  let text;
+  try {
+    const base64 = tags.replaceAll("-", "+").replaceAll("_", "/");
+    text = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "="));
+  } catch {
+    return null;
+  }
+  return /lang[^a-zA-Z]{1,3}([a-z]{2,3}(?:-[A-Za-z0-9]{2,4})?)/.exec(text)?.[1] ?? null;
+}
+
 export function isGermanCode(languageCode) {
   return /^de($|[-_])/i.test(languageCode ?? "");
 }
@@ -48,12 +72,19 @@ export function germanScore(text) {
 }
 
 /**
- * @param {{ captionTracks?: { languageCode: string, kind?: string }[], title?: string, description?: string }} video
- * @returns {{ german: boolean, reason: "automatic-captions" | "text" | "none" }}
+ * @param {{ audioTrackId?: string | null, captionTracks?: { languageCode: string, kind?: string }[], title?: string, description?: string }} video
+ * @returns {{ german: boolean, reason: "audio" | "automatic-captions" | "text" | "none" }}
  */
-export function detectGerman({ captionTracks = [], title = "", description = "" }) {
+export function detectGerman({ audioTrackId = null, captionTracks = [], title = "", description = "" }) {
+  const spoken = audioLanguage(audioTrackId);
+  if (spoken) {
+    return { german: isGermanCode(spoken), reason: "audio" };
+  }
+
+  // One automatic track is the language that was recognised. Several are not: when a video is dubbed
+  // YouTube makes captions in every language of the dubbing, and one of them being German says nothing
   const automatic = captionTracks.filter((track) => track.kind === "asr");
-  if (automatic.length > 0) {
+  if (automatic.length === 1) {
     return {
       german: automatic.some((track) => isGermanCode(track.languageCode)),
       reason: "automatic-captions",
