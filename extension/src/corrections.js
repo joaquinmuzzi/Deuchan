@@ -6,7 +6,8 @@
  * (see `sync-data.js`). Instead this device keeps a correction for the day, `adjust`: the seconds
  * to add (negative to take away) to what all the devices counted, and when it was made. The day then
  * shows exactly what the person said, now and on their other computers, and time that is counted
- * after the correction is added on top of it.
+ * after the correction is added on top of it. Of all the corrections of a day, from any computer,
+ * only the newest counts, so correcting it on two computers is not counted twice.
  */
 import { effectiveLog, sanitizeDevices } from "./sync-data.js";
 
@@ -32,16 +33,18 @@ export function correctDay(log, others, day, seconds, nowMs) {
     return log;
   }
   let counted = log.days?.[day] ?? 0;
-  let correctedByOthers = 0;
+  // The moment of the newest correction known, of this computer or of another one
+  let newestAt = log.adjust?.[day]?.at ?? 0;
   for (const device of Object.values(sanitizeDevices(others))) {
     counted += device.days[day] ?? 0;
-    correctedByOthers += device.adjust?.[day]?.seconds ?? 0;
+    newestAt = Math.max(newestAt, device.adjust?.[day]?.at ?? 0);
   }
-  const before = log.adjust?.[day];
-  const at = Math.max(nowMs, (before?.at ?? 0) + 1);
+  // Later than any known correction, even if the clock of this computer is behind the other's, so
+  // that this one is the one that counts
+  const at = Math.max(nowMs, newestAt + 1);
   return {
     ...log,
-    adjust: { ...log.adjust, [day]: { seconds: Math.round(seconds) - counted - correctedByOthers, at } },
+    adjust: { ...log.adjust, [day]: { seconds: Math.round(seconds) - counted, at } },
   };
 }
 
