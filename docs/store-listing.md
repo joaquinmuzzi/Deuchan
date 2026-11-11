@@ -43,7 +43,7 @@ analytics, no trackers.
 
 OPTIONAL SYNC BETWEEN YOUR COMPUTERS
 Turn it on in the dashboard to get a sync key, and enter that key on your other computers: they share
-their time per day and all show the total. Your time is encrypted in your browser (AES-256-GCM) before it
+their time per day and the recent videos, and all show the total. Your time is encrypted in your browser (AES-256-GCM) before it
 is sent, with a key that never leaves it, so the server cannot read it. There are no accounts. You can turn
 sync off, or delete your data from the server, whenever you want.
 
@@ -77,26 +77,26 @@ Google. YouTube is a trademark of Google LLC.
 
 **Permission justifications:**
 
-| Permission                                                      | Why                                                                                                                                                                                                                                                                            |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `storage`                                                       | Keeps, in the browser of the user, the seconds watched per day, the videos of the last 60 days with their title and seconds (never sent), the daily goal, the settings and the decisions of the user about which videos are in German.                                         |
-| `alarms`                                                        | Starts the sync of the progress every few minutes, only while the user has sync on. A service worker cannot keep a timer, so it needs an alarm.                                                                                                                                |
-| Host permission `https://sync-production-78f2.up.railway.app/*` | The sync server. Used only when the user turns sync on, to send and receive one encrypted block with the progress. It is the only address the extension can talk to.                                                                                                           |
-| Content scripts on `https://www.youtube.com/*`                  | Read, in the page of the video, whether it is playing, which audio track plays and the language of its captions, title and description, to count only the time of German videos. Only the id and the title of the video that is counted are kept, on the computer of the user. |
+| Permission                                                      | Why                                                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storage`                                                       | Keeps, in the browser of the user, the seconds watched per day, the videos of the last 60 days with their title and seconds (only the last 14 days leave the browser, encrypted, and only with sync on), the daily goal, the settings and the decisions of the user about which videos are in German. |
+| `alarms`                                                        | Starts the sync of the progress every few minutes, only while the user has sync on. A service worker cannot keep a timer, so it needs an alarm.                                                                                                                                                       |
+| Host permission `https://sync-production-78f2.up.railway.app/*` | The sync server. Used only when the user turns sync on, to send and receive one encrypted block with the progress. It is the only address the extension can talk to.                                                                                                                                  |
+| Content scripts on `https://www.youtube.com/*`                  | Read, in the page of the video, whether it is playing, which audio track plays and the language of its captions, title and description, to count only the time of German videos. Only the id and the title of the video that is counted are kept, on the computer of the user.                        |
 
 **Remote code:** No. All the code is in the package; the extension loads nothing from the internet.
 
 **Data usage** (the form lists categories of data; please read its own definitions as you fill it, as I
 could not see it):
 
-- _User activity_: **yes, if you consider the seconds watched per day to be it.** It is the only data that
-  leaves the browser, and only when the user turns sync on, encrypted so that the developer cannot read it.
+- _User activity_: **yes, if you consider the seconds watched per day to be it.** It leaves the browser
+  only when the user turns sync on, encrypted so that the developer cannot read it.
 - _Website content_: the extension reads the title, description and caption language of a video, only in the
   browser and only to decide if it is German. It keeps the title and id of the German videos of the last 60
-  days, on the computer only, never sent, so that the user can see what made up a day. If the form counts
-  local processing, tick this too.
-- _Web history_: the list of videos above is a list of pages visited. It never leaves the computer, and the
-  form asks about data that is collected, but if its definition counts data kept locally, tick this too.
+  days, so that the user can see what made up a day. If the form counts local processing, tick this too.
+- _Web history_: **yes.** The list of videos above is a list of pages visited (id, title and time). With sync
+  on, the last 14 days of it are sent to the sync server, encrypted in the browser so that the developer
+  cannot read it, to show it on the other computers of the same person. It is not used for anything else.
 - Leave the rest unticked: no personally identifiable information, health, financial, authentication,
   personal communications or location is handled.
 

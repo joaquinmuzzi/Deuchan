@@ -8,7 +8,8 @@ import { addSeconds, dayKey, migrate } from "./log.js";
 import { isVideoId, withOverride } from "./overrides.js";
 import { SYNC_URL } from "./sync-config.js";
 import { createSyncRunner } from "./sync-runner.js";
-import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
+import { sanitizeDevices } from "./sync-data.js";
+import { addVideoSeconds, cleanVideo, dayVideos, removeVideo } from "./videos.js";
 
 let queue = Promise.resolve();
 
@@ -57,7 +58,10 @@ async function correct(day, seconds) {
 /** A video of a day was not German: the day loses its time, and it will not count again. */
 async function removeFromDay(day, videoId) {
   const stored = await chrome.storage.local.get(["log", "others", "videos"]);
-  const seconds = stored.videos?.[day]?.[videoId]?.seconds ?? 0;
+  // What the video made of the day on all the computers
+  const seconds =
+    dayVideos(stored.videos, day, sanitizeDevices(stored.others)).find((video) => video.id === videoId)
+      ?.seconds ?? 0;
   const total = dayTotal(migrate(stored.log), stored.others, day);
   await chrome.storage.local.set({ videos: removeVideo(stored.videos, day, videoId) });
   await saveOverride(videoId, false);

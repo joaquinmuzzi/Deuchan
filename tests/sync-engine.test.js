@@ -10,6 +10,7 @@ import { deriveKeys, newSyncKey, parseSyncKey } from "../extension/src/sync-cryp
 import { syncOnce } from "../extension/src/sync-engine.js";
 import { correctDay } from "../extension/src/corrections.js";
 import { effectiveLog, newDeviceId } from "../extension/src/sync-data.js";
+import { addVideoSeconds, dayVideos, removeVideo } from "../extension/src/videos.js";
 
 /** Starts a real server on a free port, runs `body` with its address, and cleans up. */
 async function withServer(options, body) {
@@ -34,6 +35,7 @@ async function person(baseUrl) {
       deviceId: newDeviceId(),
       log: { version: 1, days },
       others: {},
+      videos: {},
       client: createClient({ baseUrl, token: keys.token }),
     }),
   };
@@ -47,6 +49,7 @@ async function sync(device, keys, extra = {}) {
     deviceId: device.deviceId,
     log: device.log,
     others: device.others,
+    videos: device.videos,
     ...extra,
   });
   device.others = result.others;
@@ -345,5 +348,60 @@ test("a corrected day shows the same on every computer, and syncing again does n
     await sync(a, keys);
     await sync(c, keys);
     assert.equal(total(c, "2026-10-24"), 4260);
+  });
+});
+
+const SHOWN = "2026-10-24";
+const ID_ONE = "dQw4w9WgXcQ";
+const ID_TWO = "9bVfoZu-aH4";
+
+test("a day lists the videos of every computer, and a video taken out on one is out on all", async () => {
+  await withServer({}, async ({ baseUrl }) => {
+    const { keys, device } = await person(baseUrl);
+    const a = device({ [SHOWN]: 600 });
+    const b = device({ [SHOWN]: 300 });
+    a.videos = addVideoSeconds({}, SHOWN, { id: ID_ONE, title: "Watched on A" }, 600);
+    b.videos = addVideoSeconds({}, SHOWN, { id: ID_TWO, title: "Watched on B" }, 300);
+    for (let round = 0; round < 3; round += 1) {
+      await sync(a, keys);
+      await sync(b, keys);
+    }
+    const ids = (d) => dayVideos(d.videos, SHOWN, d.others).map((video) => video.id);
+    assert.deepEqual(ids(a), [ID_ONE, ID_TWO]);
+    assert.deepEqual(ids(b), [ID_ONE, ID_TWO]);
+    assert.equal(dayVideos(b.videos, SHOWN, b.others)[0].title, "Watched on A");
+
+    // on B, the video that A watched is not German: it goes from the list of A as well
+    b.videos = removeVideo(b.videos, SHOWN, ID_ONE);
+    for (let round = 0; round < 3; round += 1) {
+      await sync(b, keys);
+      await sync(a, keys);
+    }
+    assert.deepEqual(ids(a), [ID_TWO]);
+    assert.deepEqual(ids(b), [ID_TWO]);
+
+    // a computer that joins later sees the same
+    const c = device({});
+    await sync(c, keys, { mustExist: true });
+    assert.deepEqual(ids(c), [ID_TWO]);
+  });
+});
+
+test("a computer with no videos (an older version) and one with videos still agree on the days", async () => {
+  await withServer({}, async ({ baseUrl }) => {
+    const { keys, device } = await person(baseUrl);
+    const a = device({ [SHOWN]: 600 });
+    const b = device({ [SHOWN]: 300 });
+    a.videos = addVideoSeconds({}, SHOWN, { id: ID_ONE, title: "T" }, 600);
+    for (let round = 0; round < 3; round += 1) {
+      await sync(a, keys);
+      await sync(b, keys);
+    }
+    assert.equal(total(a, SHOWN), 900);
+    assert.equal(total(b, SHOWN), 900);
+    assert.deepEqual(
+      dayVideos(b.videos, SHOWN, b.others).map((video) => video.id),
+      [ID_ONE],
+    );
   });
 });

@@ -2,7 +2,7 @@ import { parseDayMinutes } from "../src/corrections.js";
 import { goalMinutesOf, goalSeconds, parseGoalMinutes } from "../src/goal.js";
 import { formatClock, migrate } from "../src/log.js";
 import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js";
-import { effectiveLog } from "../src/sync-data.js";
+import { effectiveLog, sanitizeDevices } from "../src/sync-data.js";
 import { setUpTheme } from "../src/theme.js";
 import { dayVideos } from "../src/videos.js";
 import { setUpSyncPanel } from "./sync-panel.js";
@@ -162,7 +162,7 @@ function renderDetail() {
   const total = current().days[openDay] ?? 0;
   byId("dayTitle").textContent = longDayName.format(dateOf(openDay));
   byId("dayTotal").textContent = formatClock(total);
-  const list = dayVideos(videos, openDay);
+  const list = dayVideos(videos, openDay, sanitizeDevices(others));
   byId("dayVideos").replaceChildren(
     ...list.map((video) => {
       const row = element("li", "");
@@ -183,8 +183,8 @@ function renderDetail() {
   );
   byId("dayNote").textContent =
     list.length > 0
-      ? "Not German takes that video out of the day and stops counting it."
-      : "No videos are saved for this day on this computer. Time from before this version, or from your other computers, is not listed.";
+      ? "Not German takes that video out of the day, on all your computers, and stops counting it here."
+      : "No videos are saved for this day. Videos are listed from the version that added this list, and only the last two weeks of the other computers.";
 }
 
 function openDetail(day) {

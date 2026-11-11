@@ -19,10 +19,17 @@
  * for a day only the newest one of all the devices counts: two computers that correct the same day
  * do not add up, the last one to say how long the day was is right.
  *
+ * The videos that made up the days go the same way, as `videos` of each device (see `videos.js`), so
+ * that a day lists what was watched on every computer. Only the recent ones are sent.
+ *
  * Everything that comes from outside is checked (`sanitizeDevices`): it may be old, or damaged.
  */
+import { forSync, mergeVideos, sanitizeVideos } from "./videos.js";
 
-export const SYNC_VERSION = 2;
+export const SYNC_VERSION = 3;
+
+/** A block bigger than this goes without the videos, so that the days always fit what the server takes. */
+const MAX_BLOCK_CHARS = 150_000;
 
 /** More devices than this are not kept: it is the number a person could really have. */
 export const MAX_DEVICES = 20;
@@ -91,9 +98,13 @@ export function sanitizeDevices(devices) {
   for (const [id, device] of Object.entries(devices)) {
     if (isDeviceId(id) && Object.keys(clean).length < MAX_DEVICES) {
       const adjust = sanitizeAdjust(device?.adjust);
+      const videos = sanitizeVideos(device?.videos);
       clean[id] = { days: sanitizeDays(device?.days) };
       if (Object.keys(adjust).length > 0) {
         clean[id].adjust = adjust;
+      }
+      if (Object.keys(videos).length > 0) {
+        clean[id].videos = videos;
       }
     }
   }
@@ -117,22 +128,32 @@ export function mergeDevices(first, second) {
     for (const [key, entry] of Object.entries(b[id]?.adjust ?? {})) {
       adjust[key] = newerAdjustment(adjust[key], entry);
     }
+    const videos = mergeVideos(a[id]?.videos, b[id]?.videos);
     if (Object.keys(merged).length < MAX_DEVICES) {
       merged[id] = { days };
       if (Object.keys(adjust).length > 0) {
         merged[id].adjust = adjust;
+      }
+      if (Object.keys(videos).length > 0) {
+        merged[id].videos = videos;
       }
     }
   }
   return merged;
 }
 
-/** What this device sends: everything it knows, its own days included. */
-export function blobOf(deviceId, log, others) {
-  return {
-    version: SYNC_VERSION,
-    devices: mergeDevices(others, { [deviceId]: { days: log?.days, adjust: log?.adjust } }),
-  };
+/** What this device sends: everything it knows, its own days and the videos of them included. */
+export function blobOf(deviceId, log, others, videos) {
+  const own = { days: log?.days, adjust: log?.adjust, videos: forSync(videos) };
+  const blob = { version: SYNC_VERSION, devices: mergeDevices(others, { [deviceId]: own }) };
+  if (JSON.stringify(blob).length <= MAX_BLOCK_CHARS) {
+    return blob;
+  }
+  // Too much: the days and the corrections are what matters, the videos are only to explain them
+  const devices = Object.fromEntries(
+    Object.entries(blob.devices).map(([id, device]) => [id, { ...device, videos: undefined }]),
+  );
+  return { version: SYNC_VERSION, devices: JSON.parse(JSON.stringify(devices)) };
 }
 
 /** What a received copy says about the other devices (the own one is not taken from outside). */
