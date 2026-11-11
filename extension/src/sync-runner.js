@@ -74,7 +74,7 @@ export function createSyncRunner({ storage, alarms, baseUrl, fetchImpl = globalT
   }
 
   async function round({ mustExist = false, manual = false } = {}) {
-    const stored = await storage.get(["syncKey", "syncState", "log", "others"]);
+    const stored = await storage.get(["syncKey", "syncState", "log", "others", "videos"]);
     if (!stored.syncKey) {
       return { skipped: "off" };
     }
@@ -92,6 +92,7 @@ export function createSyncRunner({ storage, alarms, baseUrl, fetchImpl = globalT
         deviceId,
         log: stored.log,
         others: stored.others,
+        videos: stored.videos,
         mustExist,
       });
       await storage.set({ others: result.others });

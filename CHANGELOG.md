@@ -22,8 +22,10 @@ note on what to update.
 ### Added
 
 - Click a day in the dashboard (a square of the activity map, or a bar of the chart) to see which videos
-  made it up, on this computer, for the last 60 days. "Not German" takes a video out of the day and stops
-  counting it. The list is kept only on this computer and is never synced.
+  made it up, on all your computers. "Not German" takes a video out of the day, on all of them, and stops
+  counting it on this one. This computer keeps the last 60 days; with sync on, the last 14 days (the 10
+  longest videos of each) are sent encrypted to the other computers, so every computer lists what was
+  watched on all of them. With sync off the list never leaves the computer.
 - Correct a day: say how many minutes you really watched. The correction is synced as its own value, so
   the day shows the same on all your computers and the old time does not come back; time counted after it
   is added on top. If you correct the same day on two computers, the last correction is the one that counts. This changes the synced data (version 2): update the extension on all your computers.

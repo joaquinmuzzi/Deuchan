@@ -19,10 +19,10 @@ really get.
   one wrong, a button in the popup marks that video as German, or as not German, and it is
   remembered.
 - **A day you can explain and correct.** Click a day in the dashboard to see which videos made it up
-  (on this computer, for the last 60 days), take out the ones that were not German, or say how many
-  minutes you really watched. The correction shows on all your computers.
+  (on all your computers: the last 60 days here, the last 14 of the others), take out the ones that were
+  not German, or say how many minutes you really watched. What you change shows on all your computers.
 - **Local and private.** The log stays in your browser. Nothing is sent anywhere unless you turn on
-  sync, and then only your time per day, encrypted on your computer.
+  sync, and then only your time per day and your recent videos, encrypted on your computer.
 - **Sync between computers, if you want it.** Turn it on in the dashboard, enter the key on your other
   computers, and they share their progress. There are no accounts: the server only holds encrypted data
   that it cannot read, and you can delete it whenever you want.

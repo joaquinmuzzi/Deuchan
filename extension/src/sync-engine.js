@@ -23,6 +23,9 @@ function sameDevices(first, second) {
           id,
           Object.entries(device.days).sort(([a], [b]) => a.localeCompare(b)),
           Object.entries(device.adjust ?? {}).sort(([a], [b]) => a.localeCompare(b)),
+          Object.entries(device.videos ?? {})
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([day, entries]) => [day, Object.entries(entries).sort(([a], [b]) => a.localeCompare(b))]),
         ]),
     );
   return normal(first) === normal(second);
@@ -35,11 +38,12 @@ function sameDevices(first, second) {
  * @param {string} options.deviceId  this device
  * @param {{ days: object }} options.log  what this device counted
  * @param {object} options.others  what it knew about the other devices
+ * @param {object} [options.videos]  the videos that this device watched, to explain its days
  * @param {boolean} [options.mustExist]  fail if the server has nothing, as when joining with a key typed
  *   by a person, which may be wrong: a wrong key must not silently start an empty copy
  * @returns {Promise<{ others: object, uploaded: boolean, devices: number }>}
  */
-export async function syncOnce({ client, key, deviceId, log, others, mustExist = false }) {
+export async function syncOnce({ client, key, deviceId, log, others, videos, mustExist = false }) {
   let known = others ?? {};
   for (let attempt = 0; attempt < ATTEMPTS; attempt += 1) {
     const remote = await client.get();
@@ -61,7 +65,7 @@ export async function syncOnce({ client, key, deviceId, log, others, mustExist =
       known = receive(known, blob, deviceId);
     }
 
-    const outgoing = blobOf(deviceId, log, known);
+    const outgoing = blobOf(deviceId, log, known, videos);
     const devices = Object.keys(outgoing.devices).length;
     // If the server already has everything this device has, there is nothing to write
     if (remote && sameDevices(mergeDevices(remoteDevices, outgoing.devices), remoteDevices)) {

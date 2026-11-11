@@ -178,3 +178,49 @@ test("a new install, with nothing saved yet, gives a log that the dashboard can 
   assert.equal(timeline(log, today, 15).length, 15);
   assert.equal(dashboardData(log, today).cards.today, "0:00");
 });
+
+test("blobOf sends the recent videos of this device, and a copy of the others keeps theirs", () => {
+  const videos = { "2026-10-24": { dQw4w9WgXcQ: { title: "T", seconds: 60 } } };
+  const blob = blobOf(
+    A,
+    logWith({ "2026-10-24": 60 }),
+    { [B]: { days: {}, videos: { "2026-10-23": { "9bVfoZu-aH4": { title: "U", seconds: 9 } } } } },
+    videos,
+  );
+  assert.equal(blob.devices[A].videos["2026-10-24"].dQw4w9WgXcQ.seconds, 60);
+  assert.equal(blob.devices[B].videos["2026-10-23"]["9bVfoZu-aH4"].title, "U");
+  assert.deepEqual(blobOf(A, logWith({ "2026-10-24": 60 }), {}, undefined).devices, {
+    [A]: { days: { "2026-10-24": 60 } },
+  });
+});
+
+test("a block that is too big goes without the videos, and keeps every day", () => {
+  const videos = {};
+  for (let day = 1; day <= 14; day += 1) {
+    const key = `2026-10-${String(day).padStart(2, "0")}`;
+    videos[key] = {};
+    for (let video = 0; video < 10; video += 1) {
+      videos[key][`video${String(video).padStart(6, "0")}`] = { title: "t".repeat(100), seconds: 5 + video };
+    }
+  }
+  const others = {};
+  for (let index = 0; index < 19; index += 1) {
+    others[`${String(index).padStart(8, "0")}-aaaa-4aaa-8aaa-aaaaaaaaaaaa`] = {
+      days: { "2026-10-24": 5 },
+      videos,
+    };
+  }
+  const blob = blobOf(A, logWith({ "2026-10-24": 60 }), others, videos);
+  assert.ok(JSON.stringify(blob).length < 150_000);
+  assert.equal(effectiveLog(logWith({}), blob.devices).days["2026-10-24"], 155);
+  assert.ok(Object.values(blob.devices).every((device) => !("videos" in device)));
+});
+
+test("sanitizeDevices keeps the videos of a device, and a device with none stays as it was", () => {
+  const devices = sanitizeDevices({
+    [A]: { days: {}, videos: { "2026-10-24": { dQw4w9WgXcQ: { title: "T", seconds: 5 } } } },
+    [B]: { days: { "2026-10-24": 5 }, videos: { bad: {} } },
+  });
+  assert.equal(devices[A].videos["2026-10-24"].dQw4w9WgXcQ.seconds, 5);
+  assert.deepEqual(devices[B], { days: { "2026-10-24": 5 } });
+});

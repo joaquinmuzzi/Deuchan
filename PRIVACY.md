@@ -1,10 +1,10 @@
 # Privacy policy
 
-_Last updated: 6 November 2026._
+_Last updated: 11 November 2026._
 
 **In short:** Deuchan keeps what it counts on your own computer. It sends nothing anywhere unless you turn
-on sync, and then it sends only the seconds you watched per day, encrypted in your browser with a key that
-never leaves it, so the server cannot read it. There are no accounts, no ads, no analytics and no trackers,
+on sync, and then it sends only the seconds you watched per day and the titles of your most recent German
+videos, encrypted in your browser with a key that never leaves it, so the server cannot read it. There are no accounts, no ads, no analytics and no trackers,
 and nothing is sold or shared.
 
 ## Who is behind Deuchan
@@ -29,8 +29,9 @@ It stores on your computer (in `chrome.storage.local`):
 
 - the **seconds you watched per day** (a date and a number);
 - the **videos that made up each of the last 60 days**: the id and the title of each German video and the
-  seconds you watched of it, so that you can see what a day was made of and correct it. This list stays on
-  this computer. It is never sent, not even when sync is on;
+  seconds you watched of it, so that you can see what a day was made of and correct it. With sync off, this
+  list stays on this computer. With sync on, the most recent part of it (the last 14 days, the 10 longest
+  videos of each) is sent too, encrypted like the rest, so that your other computers can list it;
 - the **corrections** you make to a day (a number of seconds, and when you made it);
 - your **daily goal** and your settings (light or dark, the range of the chart);
 - the **ids of the videos you marked** as German or as not German, so the decision is remembered;
@@ -39,7 +40,8 @@ It stores on your computer (in `chrome.storage.local`):
 All of this stays in your browser. It is deleted when you uninstall the extension, and you can look at it
 in the dashboard. Deuchan does not read your YouTube account, your history, your searches or your
 recommendations, and does not run on any other site. The only record of what you watched is the list of
-German videos above, which stays on your computer and which you can see in the dashboard, on each day.
+German videos above, which you can see in the dashboard, on each day. With sync off it never leaves your
+computer.
 
 ## What happens when you turn sync on
 
@@ -50,8 +52,9 @@ than one computer. Then:
   be turned into the other: a **token**, which proves to the server that you know the key, and an
   **encryption key**, which never leaves your browser.
 - Every few minutes your browser sends the server one **encrypted block**. Inside, before it was encrypted:
-  the random identifiers of your computers and, for each one, the seconds per day and the corrections
-  you made to a day. Nothing else: no video, no title, no address, no name, no email.
+  the random identifiers of your computers and, for each one, the seconds per day, the corrections you
+  made to a day and the id, title and seconds of its most recent videos (the last 14 days, the 10 longest
+  of each). Nothing else: no address, no name, no email, no other history.
 - The server stores the block under the **hash of the token**. It cannot read the block (it does not have
   the encryption key) and cannot tell who it belongs to. There are no accounts, emails or passwords.
 - Your other computers, when you enter the key on them, read the block and decrypt it in the browser.
