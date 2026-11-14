@@ -46,7 +46,7 @@ test("every permission of the manifest is justified in the listing", () => {
   for (const permission of manifest.permissions) {
     assert.match(listing, new RegExp(`\\| \`${permission}\`\\s+\\|`), `${permission} has a row in the table`);
   }
-  for (const host of manifest.host_permissions) {
+  for (const host of [...manifest.host_permissions, ...(manifest.optional_host_permissions ?? [])]) {
     assert.ok(listing.includes(`\`${host}\``), `${host} is justified`);
   }
   for (const script of manifest.content_scripts) {

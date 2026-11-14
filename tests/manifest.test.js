@@ -41,6 +41,12 @@ test("the only address it may talk to is the sync server, and it is the one the 
   assert.match(SYNC_URL, /^https:\/\/[a-z0-9.-]+$/, "https, and no path");
 });
 
+test("the hub on this computer is an optional permission, asked for when the person turns it on", () => {
+  // Asked for from the dashboard: a new permission in host_permissions would show a warning to every
+  // person who has the extension
+  assert.deepEqual(manifest.optional_host_permissions, ["http://127.0.0.1/*", "http://localhost/*"]);
+});
+
 test("the modules the content script imports can be reached from the page", () => {
   const imported = [
     ...readFileSync(resolve(EXTENSION, "src/content.js"), "utf8").matchAll(/getURL\("([^"]+)"\)/g),
