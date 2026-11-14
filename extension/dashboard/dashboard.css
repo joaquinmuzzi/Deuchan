@@ -389,9 +389,30 @@ dialog h2 {
   font-size: 12px;
 }
 
-/* The sync panel */
-#syncDialog {
+/* The sync panel, and the Mosaik one, which looks the same */
+#syncDialog,
+#mosaikDialog {
   width: 360px;
+}
+
+.dialog-body .switch-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 14px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dialog-body .switch-row input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--strong);
+}
+
+.sync .note.queue {
+  margin-top: 8px;
 }
 
 .sync-status {

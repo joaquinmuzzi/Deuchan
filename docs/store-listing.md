@@ -77,12 +77,13 @@ Google. YouTube is a trademark of Google LLC.
 
 **Permission justifications:**
 
-| Permission                                                      | Why                                                                                                                                                                                                                                                                            |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `storage`                                                       | Keeps, in the browser of the user, the seconds watched per day, the videos of the last 60 days with their title and seconds (never sent), the daily goal, the settings and the decisions of the user about which videos are in German.                                         |
-| `alarms`                                                        | Starts the sync of the progress every few minutes, only while the user has sync on. A service worker cannot keep a timer, so it needs an alarm.                                                                                                                                |
-| Host permission `https://sync-production-78f2.up.railway.app/*` | The sync server. Used only when the user turns sync on, to send and receive one encrypted block with the progress. It is the only address the extension can talk to.                                                                                                           |
-| Content scripts on `https://www.youtube.com/*`                  | Read, in the page of the video, whether it is playing, which audio track plays and the language of its captions, title and description, to count only the time of German videos. Only the id and the title of the video that is counted are kept, on the computer of the user. |
+| Permission                                                              | Why                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `storage`                                                               | Keeps, in the browser of the user, the seconds watched per day, the videos of the last 60 days with their title and seconds (never sent), the daily goal, the settings and the decisions of the user about which videos are in German.                                         |
+| `alarms`                                                                | Starts the sync of the progress every few minutes, only while the user has sync on. A service worker cannot keep a timer, so it needs an alarm.                                                                                                                                |
+| Host permission `https://sync-production-78f2.up.railway.app/*`         | The sync server. Used only when the user turns sync on, to send and receive one encrypted block with the progress. It is the only address on the internet the extension can talk to.                                                                                           |
+| Optional host permissions `http://127.0.0.1/*` and `http://localhost/*` | Not granted at install. Asked for only when the user turns on "Send to Mosaik" in the dashboard: it sends the watch time to Mosaik, an app of the user that runs on their own computer. Nothing goes to another computer.                                                      |
+| Content scripts on `https://www.youtube.com/*`                          | Read, in the page of the video, whether it is playing, which audio track plays and the language of its captions, title and description, to count only the time of German videos. Only the id and the title of the video that is counted are kept, on the computer of the user. |
 
 **Remote code:** No. All the code is in the package; the extension loads nothing from the internet.
 
@@ -90,7 +91,10 @@ Google. YouTube is a trademark of Google LLC.
 could not see it):
 
 - _User activity_: **yes, if you consider the seconds watched per day to be it.** It is the only data that
-  leaves the browser, and only when the user turns sync on, encrypted so that the developer cannot read it.
+  goes to the internet, and only when the user turns sync on, encrypted so that the developer cannot read
+  it. With "Send to Mosaik" on (off by default), the extension also sends the watch times and the ids and
+  titles of the videos to an app of the user on their own computer (`127.0.0.1` or `localhost`); the
+  developer never receives them.
 - _Website content_: the extension reads the title, description and caption language of a video, only in the
   browser and only to decide if it is German. It keeps the title and id of the German videos of the last 60
   days, on the computer only, never sent, so that the user can see what made up a day. If the form counts

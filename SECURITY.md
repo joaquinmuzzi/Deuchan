@@ -37,7 +37,9 @@ blocks and the requests of an address and of a key.
 Examples of problems we want to hear about:
 
 - any way for a web page to read or change the log or the settings of the extension;
-- the extension sending data out of your browser when sync is off, or anything other than the encrypted block when it is on;
+- the extension sending data out of your browser when sync and "Send to Mosaik" are off, anything other
+  than the encrypted block to the sync server, or anything to an address that is not on your computer
+  when "Send to Mosaik" is on;
 - a way to read the data of a person from the sync server without their sync key, or to read or delete
   the block of someone else;
 - a way to make the sync server unavailable for other people with little effort;

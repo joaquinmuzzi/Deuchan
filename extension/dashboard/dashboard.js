@@ -5,6 +5,7 @@ import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js"
 import { effectiveLog } from "../src/sync-data.js";
 import { setUpTheme } from "../src/theme.js";
 import { dayVideos } from "../src/videos.js";
+import { setUpMosaikPanel } from "./mosaik-panel.js";
 import { setUpSyncPanel } from "./sync-panel.js";
 
 const byId = (id) => document.getElementById(id);
@@ -246,6 +247,7 @@ byId("ranges").addEventListener("change", (event) => {
 
 setUpTheme(byId("theme"));
 setUpSyncPanel();
+setUpMosaikPanel();
 const stored = await chrome.storage.local.get(["log", "others", "goalMinutes", "range", "videos"]);
 log = stored.log;
 others = stored.others;

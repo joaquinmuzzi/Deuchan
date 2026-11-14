@@ -43,6 +43,23 @@
               <path d="M7 18a4.5 4.5 0 0 1-.5-8.97A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5Z" />
             </svg>
           </button>
+          <button class="icon-button" id="mosaik" type="button" aria-label="Send to Mosaik">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </button>
           <button class="icon-button" id="theme" type="button"></button>
         </div>
       </header>
@@ -198,6 +215,34 @@
           <p class="error" id="syncError" role="alert"></p>
           <div class="actions">
             <button class="button" id="syncClose" type="button">Close</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="mosaikDialog" aria-labelledby="mosaikTitle">
+      <div class="sync">
+        <h2 id="mosaikTitle">Send to Mosaik</h2>
+        <div class="dialog-body">
+          <p class="sync-status" id="mosaikStatus" data-tone="off">Off</p>
+          <p class="note">
+            Mosaik is an app on this computer that puts together how you learn languages. Deuchan can send it
+            your time per day and when you watched which video (its id and title). It only talks to this
+            computer, never to the internet.
+          </p>
+          <label class="switch-row"><input id="mosaikEnabled" type="checkbox" /> Send to Mosaik</label>
+          <label for="mosaikUrl">Address of Mosaik</label>
+          <input id="mosaikUrl" type="text" autocomplete="off" spellcheck="false" />
+          <p class="note queue" id="mosaikQueue"></p>
+          <div class="actions spread">
+            <button class="button" id="mosaikTest" type="button">Test connection</button>
+            <button class="button" id="mosaikSendNow" type="button">Send now</button>
+            <button class="button" id="mosaikBackfill" type="button">Send history</button>
+          </div>
+          <p class="note" id="mosaikResult" aria-live="polite"></p>
+          <p class="error" id="mosaikError" role="alert"></p>
+          <div class="actions">
+            <button class="button" id="mosaikClose" type="button">Close</button>
           </div>
         </div>
       </div>
