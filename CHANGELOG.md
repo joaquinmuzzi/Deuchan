@@ -21,6 +21,13 @@ note on what to update.
 
 ### Added
 
+- "Send to Mosaik", off by default: in the dashboard (the squares button), Deuchan can send what it
+  counts to Mosaik, a hub on your own computer that puts together how you learn languages. It sends each
+  stretch of a video (when, how long, the id and title of the video), the total of each day as the
+  dashboard shows it, and the videos you take out of a day; the first time, it sends the total of every
+  day of your history, and "Send history" sends it again. Only to an address on your computer
+  (`127.0.0.1` or `localhost`): the extension asks for that permission when you turn it on, not at
+  install. While Mosaik is not running, the events wait and go when it is back.
 - Click a day in the dashboard (a square of the activity map, or a bar of the chart) to see which videos
   made it up, on this computer, for the last 60 days. "Not German" takes a video out of the day and stops
   counting it. The list is kept only on this computer and is never synced.
