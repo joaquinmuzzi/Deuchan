@@ -1,11 +1,11 @@
 # Privacy policy
 
-_Last updated: 14 November 2026._
+_Last updated: 15 November 2026._
 
 **In short:** Deuchan keeps what it counts on your own computer. It sends nothing to the internet unless you
 turn on sync, and then it sends only the seconds you watched per day, encrypted in your browser with a key
 that never leaves it, so the server cannot read it. If you turn on "Send to Mosaik", it also sends what you
-watched to Mosaik, an app on your own computer, and to nowhere else. There are no accounts, no ads, no analytics and no trackers,
+watched to Mosaik, an app of yours (on your own computer, or on a server you run), and to nowhere else. There are no accounts, no ads, no analytics and no trackers,
 and nothing is sold or shared.
 
 ## Who is behind Deuchan
@@ -31,13 +31,14 @@ It stores on your computer (in `chrome.storage.local`):
 - the **seconds you watched per day** (a date and a number);
 - the **videos that made up each of the last 60 days**: the id and the title of each German video and the
   seconds you watched of it, so that you can see what a day was made of and correct it. This list stays on
-  this computer. It is never sent to the internet, not even when sync is on (with "Send to Mosaik" on, it
-  goes to Mosaik, on this same computer: [see below](#what-happens-when-you-turn-on-send-to-mosaik));
+  this computer. It is never sent to the sync server, not even when sync is on (with "Send to Mosaik" on, it
+  goes to your Mosaik: [see below](#what-happens-when-you-turn-on-send-to-mosaik));
 - the **corrections** you make to a day (a number of seconds, and when you made it);
 - your **daily goal** and your settings (light or dark, the range of the chart);
 - the **ids of the videos you marked** as German or as not German, so the decision is remembered;
 - a **random identifier of this computer**, which is not linked to you;
-- only if you turn on "Send to Mosaik": its settings, and the events that wait to be sent to it.
+- only if you turn on "Send to Mosaik": its settings (with the device token, if your Mosaik is on a
+  server), and the events that wait to be sent to it.
 
 All of this stays in your browser. It is deleted when you uninstall the extension, and you can look at it
 in the dashboard. Deuchan does not read your YouTube account, your history, your searches or your
@@ -75,21 +76,27 @@ while sync is on, and shown in the dashboard only when you ask.
 
 ## What happens when you turn on Send to Mosaik
 
-"Send to Mosaik" is **optional and off by default**. Mosaik is a separate app, by the same author, that runs
-on your own computer and puts together how you learn languages (Anki, games, YouTube). If you use it, you
-can turn this on in the dashboard (the squares button). Then:
+"Send to Mosaik" is **optional and off by default**. Mosaik is a separate app, by the same author, that puts
+together how you learn languages (Anki, games, YouTube). It runs on your own computer, or on a server you
+set up yourself so that several of your computers can send to it. If you use it, you can turn this on in the
+dashboard (the squares button). Then:
 
-- You set the address of Mosaik, which has to be **on this computer**: `http://127.0.0.1` or
-  `http://localhost`, on any port (`http://127.0.0.1:7300` unless you change it). Any other address is
-  refused. Your browser asks you for the permission to reach that address; without it, nothing is sent.
+- You set the address of your Mosaik: on this computer, `http://127.0.0.1` or `http://localhost` on any
+  port (`http://127.0.0.1:7300` unless you change it); or your own Mosaik server, an `https://` address.
+  A plain `http://` address of another computer is refused, so nothing travels unencrypted.
+- A Mosaik server only takes data with a **device token** that you make in that server (Fuentes →
+  Dispositivos) and paste in Deuchan. It is kept only in this browser and sent only to that address, with
+  every sending. You can revoke it in the server at any time.
+- Your browser asks you for the permission to reach that one address; without it, nothing is sent.
 - Every minute, Deuchan sends Mosaik:
   - each **stretch of a video** you watched: when it started and ended, the seconds counted, and the id and
     title of the video;
   - the **total of each day** as the dashboard shows it, with the videos of that day (id, title, seconds).
     The first time you turn it on, it sends the total of every day in your history;
   - when you **take a video out of a day**: the day, the id of the video, and when.
-- All of it goes only to that address on your computer: not to the internet, not to the developer, not to
-  any other computer. What Mosaik does with it is up to Mosaik, on your computer.
+- All of it goes only to the address you set: not to the developer and not to anyone else. What Mosaik
+  does with it is up to your Mosaik. If it is a server, it is yours: the developer of Deuchan does not run
+  it and has no access to it, and whoever hosts it (for example, Railway) keeps it under their own terms.
 - While Mosaik is not running, what is to be sent waits in your browser (at most about 5000 events; if there
   are more, the oldest stretches go first) and is sent when Mosaik runs again.
 - **Turning it off** stops it and deletes what was waiting to be sent. What Mosaik already received stays
@@ -118,7 +125,7 @@ answered for someone who has the sync key, and the way to do it is the button ab
 
 Nobody. Deuchan has no analytics, no advertising and no trackers; it does not sell data and does not share
 it with anyone, apart from the host that runs the server, described above. With "Send to Mosaik" on, it
-gives your data to Mosaik, on your own computer. It does not use or transfer data for anything other than
+gives your data to your Mosaik, at the address you set. It does not use or transfer data for anything other than
 showing you your progress, syncing it, and sending it to Mosaik if you ask for it.
 
 The use of information received from Chrome APIs adheres to the

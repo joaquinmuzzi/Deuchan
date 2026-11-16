@@ -2,7 +2,8 @@
  * Keeps the sending to Mosaik going: what it stores, when it sends, and what it does with the answers.
  * It is the one place that knows what is kept about Mosaik in the storage of the browser:
  *
- * - `mosaikSettings`      `{ enabled, url }`, off until the person turns it on in the dashboard
+ * - `mosaikSettings`      `{ enabled, url, token }`, off until the person turns it on in the dashboard;
+ *                         `token` is the device token a Mosaik server needs (null for the hub here)
  * - `mosaikOutbox`        the events waiting to be sent (see `mosaik-events.js`)
  * - `mosaikSentDays`      `{ "<day>": seconds }`, the last total of each day put in the queue
  * - `mosaikState`         what the last sending did, for the panel
@@ -17,7 +18,16 @@
  * the request is never written back. The service worker can stop at any moment, so nothing that matters
  * is kept only in memory.
  */
-import { DEFAULT_HUB_URL, checkHealth, hubOrigins, normalizeHubUrl, sendBatch } from "./mosaik-client.js";
+import {
+  DEFAULT_HUB_URL,
+  checkDevice,
+  checkHealth,
+  hubOrigins,
+  isLocalHub,
+  normalizeHubUrl,
+  normalizeToken,
+  sendBatch,
+} from "./mosaik-client.js";
 import {
   addToQueue,
   addWatched,
@@ -43,9 +53,13 @@ export const BATCH_SIZE = 200;
 /** The most requests in one sending: the rest waits for the next one. */
 const MAX_REQUESTS = 30;
 
-/** The settings as they were saved, or the default ones: off, at the default address. */
+/** The settings as they were saved, or the default ones: off, at the default address, with no token. */
 export function readMosaikSettings(saved) {
-  return { enabled: saved?.enabled === true, url: normalizeHubUrl(saved?.url) ?? DEFAULT_HUB_URL };
+  return {
+    enabled: saved?.enabled === true,
+    url: normalizeHubUrl(saved?.url) ?? DEFAULT_HUB_URL,
+    token: normalizeToken(saved?.token),
+  };
 }
 
 /**
@@ -74,6 +88,9 @@ export function queueRemoval(stored, day, videoId, at) {
 
 /** What a failed request leaves as the status of the panel. */
 function statusOf(result) {
+  if (result.kind === "unauthorized") {
+    return "token-invalid";
+  }
   if (result.kind === "retry") {
     return result.error === "not-running" ? "not-running" : "error";
   }
@@ -161,7 +178,7 @@ export function createMosaikRunner({
 
   /** Sends what waits, batch after batch, until the queue is empty or the hub cannot take more. */
   async function send() {
-    const { enabled, url } = await settings();
+    const { enabled, url, token } = await settings();
     if (!enabled) {
       return { skipped: "off" };
     }
@@ -183,7 +200,7 @@ export function createMosaikRunner({
       if (batch.length === 0) {
         break;
       }
-      const result = await sendBatch({ baseUrl: url, events: batch, fetchImpl, timeoutMs });
+      const result = await sendBatch({ baseUrl: url, events: batch, token, fetchImpl, timeoutMs });
       if (result.kind === "too-large" && size > 1) {
         size = Math.max(1, Math.floor(size / 2));
         continue;
@@ -242,19 +259,31 @@ export function createMosaikRunner({
     backfill: () => serialized(backfill),
 
     /**
-     * Turns it on, at an address on this computer. The dashboard asks the person for the permission
-     * first; without it, it stays off. The first time, the history goes too.
+     * Turns it on, at the hub on this computer or at a Mosaik server (which needs this computer's device
+     * token). The dashboard asks the person for the permission first; without it, it stays off. A server
+     * that refuses the token leaves it off too. The first time, the history goes too.
      */
-    enable: (text) =>
+    enable: (text, tokenText) =>
       serialized(async () => {
         const url = normalizeHubUrl(text);
         if (!url) {
           return { error: "invalid-url" };
         }
+        const token = normalizeToken(tokenText);
+        if (!isLocalHub(url) && !token) {
+          return { error: "token-missing" };
+        }
         if (!(await permissions.contains({ origins: hubOrigins(url) }))) {
           return { error: "permission-missing" };
         }
-        await storage.set({ mosaikSettings: { enabled: true, url } });
+        if (token) {
+          // A wrong token is said now, not after the first sending fails
+          const device = await checkDevice({ baseUrl: url, token, fetchImpl, timeoutMs });
+          if (!device.ok && device.error === "token-invalid") {
+            return { error: "token-invalid" };
+          }
+        }
+        await storage.set({ mosaikSettings: { enabled: true, url, token } });
         await schedule();
         const health = await checkHealth({ baseUrl: url, fetchImpl, timeoutMs });
         await setState({ status: "waiting", hubVersion: health.ok ? health.version : null, lastError: null });
@@ -266,8 +295,8 @@ export function createMosaikRunner({
     /** Turns it off: no more events are kept, and the ones waiting are forgotten. */
     disable: () =>
       serialized(async () => {
-        const { url } = await settings();
-        await storage.set({ mosaikSettings: { enabled: false, url } });
+        const { url, token } = await settings();
+        await storage.set({ mosaikSettings: { enabled: false, url, token } });
         await schedule();
         // The totals sent are forgotten too: turned on again, every day is sent as it is then
         await exclusive(() => storage.remove(["mosaikOutbox", "mosaikSentDays"]));
@@ -275,21 +304,34 @@ export function createMosaikRunner({
         return {};
       }),
 
-    /** Whether Mosaik answers, at the address given or the saved one. */
-    test: (text) =>
+    /**
+     * Whether Mosaik answers, at the address given or the saved one; for a server, also whether it takes
+     * the token, and as which device.
+     */
+    test: (text, tokenText) =>
       serialized(async () => {
-        const url = text === undefined ? (await settings()).url : normalizeHubUrl(text);
+        const saved = await settings();
+        const url = text === undefined ? saved.url : normalizeHubUrl(text);
         if (!url) {
           return { ok: false, error: "invalid-url" };
+        }
+        const token = tokenText === undefined ? saved.token : normalizeToken(tokenText);
+        if (!isLocalHub(url) && !token) {
+          return { ok: false, error: "token-missing" };
         }
         if (!(await permissions.contains({ origins: hubOrigins(url) }))) {
           return { ok: false, error: "permission-missing" };
         }
         const health = await checkHealth({ baseUrl: url, fetchImpl, timeoutMs });
-        if (health.ok) {
-          await setState({ hubVersion: health.version });
+        if (!health.ok) {
+          return health;
         }
-        return health;
+        await setState({ hubVersion: health.version });
+        if (!token) {
+          return health;
+        }
+        const device = await checkDevice({ baseUrl: url, token, fetchImpl, timeoutMs });
+        return device.ok ? { ...health, device: device.device } : device;
       }),
 
     /** An alarm went off. */

@@ -41,10 +41,14 @@ test("the only address it may talk to is the sync server, and it is the one the 
   assert.match(SYNC_URL, /^https:\/\/[a-z0-9.-]+$/, "https, and no path");
 });
 
-test("the hub on this computer is an optional permission, asked for when the person turns it on", () => {
+test("the hub on this computer and a Mosaik server are optional permissions, asked for when the person turns it on", () => {
   // Asked for from the dashboard: a new permission in host_permissions would show a warning to every
-  // person who has the extension
-  assert.deepEqual(manifest.optional_host_permissions, ["http://127.0.0.1/*", "http://localhost/*"]);
+  // person who has the extension. https://*/* is never asked for whole: only the host of the server set
+  assert.deepEqual(manifest.optional_host_permissions, [
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "https://*/*",
+  ]);
 });
 
 test("the modules the content script imports can be reached from the page", () => {
