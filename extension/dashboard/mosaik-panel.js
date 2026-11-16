@@ -1,4 +1,5 @@
-// The panel of the dashboard to send the watch time to Mosaik, a hub on this computer. It shows what is in
+// The panel of the dashboard to send the watch time to Mosaik, the hub on this computer or the person's
+// Mosaik server (which needs this computer's device token). It shows what is in
 // the storage (the settings, the queue and the state of the last sending) and asks the background script
 // to do things; the words come from mosaik-status.js. The permission to reach the hub is asked for here,
 // because only a page the person clicked on can ask for it.
@@ -13,6 +14,7 @@ export function setUpMosaikPanel() {
   const dialog = byId("mosaikDialog");
   const toggle = byId("mosaikEnabled");
   const input = byId("mosaikUrl");
+  const tokenInput = byId("mosaikToken");
   let settings = readMosaikSettings(undefined);
   let state = null;
   let outbox = readOutbox(undefined);
@@ -35,6 +37,7 @@ export function setUpMosaikPanel() {
     toggle.disabled = busy;
     // The address is changed with it off: a new one may need a new permission
     input.disabled = busy || settings.enabled;
+    tokenInput.disabled = busy || settings.enabled;
     byId("mosaikQueue").textContent = settings.enabled ? describeQueue(pendingCount(outbox), state) : "";
     byId("mosaikTest").disabled = busy;
     for (const id of ["mosaikSendNow", "mosaikBackfill"]) {
@@ -49,6 +52,7 @@ export function setUpMosaikPanel() {
     outbox = readOutbox(stored.mosaikOutbox);
     if (resetAddress) {
       input.value = settings.url;
+      tokenInput.value = settings.token ?? "";
     }
     render();
   }
@@ -62,7 +66,9 @@ export function setUpMosaikPanel() {
       show(await task());
     } finally {
       busy = false;
-      await load({ resetAddress: true });
+      // The fields keep what the person typed: testing a new address must not put the saved one back
+      // (turning it on then would use the old one). They are filled from the settings when the panel opens.
+      await load();
     }
   }
 
@@ -112,7 +118,7 @@ export function setUpMosaikPanel() {
     toggle.checked = false;
     withPermission((url) =>
       work(async () => {
-        const answer = await ask({ type: "mosaik:enable", url });
+        const answer = await ask({ type: "mosaik:enable", url, token: tokenInput.value });
         if (answer?.error && !answer.health) {
           return { error: mosaikErrorText(answer.error) };
         }
@@ -121,6 +127,7 @@ export function setUpMosaikPanel() {
     );
   });
   input.addEventListener("input", () => show());
+  tokenInput.addEventListener("input", () => show());
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       byId("mosaikTest").click();
@@ -130,10 +137,12 @@ export function setUpMosaikPanel() {
   byId("mosaikTest").addEventListener("click", () =>
     withPermission((url) =>
       work(async () => {
-        const answer = await ask({ type: "mosaik:test", url });
-        return answer?.ok
-          ? { result: `Connected to Mosaik ${answer.version}`.trim() }
-          : { error: mosaikErrorText(answer?.error) };
+        const answer = await ask({ type: "mosaik:test", url, token: tokenInput.value });
+        if (!answer?.ok) {
+          return { error: mosaikErrorText(answer?.error) };
+        }
+        const as = answer.device ? ` as «${answer.device}»` : "";
+        return { result: `Connected to Mosaik ${answer.version}${as}`.replace(/\s+/g, " ").trim() };
       }),
     ),
   );

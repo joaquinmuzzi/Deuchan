@@ -7,7 +7,12 @@ const ERRORS = {
   outdated: "Mosaik does not take data yet. Update Mosaik.",
   "permission-missing":
     "Deuchan needs your permission to reach Mosaik. Turn it off and on again to allow it.",
-  "invalid-url": "Use an address on this computer, like http://127.0.0.1:7300.",
+  "invalid-url":
+    "Use the address of Mosaik on this computer (like http://127.0.0.1:7300) or of your Mosaik server (https://…).",
+  "token-missing":
+    "Mosaik on a server needs this computer's token: make one in Mosaik, Fuentes → Dispositivos.",
+  "token-invalid":
+    "Your Mosaik server did not take the token. Make a new one in Fuentes → Dispositivos and turn this off and on again.",
   "too-large": "Mosaik refused an event as too large.",
   server: "Mosaik had a problem. It will try again.",
   "invalid-answer": "Mosaik's answer was not understood. It will try again.",
@@ -47,7 +52,7 @@ export function describeMosaik(settings, state, now) {
   if (status === "bad-request") {
     return { tone: "warn", text: `Mosaik did not take the data: ${state.lastError ?? "bad request"}` };
   }
-  if (["not-running", "outdated", "permission-missing"].includes(status)) {
+  if (["not-running", "outdated", "permission-missing", "token-invalid"].includes(status)) {
     return { tone: "warn", text: mosaikErrorText(status) };
   }
   if (status === "error") {

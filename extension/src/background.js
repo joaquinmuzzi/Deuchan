@@ -120,9 +120,9 @@ const CONTROLS = {
     isDayKey(message.day) && isVideoId(message.videoId)
       ? enqueue(() => removeFromDay(message.day, message.videoId)).then(() => ({}))
       : Promise.resolve({ error: "invalid" }),
-  "mosaik:enable": (message) => mosaik.enable(message.url),
+  "mosaik:enable": (message) => mosaik.enable(message.url, message.token),
   "mosaik:disable": () => mosaik.disable(),
-  "mosaik:test": (message) => mosaik.test(message.url),
+  "mosaik:test": (message) => mosaik.test(message.url, message.token),
   "mosaik:backfill": () => mosaik.backfill(),
   "mosaik:send-now": () => mosaik.flush(),
 };

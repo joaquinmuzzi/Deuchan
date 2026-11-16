@@ -9,6 +9,13 @@ note on what to update.
 
 ## [Unreleased]
 
+### Added
+
+- "Send to Mosaik" can send to a Mosaik server, not only to the hub on this computer: an `https://` address
+  and the device token made in that server (Fuentes → Dispositivos). The browser asks for the permission
+  of that one host; "Test connection" says which device the token belongs to, and a token the server does
+  not take is said at once.
+
 ### Fixed
 
 - A video with automatic dubbing was taken for German because YouTube makes automatic captions in all the

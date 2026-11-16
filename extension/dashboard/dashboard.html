@@ -226,13 +226,19 @@
         <div class="dialog-body">
           <p class="sync-status" id="mosaikStatus" data-tone="off">Off</p>
           <p class="note">
-            Mosaik is an app on this computer that puts together how you learn languages. Deuchan can send it
-            your time per day and when you watched which video (its id and title). It only talks to this
-            computer, never to the internet.
+            Mosaik is an app that puts together how you learn languages, on this computer or on your own
+            server. Deuchan can send it your time per day and when you watched which video (its id and title),
+            only to the address you write here.
           </p>
           <label class="switch-row"><input id="mosaikEnabled" type="checkbox" /> Send to Mosaik</label>
           <label for="mosaikUrl">Address of Mosaik</label>
           <input id="mosaikUrl" type="text" autocomplete="off" spellcheck="false" />
+          <label for="mosaikToken">Device token</label>
+          <input id="mosaikToken" type="password" autocomplete="off" spellcheck="false" placeholder="mkd_…" />
+          <p class="note">
+            Only for a Mosaik server (an https address): make one for this computer in Mosaik, Fuentes →
+            Dispositivos. It stays in this browser and only goes to that address.
+          </p>
           <p class="note queue" id="mosaikQueue"></p>
           <div class="actions spread">
             <button class="button" id="mosaikTest" type="button">Test connection</button>

@@ -4,11 +4,17 @@ import { test } from "node:test";
 
 import {
   DEFAULT_HUB_URL,
+  checkDevice,
   checkHealth,
   hubOrigins,
+  isLocalHub,
   normalizeHubUrl,
+  normalizeToken,
   sendBatch,
 } from "../extension/src/mosaik-client.js";
+
+const SERVER = "https://mosaik.example.app";
+const TOKEN = `mkd_${"a".repeat(43)}`;
 
 const EVENT = { id: "deuchan:rm:2026-11-14:dQw4w9WgXcQ:1", kind: "video_removed" };
 
@@ -26,12 +32,18 @@ const failing = async () => {
   throw new TypeError("Failed to fetch");
 };
 
-test("only an address on this computer is taken, and it is kept as an origin", () => {
+test("an address on this computer or an https server is taken, and it is kept as an origin", () => {
   assert.equal(normalizeHubUrl(DEFAULT_HUB_URL), "http://127.0.0.1:7300");
   assert.equal(normalizeHubUrl(" http://localhost:8123/ "), "http://localhost:8123");
   assert.equal(normalizeHubUrl("http://127.0.0.1"), "http://127.0.0.1");
+  assert.equal(normalizeHubUrl(` ${SERVER}/ `), SERVER);
+  assert.equal(normalizeHubUrl("https://127.0.0.1:7300"), "https://127.0.0.1:7300");
   for (const text of [
-    "https://127.0.0.1:7300",
+    // Plain http to another computer would carry the data and the token in the clear
+    "http://mosaik.example.app",
+    `${SERVER}/api`,
+    `${SERVER}/?x=1`,
+    "https://user:pass@mosaik.example.app",
     "http://192.168.0.10:7300",
     "http://example.com",
     "http://127.0.0.1.example.com:7300",
@@ -51,6 +63,57 @@ test("only an address on this computer is taken, and it is kept as an origin", (
 test("the permission asked for is the host, for any port", () => {
   assert.deepEqual(hubOrigins("http://127.0.0.1:7300"), ["http://127.0.0.1/*"]);
   assert.deepEqual(hubOrigins("http://localhost:9000"), ["http://localhost/*"]);
+  assert.deepEqual(hubOrigins(SERVER), ["https://mosaik.example.app/*"]);
+});
+
+test("a device token is taken only as Mosaik makes them, and only the hub here is local", () => {
+  assert.equal(normalizeToken(` ${TOKEN} `), TOKEN);
+  for (const text of ["", null, "mkd_short", `mks_${"a".repeat(43)}`, `mkd_${"a".repeat(40)}!`]) {
+    assert.equal(normalizeToken(text), null, String(text));
+  }
+  assert.equal(isLocalHub(DEFAULT_HUB_URL), true);
+  assert.equal(isLocalHub("http://localhost:8123"), true);
+  assert.equal(isLocalHub(SERVER), false);
+});
+
+test("the token goes with every batch to a server, and a token the server does not take waits", async () => {
+  const ok = fakeFetch(200, { accepted: 1, duplicates: 0, rejected: [] });
+  await sendBatch({ baseUrl: SERVER, events: [EVENT], token: TOKEN, fetchImpl: ok.fetchImpl });
+  assert.equal(ok.calls[0].url, `${SERVER}/api/ingest/events`);
+  assert.equal(ok.calls[0].init.headers.Authorization, `Bearer ${TOKEN}`);
+
+  const local = fakeFetch(200, { accepted: 1, duplicates: 0, rejected: [] });
+  await sendBatch({ baseUrl: DEFAULT_HUB_URL, events: [EVENT], fetchImpl: local.fetchImpl });
+  assert.equal(local.calls[0].init.headers.Authorization, undefined, "the hub here needs no token");
+
+  const refused = fakeFetch(401, { error: "invalid_device_token" });
+  assert.deepEqual(
+    await sendBatch({ baseUrl: SERVER, events: [EVENT], token: TOKEN, fetchImpl: refused.fetchImpl }),
+    { kind: "unauthorized", error: "token-invalid" },
+  );
+});
+
+test("a server says which device a token is, or that it does not take it", async () => {
+  const known = fakeFetch(200, { device: "deuchan" });
+  assert.deepEqual(await checkDevice({ baseUrl: SERVER, token: TOKEN, fetchImpl: known.fetchImpl }), {
+    ok: true,
+    device: "deuchan",
+  });
+  assert.equal(known.calls[0].url, `${SERVER}/api/agent/whoami`);
+  assert.equal(known.calls[0].init.headers.Authorization, `Bearer ${TOKEN}`);
+  const cases = [
+    [401, "token-invalid"],
+    [404, "outdated"],
+    [500, "http-500"],
+  ];
+  for (const [status, error] of cases) {
+    const { fetchImpl } = fakeFetch(status, { error: "x" });
+    assert.deepEqual(await checkDevice({ baseUrl: SERVER, token: TOKEN, fetchImpl }), { ok: false, error });
+  }
+  assert.deepEqual(await checkDevice({ baseUrl: SERVER, token: TOKEN, fetchImpl: failing }), {
+    ok: false,
+    error: "not-running",
+  });
 });
 
 test("the health check finds Mosaik and its version", async () => {

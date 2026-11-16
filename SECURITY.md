@@ -38,8 +38,8 @@ Examples of problems we want to hear about:
 
 - any way for a web page to read or change the log or the settings of the extension;
 - the extension sending data out of your browser when sync and "Send to Mosaik" are off, anything other
-  than the encrypted block to the sync server, or anything to an address that is not on your computer
-  when "Send to Mosaik" is on;
+  than the encrypted block to the sync server, or anything to an address other than the one set when
+  "Send to Mosaik" is on (or the device token anywhere else, or over plain http to another computer);
 - a way to read the data of a person from the sync server without their sync key, or to read or delete
   the block of someone else;
 - a way to make the sync server unavailable for other people with little effort;

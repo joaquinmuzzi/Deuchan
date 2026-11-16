@@ -23,10 +23,11 @@ really get.
   minutes you really watched. The correction shows on all your computers.
 - **Local and private.** The log stays in your browser. Nothing is sent anywhere unless you turn on
   sync, and then only your time per day, encrypted on your computer.
-- **Send to Mosaik, if you use it.** Mosaik is a hub on your own computer that puts together how you
-  learn languages. Turn on "Send to Mosaik" in the dashboard and Deuchan sends it your time per day and
-  when you watched which video. It only talks to your computer (`127.0.0.1` or `localhost`), and it is
-  off unless you turn it on.
+- **Send to Mosaik, if you use it.** Mosaik is a hub that puts together how you learn languages, on your
+  own computer or on your own server. Turn on "Send to Mosaik" in the dashboard and Deuchan sends it your
+  time per day and when you watched which video. It talks only to the address you set: your computer
+  (`127.0.0.1` or `localhost`) or your Mosaik server over https, with the device token you make in it.
+  It is off unless you turn it on.
 - **Sync between computers, if you want it.** Turn it on in the dashboard, enter the key on your other
   computers, and they share their progress. There are no accounts: the server only holds encrypted data
   that it cannot read, and you can delete it whenever you want.

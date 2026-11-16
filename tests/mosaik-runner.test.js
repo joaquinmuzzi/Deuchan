@@ -196,11 +196,84 @@ function computer({ days = { [DAY]: 0 }, enabled = false, granted = [ORIGIN], hu
 }
 
 test("it is off by default, at the default address", () => {
-  assert.deepEqual(readMosaikSettings(undefined), { enabled: false, url: URL });
-  assert.deepEqual(readMosaikSettings({ enabled: "yes", url: "http://example.com" }), {
+  assert.deepEqual(readMosaikSettings(undefined), { enabled: false, url: URL, token: null });
+  assert.deepEqual(readMosaikSettings({ enabled: "yes", url: "http://example.com", token: "nope" }), {
     enabled: false,
     url: URL,
+    token: null,
   });
+});
+
+const SERVER = "https://mosaik.example.app";
+const SERVER_ORIGIN = "https://mosaik.example.app/*";
+const TOKEN = `mkd_${"t".repeat(43)}`;
+
+/** A Mosaik server: the hub of the contract, behind a device token. */
+function fakeServer(token = TOKEN) {
+  const hub = fakeHub();
+  const inner = hub.fetchImpl;
+  hub.authorizations = [];
+  // The token the server takes now: changing it is revoking the old one
+  hub.token = token;
+  hub.fetchImpl = async (url, init) => {
+    const sent = init?.headers?.Authorization ?? null;
+    hub.authorizations.push(sent);
+    if (url.endsWith("/api/health")) return inner(url, init);
+    if (sent !== `Bearer ${hub.token}`) {
+      hub.requests += 1;
+      return json(401, { error: "invalid_device_token" });
+    }
+    if (url.endsWith("/api/agent/whoami")) {
+      hub.requests += 1;
+      return json(200, { device: "deuchan" });
+    }
+    return inner(url, init);
+  };
+  return hub;
+}
+
+test("a Mosaik server needs the device token, and a token it does not take leaves it off", async () => {
+  const pc = computer({ granted: [SERVER_ORIGIN], hub: fakeServer() });
+  assert.deepEqual(await pc.runner.enable(SERVER), { error: "token-missing" });
+  assert.deepEqual(await pc.runner.enable(SERVER, `mkd_${"x".repeat(43)}`), { error: "token-invalid" });
+  assert.equal(readMosaikSettings(pc.storage.data.mosaikSettings).enabled, false);
+  assert.deepEqual(await pc.runner.test(SERVER, `mkd_${"x".repeat(43)}`), {
+    ok: false,
+    error: "token-invalid",
+  });
+});
+
+test("with the token, it sends to the server with it, and says which device it is", async () => {
+  const pc = computer({ granted: [SERVER_ORIGIN], hub: fakeServer(), days: { [DAY]: 60 } });
+  const tested = await pc.runner.test(SERVER, TOKEN);
+  assert.equal(tested.device, "deuchan");
+  const result = await pc.runner.enable(` ${SERVER}/ `, ` ${TOKEN} `);
+  assert.equal(result.ok, true);
+  assert.deepEqual(pc.storage.data.mosaikSettings, { enabled: true, url: SERVER, token: TOKEN });
+  assert.deepEqual(pc.hub.totals(), { [DAY]: 60 });
+  assert.ok(pc.hub.authorizations.filter(Boolean).every((value) => value === `Bearer ${TOKEN}`));
+
+  // Turned off, the address and the token are remembered, so turning it on again needs nothing new
+  await pc.runner.disable();
+  assert.deepEqual(readMosaikSettings(pc.storage.data.mosaikSettings), {
+    enabled: false,
+    url: SERVER,
+    token: TOKEN,
+  });
+});
+
+test("a token revoked in the server stops the sending, and the events wait", async () => {
+  const hub = fakeServer();
+  const pc = computer({ granted: [SERVER_ORIGIN], hub, days: { [DAY]: 60 } });
+  await pc.runner.enable(SERVER, TOKEN);
+  hub.token = `mkd_${"r".repeat(43)}`;
+  // something new to send: a stretch of a video, closed
+  await pc.watch(START, 10);
+  pc.time.now += 10 * 60_000;
+  const result = await pc.runner.flush();
+  assert.equal(result.error, "token-invalid");
+  assert.equal((await pc.state()).status, "token-invalid");
+  assert.ok((await pc.state()).pending > 0, "what was not taken waits");
 });
 
 test("off, nothing is kept and nothing is sent", async () => {
