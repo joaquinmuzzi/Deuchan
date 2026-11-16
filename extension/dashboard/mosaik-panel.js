@@ -66,7 +66,9 @@ export function setUpMosaikPanel() {
       show(await task());
     } finally {
       busy = false;
-      await load({ resetAddress: true });
+      // The fields keep what the person typed: testing a new address must not put the saved one back
+      // (turning it on then would use the old one). They are filled from the settings when the panel opens.
+      await load();
     }
   }
 
