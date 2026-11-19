@@ -18,8 +18,13 @@
 
     <div class="live" id="status" data-kind="idle">
       <span class="dot" aria-hidden="true"></span>
-      <span id="statusText">Not on YouTube</span>
+      <span id="statusText">No video here</span>
       <button class="quiet" id="override" type="button" hidden></button>
+    </div>
+
+    <div class="manual" id="manual" data-running="false">
+      <button class="manual-button" id="manualButton" type="button">Count reading</button>
+      <span class="manual-text" id="manualText">For comics and other reading with no video</span>
     </div>
 
     <section class="goal" id="goalBlock" data-met="false">
@@ -46,6 +51,7 @@
         <p class="stat-label">7 days</p>
       </div>
     </section>
+    <p class="scope" id="scope" hidden></p>
 
     <footer class="footer">
       <a href="https://github.com/joaquinmuzzi" target="_blank" rel="noopener noreferrer"

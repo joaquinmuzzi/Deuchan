@@ -7,42 +7,26 @@ Deuchan is a small project: only the latest release (and `main`) receives fixes.
 ## How Deuchan is exposed
 
 Deuchan is a browser extension that runs on `youtube.com` pages. It reads the state of the video
-player (playing, paused and the language of the captions) and stores a log of how long you watched in
-`chrome.storage.local`, on your own computer. **By default nothing leaves your browser.** It has no
-remote code, its pages load nothing from the internet, and the only address it is allowed to talk to
-(besides running on YouTube) is the sync server, and only if you turn sync on.
+player (playing, paused and the language of the audio and the captions) and stores a log of how long you
+watched in `chrome.storage.local`, on your own computer. **By default nothing leaves your browser.** It has
+no remote code, its pages load nothing from the internet, and it may talk to no address at all until you
+allow one.
 
-### Sync (optional, off by default)
+Two things are optional and off by default:
 
-If you turn sync on, the time you watched per day is sent to the sync server so that your computers
-can share it. What the server receives and can do:
-
-- **It receives a block of encrypted data.** The extension encrypts it (AES-256-GCM) before sending it,
-  with a key made from your sync key that never leaves your browser. The server cannot read the data and
-  cannot change it without the change being noticed.
-- **It does not know who you are.** There are no accounts, emails or passwords. The server stores the
-  block under the hash of a token that is made from your sync key, and its own code stores and logs no
-  address and no token, and knows nothing about the videos you watched. Its host (Railway) does record
-  the address, the browser, the path, the status and the time of every request in its own access logs;
-  they do not include the token, which is sent in a header. See the [privacy policy](PRIVACY.md).
-- **Anyone who has your sync key can read your synced time**, so keep it private. The key is stored in
-  your browser while sync is on.
-- **You can delete it**: "Delete synced data" in the dashboard removes the block from the server. A
-  computer that still has sync on sends its time again in its next round, so turn sync off on all your
-  computers first. A block that is not used for 400 days is deleted by the server.
-
-The server is in `server/` and is covered by tests; it limits the size of a block, the number of
-blocks and the requests of an address and of a key.
+- **"Send to Mosaik"** sends what you watch to your Mosaik: on this computer, or your own server over https
+  with a device token. The browser asks for the permission of that one address.
+- **The immersion profile** runs a small script in every page of that Chrome profile, to find its videos.
+  The browser asks for the `scripting` permission and access to all the sites when you turn it on.
 
 Examples of problems we want to hear about:
 
-- any way for a web page to read or change the log or the settings of the extension;
-- the extension sending data out of your browser when sync and "Send to Mosaik" are off, anything other
-  than the encrypted block to the sync server, or anything to an address other than the one set when
-  "Send to Mosaik" is on (or the device token anywhere else, or over plain http to another computer);
-- a way to read the data of a person from the sync server without their sync key, or to read or delete
-  the block of someone else;
-- a way to make the sync server unavailable for other people with little effort;
+- any way for a web page to read or change the log or the settings of the extension, or to send it time;
+- the extension sending data out of your browser when "Send to Mosaik" is off, or anything to an address
+  other than the one set when it is on (or the device token anywhere else, or over plain http to another
+  computer);
+- the script of the immersion profile running, or reading anything, while it is off, or reading more of a
+  page than whether a video plays;
 - a permission that is broader than what the extension needs;
 - a vulnerable dependency that Deuchan actually uses in a vulnerable way.
 

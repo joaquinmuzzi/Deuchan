@@ -165,6 +165,43 @@ export async function checkDevice({ baseUrl, token, fetchImpl = globalThis.fetch
 }
 
 /**
+ * What Mosaik has of the days from `from` to `to`, of every computer.
+ * @returns {Promise<{ ok: true, body: object } | { ok: false, error: string }>}
+ *   `error` is `token-invalid`, `not-running`, `outdated` (a Mosaik that does not add up computers yet)
+ *   or `http-<status>`
+ */
+export async function fetchDays({
+  baseUrl,
+  token = null,
+  from,
+  to,
+  fetchImpl = globalThis.fetch,
+  timeoutMs,
+}) {
+  const query = new URLSearchParams({ from, to });
+  const response = await request(
+    fetchImpl,
+    `${baseUrl}/api/agent/deuchan/days?${query}`,
+    { method: "GET", headers: authorization(token) },
+    timeoutFor(baseUrl, timeoutMs),
+  );
+  if (!response) {
+    return { ok: false, error: "not-running" };
+  }
+  if (response.status === 401) {
+    return { ok: false, error: "token-invalid" };
+  }
+  if (response.status === 404) {
+    return { ok: false, error: "outdated" };
+  }
+  if (!response.ok) {
+    return { ok: false, error: `http-${response.status}` };
+  }
+  const body = await readJson(response);
+  return body && typeof body === "object" ? { ok: true, body } : { ok: false, error: "invalid-answer" };
+}
+
+/**
  * Sends a batch of events and says what to do with them. `token` goes along when there is one: a Mosaik
  * server needs it, the hub on this computer does not.
  * @returns {Promise<

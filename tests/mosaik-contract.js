@@ -2,8 +2,11 @@
 // every event the extension makes. Mosaik is in another repository: if its contract changes, this changes.
 
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
+const ITEM_ID = /^[a-z]+:\S{1,190}$/;
+const URL_START = /^https?:\/\//;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const KINDS = new Set(["watch_interval", "day_total", "video_removed"]);
+const ITEM = ["videoId", "itemId", "url", "site", "contentKind"];
 const ALLOWED = {
   watch_interval: [
     "id",
@@ -13,15 +16,38 @@ const ALLOWED = {
     "from",
     "to",
     "seconds",
-    "videoId",
+    ...ITEM,
     "title",
     "channelId",
   ],
-  day_total: ["id", "source", "kind", "language", "day", "at", "seconds", "videos"],
-  video_removed: ["id", "source", "kind", "language", "day", "at", "videoId"],
+  day_total: ["id", "source", "kind", "language", "day", "at", "seconds", "readingSeconds", "videos"],
+  video_removed: ["id", "source", "kind", "language", "day", "at", "videoId", "itemId"],
 };
+const DAY_VIDEO = [...ITEM, "title", "seconds"];
 
 const isTime = (value) => Number.isInteger(value) && value > 0;
+
+/** The problems of what names an item: a YouTube `videoId` or an `itemId`, and the rest of its fields. */
+function itemProblems(item, prefix = "") {
+  const problems = [];
+  const fail = (text) => problems.push(`${prefix}${text}`);
+  if (item.videoId === undefined && item.itemId === undefined) fail("videoId or itemId");
+  if (item.videoId !== undefined && !VIDEO_ID.test(item.videoId)) fail("videoId");
+  if (item.itemId !== undefined && !(typeof item.itemId === "string" && ITEM_ID.test(item.itemId)))
+    fail("itemId");
+  if (
+    item.url !== undefined &&
+    !(typeof item.url === "string" && item.url.length <= 2000 && URL_START.test(item.url))
+  )
+    fail("url");
+  if (
+    item.site !== undefined &&
+    !(typeof item.site === "string" && item.site.length >= 1 && item.site.length <= 100)
+  )
+    fail("site");
+  if (item.contentKind !== undefined && !["video", "reading"].includes(item.contentKind)) fail("contentKind");
+  return problems;
+}
 
 /** The problems of one event, as a list of texts: empty if it follows the contract. */
 export function eventProblems(event) {
@@ -42,7 +68,7 @@ export function eventProblems(event) {
     if (!isTime(event.from) || !isTime(event.to) || !(event.to > event.from)) fail("from/to");
     if (!(typeof event.seconds === "number" && event.seconds > 0 && event.seconds <= 21_600)) fail("seconds");
     if (event.seconds > (event.to - event.from) / 1000 + 1) fail("seconds longer than the interval");
-    if (!VIDEO_ID.test(event.videoId ?? "")) fail("videoId");
+    problems.push(...itemProblems(event));
     if (event.title !== undefined && (typeof event.title !== "string" || event.title.length > 500))
       fail("title");
     if (event.channelId !== undefined && typeof event.channelId !== "string") fail("channelId");
@@ -54,10 +80,22 @@ export function eventProblems(event) {
     if (!(typeof event.seconds === "number" && event.seconds >= 0 && event.seconds <= 90_000))
       fail("seconds");
     if (event.id !== `deuchan:day:${event.day}:${event.at}`) fail("id of a day total");
+    if (
+      event.readingSeconds !== undefined &&
+      !(
+        typeof event.readingSeconds === "number" &&
+        event.readingSeconds >= 0 &&
+        event.readingSeconds <= event.seconds
+      )
+    )
+      fail("readingSeconds");
     if (event.videos !== undefined) {
       if (!Array.isArray(event.videos) || event.videos.length > 200) fail("videos");
       for (const video of event.videos ?? []) {
-        if (!VIDEO_ID.test(video?.videoId ?? "")) fail("videos.videoId");
+        problems.push(...itemProblems(video ?? {}, "videos."));
+        for (const key of Object.keys(video ?? {})) {
+          if (!DAY_VIDEO.includes(key)) fail(`unknown field videos.${key}`);
+        }
         if (typeof video?.title !== "string" || video.title.length > 500) fail("videos.title");
         if (!(typeof video?.seconds === "number" && video.seconds >= 0)) fail("videos.seconds");
       }
@@ -67,8 +105,9 @@ export function eventProblems(event) {
   if (event.kind === "video_removed") {
     if (!DAY.test(event.day ?? "")) fail("day");
     if (!isTime(event.at)) fail("at");
-    if (!VIDEO_ID.test(event.videoId ?? "")) fail("videoId");
-    if (event.id !== `deuchan:rm:${event.day}:${event.videoId}:${event.at}`) fail("id of a removal");
+    problems.push(...itemProblems(event));
+    if (event.id !== `deuchan:rm:${event.day}:${event.videoId ?? event.itemId}:${event.at}`)
+      fail("id of a removal");
   }
   return problems;
 }

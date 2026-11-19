@@ -35,8 +35,8 @@ test("a day lists its videos, the longest first", () => {
   let videos = addVideoSeconds({}, DAY, { id: ID, title: "short" }, 60);
   videos = addVideoSeconds(videos, DAY, { id: OTHER, title: "long" }, 600);
   assert.deepEqual(dayVideos(videos, DAY), [
-    { id: OTHER, title: "long", seconds: 600 },
-    { id: ID, title: "short", seconds: 60 },
+    { id: OTHER, title: "long", seconds: 600, url: null, kind: "video" },
+    { id: ID, title: "short", seconds: 60, url: null, kind: "video" },
   ]);
   assert.deepEqual(dayVideos(videos, "2026-10-23"), []);
   assert.deepEqual(dayVideos(undefined, DAY), []);

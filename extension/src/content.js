@@ -1,12 +1,15 @@
 // Runs on YouTube pages. Listens to the player and tells the background script how many seconds of
 // German were watched. The logic is in watcher.js and language.js; this file only connects them to
-// the page.
+// the page. In the immersion profile (see immersion.js) every video is taken for German, unless the
+// person said it is not.
 (async () => {
-  const [{ Watcher }, { detectGerman }, { verdict }] = await Promise.all([
+  const [{ Watcher }, { detectGerman }, { verdict }, { immersionOf }] = await Promise.all([
     import(chrome.runtime.getURL("src/watcher.js")),
     import(chrome.runtime.getURL("src/language.js")),
     import(chrome.runtime.getURL("src/overrides.js")),
+    import(chrome.runtime.getURL("src/immersion.js")),
   ]);
+  let immersion = immersionOf((await chrome.storage.local.get("immersion")).immersion);
 
   const FLUSH_EVERY_MS = 2_000;
   const LANGUAGE_RETRY_MS = 1_000;
@@ -64,7 +67,7 @@
     // What the user decided about this video wins over the guess
     const { overrides } = await chrome.storage.local.get("overrides");
     if (videoId === currentVideoId) {
-      const german = verdict(overrides, videoId, detectGerman(event.data).german);
+      const german = verdict(overrides, videoId, immersion || detectGerman(event.data).german);
       if (german !== decided) {
         decided = german;
         setVerdict(german);
@@ -105,7 +108,10 @@
 
   // A decision about a video made somewhere else (the dashboard) applies to the one that is playing now
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local" && changes.overrides && currentVideoId) {
+    if (area === "local" && changes.immersion) {
+      immersion = immersionOf(changes.immersion.newValue);
+    }
+    if (area === "local" && (changes.overrides || changes.immersion) && currentVideoId) {
       askForVideo();
     }
   });
@@ -116,7 +122,7 @@
       return;
     }
     if (message?.type === "status") {
-      sendResponse(watcher.status);
+      sendResponse({ ...watcher.status, immersion });
     } else if (message?.type === "setGerman" && typeof message.german === "boolean" && currentVideoId) {
       decided = message.german;
       setVerdict(message.german);

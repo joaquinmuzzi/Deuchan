@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { correctDay } from "../extension/src/corrections.js";
-import { migrate } from "../extension/src/log.js";
+import { migrate, shownLog } from "../extension/src/log.js";
 import { JOIN_GAP_MS, readOutbox } from "../extension/src/mosaik-events.js";
 import {
   BATCH_SIZE,
@@ -12,7 +12,6 @@ import {
   queueWatched,
   readMosaikSettings,
 } from "../extension/src/mosaik-runner.js";
-import { effectiveLog } from "../extension/src/sync-data.js";
 import { batchProblems } from "./mosaik-contract.js";
 
 const URL = "http://127.0.0.1:7300";
@@ -88,6 +87,8 @@ function fakeHub() {
     kept: new Map(),
     requests: 0,
   };
+  hub.days = null;
+  hub.daysAsked = [];
   hub.fetchImpl = async (url, init) => {
     hub.requests += 1;
     if (hub.down) {
@@ -98,6 +99,11 @@ function fakeHub() {
     }
     if (hub.status) {
       return json(hub.status, { error: `answered ${hub.status}` });
+    }
+    if (url.includes("/api/agent/deuchan/days")) {
+      // A Mosaik from before it added computers up does not have it
+      hub.daysAsked.push(url);
+      return hub.days ? json(200, { days: hub.days }) : json(404, { error: "not_found" });
     }
     const { events } = JSON.parse(init.body);
     if (events.length > hub.maxBatch) {
@@ -189,8 +195,8 @@ function computer({ days = { [DAY]: 0 }, enabled = false, granted = [ORIGIN], hu
   const outbox = async () => readOutbox((await storage.get("mosaikOutbox")).mosaikOutbox);
   const state = async () => (await storage.get("mosaikState")).mosaikState ?? {};
   const shown = async () => {
-    const { log, others } = await storage.get(["log", "others"]);
-    return effectiveLog(migrate(log), others).days;
+    const { log } = await storage.get(["log"]);
+    return shownLog(migrate(log)).days;
   };
   return { storage, alarms, permissions, exclusive, runner, hub, time, save, watch, outbox, state, shown };
 }
@@ -362,11 +368,11 @@ test("only a day whose total changed gets a new total, and it matches the dashbo
   await pc.runner.flush();
   assert.equal(pc.hub.kept.size, first, "nothing changed, nothing new");
 
-  // the person corrects yesterday on the dashboard, and another computer adds time to today
-  const stored = await pc.storage.get(["log", "others"]);
-  const log = correctDay(migrate(stored.log), stored.others, "2026-11-13", 600, pc.time.now);
-  const others = { "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb": { days: { [DAY]: 300.6 } } };
-  await pc.storage.set({ log, others });
+  // the person corrects yesterday on the dashboard, and watches more today
+  const stored = await pc.storage.get(["log"]);
+  const log = correctDay(migrate(stored.log), "2026-11-13", 600, pc.time.now);
+  log.days[DAY] += 300.6;
+  await pc.storage.set({ log });
   pc.time.now += 60_000;
   await pc.runner.flush();
   const shown = await pc.shown();
@@ -379,7 +385,7 @@ test("a day corrected to zero is sent as zero", async () => {
   const pc = computer({ enabled: true, days: { "2026-11-13": 900 } });
   await pc.runner.flush();
   const stored = await pc.storage.get(["log"]);
-  await pc.storage.set({ log: correctDay(migrate(stored.log), {}, "2026-11-13", 0, pc.time.now) });
+  await pc.storage.set({ log: correctDay(migrate(stored.log), "2026-11-13", 0, pc.time.now) });
   pc.time.now += 1000;
   await pc.runner.flush();
   assert.deepEqual(pc.hub.totals(), { "2026-11-13": 0 });
@@ -543,4 +549,66 @@ test("everything the extension sends follows the contract of Mosaik", async () =
   }
   const kinds = new Set([...pc.hub.kept.values()].map((event) => event.kind));
   assert.deepEqual([...kinds].sort(), ["day_total", "video_removed", "watch_interval"]);
+});
+
+test("it asks Mosaik for the days of every computer, as the device of its token", async () => {
+  const hub = fakeServer();
+  hub.days = {
+    [DAY]: {
+      seconds: 900,
+      readingSeconds: 0,
+      devices: { deuchan: 300, joaquin: 600 },
+      items: [
+        {
+          id: "yt:dQw4w9WgXcQ",
+          title: "Easy German 500",
+          url: null,
+          contentKind: "video",
+          seconds: 900,
+          devices: { deuchan: 300, joaquin: 600 },
+        },
+      ],
+    },
+  };
+  const pc = computer({ hub, granted: [SERVER_ORIGIN] });
+  await pc.runner.enable(SERVER, TOKEN);
+  const { mosaikDays } = await pc.storage.get("mosaikDays");
+  assert.equal(mosaikDays.device, "deuchan");
+  assert.equal(mosaikDays.days[DAY].devices.joaquin, 600);
+  assert.equal(
+    mosaikDays.days[DAY].items[0].id,
+    "dQw4w9WgXcQ",
+    "a YouTube video by its id, as this computer keeps it",
+  );
+  assert.ok(hub.daysAsked[0].includes(`to=`), "a range of days");
+
+  // not again a moment later, unless it is asked to
+  const asked = hub.daysAsked.length;
+  assert.deepEqual(await pc.runner.refreshDays(), { skipped: "fresh" });
+  assert.deepEqual(await pc.runner.refreshDays(true), { ok: true });
+  assert.equal(hub.daysAsked.length, asked + 1);
+});
+
+test("a Mosaik that does not add computers up leaves this computer alone, with no error for the sending", async () => {
+  const pc = computer({ enabled: true });
+  assert.deepEqual(await pc.runner.refreshDays(true), { error: "outdated" });
+  assert.equal((await pc.storage.get("mosaikDays")).mosaikDays, undefined);
+  assert.equal((await pc.state()).daysError, "outdated");
+  await pc.runner.flush();
+  assert.equal((await pc.state()).status, "ok");
+});
+
+test("the history sends a zero for a day that was sent before and has no time here", async () => {
+  // the old sync sent the time of every computer together; this one had none of it that day
+  const pc = computer({ enabled: true, days: { [DAY]: 120 } });
+  await pc.storage.set({ mosaikSentDays: { "2026-11-12": 3600, [DAY]: 4000 } });
+  await pc.runner.backfill();
+  assert.deepEqual(pc.hub.totals(), { "2026-11-12": 0, [DAY]: 120 });
+});
+
+test("turned off, what Mosaik said of the other computers is forgotten", async () => {
+  const pc = computer({ enabled: true });
+  await pc.storage.set({ mosaikDays: { fetchedAt: 1, device: "principal", days: {} } });
+  await pc.runner.disable();
+  assert.equal((await pc.storage.get("mosaikDays")).mosaikDays, undefined);
 });

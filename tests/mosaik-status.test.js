@@ -1,10 +1,21 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { describeMosaik, describeQueue, mosaikErrorText } from "../extension/src/mosaik-status.js";
+import { describeMosaik, describeQueue, mosaikErrorText, timeAgo } from "../extension/src/mosaik-status.js";
 
 const NOW = 10_000_000_000;
 const MINUTE = 60_000;
+
+test("timeAgo says how long ago in the biggest unit that fits", () => {
+  const ago = (ms) => NOW - ms;
+  assert.equal(timeAgo(ago(0), NOW), "just now");
+  assert.equal(timeAgo(ago(44_000), NOW), "just now");
+  assert.equal(timeAgo(ago(2 * MINUTE), NOW), "2 min ago");
+  assert.equal(timeAgo(ago(3 * 60 * MINUTE), NOW), "3 h ago");
+  assert.equal(timeAgo(ago(24 * 60 * MINUTE), NOW), "1 day ago");
+  assert.equal(timeAgo(ago(3 * 24 * 60 * MINUTE), NOW), "3 days ago");
+  assert.equal(timeAgo(NOW + 5 * MINUTE, NOW), "just now");
+});
 
 test("off is off, whatever the state says", () => {
   assert.deepEqual(describeMosaik({ enabled: false }, { status: "ok", lastSentAt: NOW }, NOW), {

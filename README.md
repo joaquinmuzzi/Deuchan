@@ -1,6 +1,6 @@
 # Deuchan
 
-**Counts the time you spend watching German on YouTube, on its own and on your computer.**
+**Counts the time you spend watching German, on its own and on your computer.**
 
 [![Tests](https://github.com/joaquinmuzzi/deuchan/actions/workflows/tests.yml/badge.svg)](https://github.com/joaquinmuzzi/deuchan/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -19,18 +19,20 @@ really get.
   one wrong, a button in the popup marks that video as German, or as not German, and it is
   remembered.
 - **A day you can explain and correct.** Click a day in the dashboard to see which videos made it up
-  (on this computer, for the last 60 days), take out the ones that were not German, or say how many
-  minutes you really watched. The correction shows on all your computers.
+  (for the last 60 days), take out the ones that were not German, or say how many minutes you really
+  watched.
+- **An immersion profile.** In a Chrome profile you use only for German, turn it on in the settings of the
+  dashboard and every video that plays with sound counts, on any site, with no guessing.
+- **Reading by hand.** "Count reading" in the popup counts reading with no video, like a comic, until you
+  stop it or leave the computer for 15 minutes. It counts toward your goal.
 - **Local and private.** The log stays in your browser. Nothing is sent anywhere unless you turn on
-  sync, and then only your time per day, encrypted on your computer.
+  "Send to Mosaik".
 - **Send to Mosaik, if you use it.** Mosaik is a hub that puts together how you learn languages, on your
   own computer or on your own server. Turn on "Send to Mosaik" in the dashboard and Deuchan sends it your
-  time per day and when you watched which video. It talks only to the address you set: your computer
+  time per day and what you watched and read. It talks only to the address you set: your computer
   (`127.0.0.1` or `localhost`) or your Mosaik server over https, with the device token you make in it.
-  It is off unless you turn it on.
-- **Sync between computers, if you want it.** Turn it on in the dashboard, enter the key on your other
-  computers, and they share their progress. There are no accounts: the server only holds encrypted data
-  that it cannot read, and you can delete it whenever you want.
+  Every computer and Chrome profile sends its own time with its own token, and the dashboard and the popup
+  show the total of all of them. It is off unless you turn it on.
 
 ## Status
 
@@ -44,7 +46,7 @@ or [support it on Ko-fi](https://ko-fi.com/muzzijoaquin).
 ## Privacy
 
 The [privacy policy](PRIVACY.md) says what Deuchan keeps, what leaves your browser when you turn
-on sync or "Send to Mosaik", and for how long. The text for the Chrome Web Store is in
+on "Send to Mosaik", and for how long. The text for the Chrome Web Store is in
 [docs/store-listing.md](docs/store-listing.md).
 
 ## Contributing

@@ -7,8 +7,6 @@ import { dirname, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { SYNC_URL } from "../extension/src/sync-config.js";
-
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // On Windows git checks files out with CRLF line endings, and the patterns below look for LF
 const read = (file) => readFileSync(resolve(ROOT, file), "utf8").replaceAll("\r\n", "\n");
@@ -46,7 +44,7 @@ test("every permission of the manifest is justified in the listing", () => {
   for (const permission of manifest.permissions) {
     assert.match(listing, new RegExp(`\\| \`${permission}\`\\s+\\|`), `${permission} has a row in the table`);
   }
-  for (const host of [...manifest.host_permissions, ...(manifest.optional_host_permissions ?? [])]) {
+  for (const host of [...(manifest.host_permissions ?? []), ...(manifest.optional_host_permissions ?? [])]) {
     assert.ok(listing.includes(`\`${host}\``), `${host} is justified`);
   }
   for (const script of manifest.content_scripts) {
@@ -56,18 +54,21 @@ test("every permission of the manifest is justified in the listing", () => {
   }
 });
 
-test("the only host the extension may talk to is the sync server, and the policy says where it is", () => {
-  assert.deepEqual(manifest.host_permissions, [`${SYNC_URL}/*`]);
-  assert.ok(policy.includes("us-west2"), "the region of the host");
+test("every optional permission is justified in the listing and in the policy", () => {
+  for (const permission of manifest.optional_permissions ?? []) {
+    assert.ok(listing.includes(`\`${permission}\``), `${permission} is justified`);
+    assert.ok(policy.includes(`\`${permission}\``), `${permission} is in the policy`);
+  }
 });
 
-test("the policy says what has to be said about sync, deletion and retention", () => {
+test("the policy says what has to be said about Mosaik, the immersion profile and retention", () => {
   for (const text of [
-    "AES-256-GCM",
-    "400 days",
-    "Delete synced data",
+    "Send to Mosaik",
+    "device token",
+    "The immersion profile",
+    "Reading counted by hand",
     "IP address",
-    "Railway",
+    "How long the data is kept",
     "Chrome Web Store User Data Policy",
   ]) {
     assert.ok(policy.includes(text), text);
@@ -92,7 +93,6 @@ test("the screenshots are 1280 x 800 and the small tile is 440 x 280", () => {
     "docs/store/screenshot-1-dashboard-dark.jpg",
     "docs/store/screenshot-2-dashboard-light.jpg",
     "docs/store/screenshot-3-popup.jpg",
-    "docs/store/screenshot-4-sync.jpg",
   ];
   assert.ok(screenshots.length >= 1 && screenshots.length <= 5, "the store takes from 1 to 5");
   for (const path of screenshots) {
