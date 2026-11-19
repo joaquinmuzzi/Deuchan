@@ -131,3 +131,49 @@ header {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
+
+.manual {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.manual-button {
+  flex: none;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.manual-button:hover,
+.manual-button:focus-visible {
+  border-color: var(--strong);
+}
+
+.manual[data-running="true"] .manual-button {
+  border-color: var(--good);
+  background: var(--good);
+  color: var(--on-strong);
+}
+
+.manual-text {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.scope {
+  margin: -4px 0 12px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}

@@ -1,12 +1,13 @@
 import { parseDayMinutes } from "../src/corrections.js";
 import { goalMinutesOf, goalSeconds, parseGoalMinutes } from "../src/goal.js";
-import { formatClock, migrate } from "../src/log.js";
+import { IMMERSION_PERMISSIONS, immersionOf } from "../src/immersion.js";
+import { itemUrl } from "../src/items.js";
+import { formatClock, migrate, shownLog } from "../src/log.js";
+import { dayItems, hasOthers, withOtherDevices } from "../src/mosaik-days.js";
 import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js";
-import { effectiveLog } from "../src/sync-data.js";
 import { setUpTheme } from "../src/theme.js";
 import { dayVideos } from "../src/videos.js";
 import { setUpMosaikPanel } from "./mosaik-panel.js";
-import { setUpSyncPanel } from "./sync-panel.js";
 
 const byId = (id) => document.getElementById(id);
 const monthName = new Intl.DateTimeFormat("en", { month: "short" });
@@ -15,15 +16,16 @@ const longDayName = new Intl.DateTimeFormat("en", { weekday: "long", month: "sho
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 let log;
-let others;
+let mosaikDays;
+let mosaikOn = false;
 let goalMinutes;
 let videos;
 // The day that is open in the detail dialog, if any
 let openDay = null;
 
-// What is shown: the time of this computer plus the time of the others, and an empty log until
-// something has been saved (the storage has nothing at all on a new install)
-const current = () => effectiveLog(migrate(log), others);
+// What is shown: the time of this computer, live, plus what Mosaik says of the others, and an empty
+// log until something has been saved (the storage has nothing at all on a new install)
+const current = () => withOtherDevices(shownLog(migrate(log)), mosaikDays);
 let range = DEFAULT_RANGE;
 
 function element(tag, className, text) {
@@ -150,6 +152,11 @@ function render() {
   renderHeatmap(data.heatmap);
   renderChart();
   renderWeekdays(data.weekdays);
+  const scope = byId("scope");
+  scope.hidden = !mosaikOn;
+  scope.textContent = hasOthers(mosaikDays)
+    ? "The time of all your computers, with Mosaik."
+    : "The time of this computer only: Mosaik has not answered yet.";
   if (dayDialog.open) {
     renderDetail();
   }
@@ -163,29 +170,41 @@ function renderDetail() {
   const total = current().days[openDay] ?? 0;
   byId("dayTitle").textContent = longDayName.format(dateOf(openDay));
   byId("dayTotal").textContent = formatClock(total);
-  const list = dayVideos(videos, openDay);
+  const list = dayItems(dayVideos(videos, openDay), mosaikDays, openDay);
   byId("dayVideos").replaceChildren(
     ...list.map((video) => {
       const row = element("li", "");
-      const link = element("a", "", video.title || video.id);
-      link.href = `https://www.youtube.com/watch?v=${video.id}`;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.title = video.title || video.id;
-      const button = element("button", "button small", "Not German");
-      button.type = "button";
-      button.addEventListener("click", () => {
-        button.disabled = true;
-        chrome.runtime.sendMessage({ type: "day:remove-video", day: openDay, videoId: video.id });
-      });
-      row.append(link, element("span", "time", formatClock(video.seconds)), button);
+      const name = `${video.kind === "reading" ? "Reading · " : ""}${video.title || video.url || video.id}`;
+      const url = itemUrl(video.id, video.url);
+      const link = element(url ? "a" : "span", "", name);
+      if (url) {
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      }
+      link.title = name;
+      row.append(link);
+      if (video.elsewhere.length > 0) {
+        row.append(element("span", "where", video.here ? "+ other computers" : video.elsewhere.join(", ")));
+      }
+      row.append(element("span", "time", formatClock(video.seconds)));
+      // Only what this computer counted can be taken out here
+      if (video.here) {
+        const button = element("button", "button small", "Not German");
+        button.type = "button";
+        button.addEventListener("click", () => {
+          button.disabled = true;
+          chrome.runtime.sendMessage({ type: "day:remove-video", day: openDay, videoId: video.id });
+        });
+        row.append(button);
+      }
       return row;
     }),
   );
   byId("dayNote").textContent =
     list.length > 0
-      ? "Not German takes that video out of the day and stops counting it."
-      : "No videos are saved for this day on this computer. Time from before this version, or from your other computers, is not listed.";
+      ? "Not German takes that video out of the day and stops counting it. What another computer counted is taken out there."
+      : "No videos are saved for this day. Time from before this version is not listed.";
 }
 
 function openDetail(day) {
@@ -239,6 +258,30 @@ byId("goalForm").addEventListener("submit", (event) => {
   chrome.storage.local.set({ goalMinutes: minutes });
 });
 
+// The immersion profile: every video of this Chrome profile counts, on any site
+const immersionBox = byId("immersionEnabled");
+const immersionError = byId("immersionError");
+immersionBox.addEventListener("change", () => {
+  immersionError.textContent = "";
+  if (!immersionBox.checked) {
+    chrome.storage.local.set({ immersion: { enabled: false } });
+    return;
+  }
+  // Asked for from the click itself, as Chrome wants
+  chrome.permissions
+    .request(IMMERSION_PERMISSIONS)
+    .catch(() => false)
+    .then(async (granted) => {
+      if (!granted) {
+        immersionBox.checked = false;
+        immersionError.textContent = "Without access to the sites, Deuchan cannot find their videos.";
+        return;
+      }
+      await chrome.storage.local.set({ immersion: { enabled: true } });
+      await chrome.runtime.sendMessage({ type: "immersion:refresh" }).catch(() => {});
+    });
+});
+
 byId("ranges").addEventListener("change", (event) => {
   range = Number(event.target.value);
   chrome.storage.local.set({ range });
@@ -246,24 +289,41 @@ byId("ranges").addEventListener("change", (event) => {
 });
 
 setUpTheme(byId("theme"));
-setUpSyncPanel();
 setUpMosaikPanel();
-const stored = await chrome.storage.local.get(["log", "others", "goalMinutes", "range", "videos"]);
+const stored = await chrome.storage.local.get([
+  "log",
+  "mosaikDays",
+  "mosaikSettings",
+  "goalMinutes",
+  "range",
+  "videos",
+  "immersion",
+]);
 log = stored.log;
-others = stored.others;
+mosaikDays = stored.mosaikDays;
+mosaikOn = stored.mosaikSettings?.enabled === true;
 videos = stored.videos;
+immersionBox.checked = immersionOf(stored.immersion);
 goalMinutes = goalMinutesOf(stored.goalMinutes);
 range = RANGES.some(({ days }) => days === stored.range) ? stored.range : DEFAULT_RANGE;
 renderRanges();
 render();
+// The time of the other computers as Mosaik has it now
+chrome.runtime.sendMessage({ type: "mosaik:refresh-days", force: true }).catch(() => {});
 
 // The dashboard can stay open while a video plays or the goal changes
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.log) {
     log = changes.log.newValue;
   }
-  if (changes.others) {
-    others = changes.others.newValue;
+  if (changes.mosaikDays) {
+    mosaikDays = changes.mosaikDays.newValue;
+  }
+  if (changes.mosaikSettings) {
+    mosaikOn = changes.mosaikSettings.newValue?.enabled === true;
+  }
+  if (changes.immersion) {
+    immersionBox.checked = immersionOf(changes.immersion.newValue);
   }
   if (changes.videos) {
     videos = changes.videos.newValue;

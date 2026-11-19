@@ -389,8 +389,25 @@ dialog h2 {
   font-size: 12px;
 }
 
-/* The sync panel, and the Mosaik one, which looks the same */
-#syncDialog,
+#goalForm .note {
+  margin: -6px 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.day-videos .where {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.scope {
+  margin: -8px 0 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* The Mosaik panel */
 #mosaikDialog {
   width: 360px;
 }

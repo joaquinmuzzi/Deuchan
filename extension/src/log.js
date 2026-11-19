@@ -2,10 +2,10 @@
  * The log of watched time: how many seconds of German were watched on each day.
  *
  * Everything here is a pure function on plain objects, so it can be tested without a browser. The
- * shape is `{ version, days: { "2026-10-24": 3600 } }`; see `storage.js` for where it is kept.
+ * shape is `{ version, days: { "2026-10-24": 3600 }, adjust? }`: only what was counted on this computer
+ * (this Chrome profile), and the corrections of its days (see `corrections.js`). What the other
+ * computers counted comes from Mosaik (see `mosaik-days.js`).
  */
-
-import { sanitizeAdjust } from "./sync-data.js";
 
 /** Bump it when the shape changes, and migrate the old data in `migrate`. */
 export const STORAGE_VERSION = 1;
@@ -88,4 +88,49 @@ export function formatClock(seconds) {
   const minutes = Math.floor((total % 3600) / 60);
   const rest = String(total % 60).padStart(2, "0");
   return hours > 0 ? `${hours}:${String(minutes).padStart(2, "0")}:${rest}` : `${minutes}:${rest}`;
+}
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** A correction cannot add or take away more than this from a day. */
+const MAX_ADJUST_SECONDS = 7 * 24 * 3600;
+
+/**
+ * The corrections that make sense: `{ "2026-10-24": { seconds: -900, at: 1761300000000 } }`, a date,
+ * the seconds added to what was counted (negative to take time away) and when it was made, in ms.
+ */
+export function sanitizeAdjust(adjust) {
+  if (!adjust || typeof adjust !== "object") {
+    return {};
+  }
+  const clean = {};
+  for (const [key, entry] of Object.entries(adjust)) {
+    const { seconds, at } = entry ?? {};
+    if (DAY.test(key) && Number.isFinite(seconds) && Number.isFinite(at) && at > 0) {
+      clean[key] = {
+        seconds: Math.max(-MAX_ADJUST_SECONDS, Math.min(MAX_ADJUST_SECONDS, seconds)),
+        at,
+      };
+    }
+  }
+  return clean;
+}
+
+/**
+ * The log to show for this computer: what it counted with its corrections. A corrected day cannot go
+ * below zero, and a day with no time is not in it.
+ */
+export function shownLog(log) {
+  const days = { ...log?.days };
+  for (const [key, { seconds }] of Object.entries(sanitizeAdjust(log?.adjust))) {
+    days[key] = (days[key] ?? 0) + seconds;
+  }
+  for (const [key, seconds] of Object.entries(days)) {
+    if (!(seconds > 0)) {
+      delete days[key];
+    }
+  }
+  const shown = { ...log, days };
+  delete shown.adjust;
+  return shown;
 }

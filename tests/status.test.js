@@ -4,8 +4,8 @@ import { test } from "node:test";
 import { describeStatus } from "../extension/src/status.js";
 import { Watcher } from "../extension/src/watcher.js";
 
-test("no reply means the tab is not YouTube, and there is nothing to override", () => {
-  assert.deepEqual(describeStatus(undefined), { kind: "idle", text: "Not on YouTube" });
+test("no reply means there is no video in the tab, and there is nothing to override", () => {
+  assert.deepEqual(describeStatus(undefined), { kind: "idle", text: "No video here" });
 });
 
 test("an unknown language is being detected, with no link yet", () => {

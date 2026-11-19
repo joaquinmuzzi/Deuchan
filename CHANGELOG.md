@@ -9,7 +9,24 @@ note on what to update.
 
 ## [Unreleased]
 
+### Changed
+
+- **The sync between computers is gone.** Every computer, and every Chrome profile, sends its own time
+  straight to Mosaik with its own device token, and the dashboard and the popup show the total of all of
+  them, as Mosaik adds it up. Nothing has to be synced by hand. When it updates, the extension deletes what
+  it kept of the sync, keeps the share of each corrected day that this computer had counted, and sends its
+  history to Mosaik again with only its own time. To update: make a device token for each computer in
+  Mosaik (Fuentes → Dispositivos) and turn on "Send to Mosaik" with it.
+- The title and the address of every video go to Mosaik, from every computer.
+
 ### Added
+
+- The immersion profile: in a Chrome profile used only for German, every video that plays with sound
+  counts, on any site, with no guessing of the language. It is in the settings of the dashboard, off by
+  default, and asks for the optional `scripting` permission and access to the sites.
+- "Count reading" in the popup counts reading with no video, like a comic, on the page of the tab, until it
+  is stopped, the tab is closed, or the computer is not used for 15 minutes (the time of those minutes is
+  taken back). It counts toward the goal, and goes to Mosaik as reading.
 
 - "Send to Mosaik" can send to a Mosaik server, not only to the hub on this computer: an `https://` address
   and the device token made in that server (Fuentes → Dispositivos). The browser asks for the permission

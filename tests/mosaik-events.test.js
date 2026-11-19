@@ -73,15 +73,53 @@ test("a gap of 30 seconds joins, one of 31 does not", () => {
   assert.equal(JOIN_GAP_MS, 30_000);
 });
 
-test("another video closes the open event and opens its own", () => {
+test("another video opens its own event, and the first one waits and closes when it is idle", () => {
   const uuid = uuids();
   let outbox = play(emptyOutbox(), VIDEO, START, 3, uuid);
   outbox = addWatched(outbox, { from: START + 6, to: START + 8 }, 2, OTHER, uuid);
+  assert.deepEqual(outbox.queued, []);
+  assert.equal(outbox.open.videoId, OTHER.id);
   assert.deepEqual(
-    outbox.queued.map((event) => [event.videoId, event.seconds]),
+    outbox.parked.map((event) => [event.videoId, event.seconds]),
     [[VIDEO.id, 6]],
   );
-  assert.equal(outbox.open.videoId, OTHER.id);
+  assert.equal(pendingCount(outbox), 2);
+  const closed = closeIdle(outbox, toMs(START + 6) + JOIN_GAP_MS + 1);
+  assert.deepEqual(
+    closed.queued.map((event) => [event.videoId, event.seconds]),
+    [[VIDEO.id, 6]],
+  );
+  assert.equal(closed.open.videoId, OTHER.id, "the other one is not idle yet");
+});
+
+test("two tabs that play at once and report in turns make one event each, not one per report", () => {
+  const uuid = uuids();
+  let outbox = emptyOutbox();
+  for (let index = 0; index < 40; index += 1) {
+    const from = START + index * 2;
+    outbox = addWatched(outbox, { from, to: from + 2 }, 1, VIDEO, uuid);
+    outbox = addWatched(outbox, { from, to: from + 2 }, 1, OTHER, uuid);
+  }
+  outbox = closeIdle(outbox, toMs(START + 200));
+  // both end at the same moment, in either order
+  assert.deepEqual(outbox.queued.map((event) => [event.videoId, event.seconds]).sort(), [
+    [OTHER.id, 40],
+    [VIDEO.id, 40],
+  ]);
+});
+
+test("at most a few events wait parked: the oldest closes", () => {
+  const uuid = uuids();
+  let outbox = emptyOutbox();
+  const items = Array.from({ length: 7 }, (_, index) => ({ id: `web:item${index}`, title: "x" }));
+  items.forEach((item, index) => {
+    outbox = addWatched(outbox, { from: START + index, to: START + index + 1 }, 1, item, uuid);
+  });
+  assert.equal(outbox.parked.length, 4);
+  assert.deepEqual(
+    outbox.queued.map((event) => event.itemId),
+    ["web:item0", "web:item1"],
+  );
 });
 
 test("an event that lasted ten minutes is closed, so that a long video sends events as it plays", () => {
@@ -270,11 +308,13 @@ test("a batch is taken from the front, and only the events sent leave the queue"
 });
 
 test("a queue that cannot be read is an empty one", () => {
-  for (const saved of [undefined, null, 5, "x", { open: 5, queued: "no", dropped: "a" }]) {
+  for (const saved of [undefined, null, 5, "x", { open: 5, parked: "no", queued: "no", dropped: "a" }]) {
     assert.deepEqual(readOutbox(saved), emptyOutbox());
   }
-  const saved = { open: { id: "a" }, queued: [{ id: "b" }], dropped: 3 };
+  const saved = { open: { id: "a" }, parked: [{ id: "c" }], queued: [{ id: "b" }], dropped: 3 };
   assert.deepEqual(readOutbox(saved), saved);
+  // a queue saved before there were parked events
+  assert.deepEqual(readOutbox({ open: null, queued: [], dropped: 0 }), emptyOutbox());
 });
 
 test("every event the extension makes follows the contract of Mosaik", () => {
@@ -291,4 +331,49 @@ test("every event the extension makes follows the contract of Mosaik", () => {
   ];
   assert.equal(outbox.queued.length, 3);
   assert.deepEqual(batchProblems({ events }), []);
+});
+
+test("an item of another site goes with its id, its address and its site; reading says it is reading", () => {
+  const web = { id: "web:abc123", title: "Stream", url: "https://www.twitch.tv/videos/1" };
+  const outbox = addWatched(emptyOutbox(), { from: START, to: START + 2 }, 2, web, uuids());
+  assert.equal(outbox.open.videoId, undefined);
+  assert.equal(outbox.open.itemId, "web:abc123");
+  assert.equal(outbox.open.url, "https://www.twitch.tv/videos/1");
+  assert.equal(outbox.open.site, "twitch.tv");
+  assert.deepEqual(eventProblems(outbox.open), []);
+
+  const comic = { id: "web:comic1", title: "Asterix", url: "https://example.com/comic", kind: "reading" };
+  const reading = addWatched(emptyOutbox(), { from: START, to: START + 60 }, 60, comic, uuids());
+  assert.equal(reading.open.contentKind, "reading");
+  assert.deepEqual(eventProblems(reading.open), []);
+});
+
+test("the total of a day says how much of it was reading, and lists every kind of item", () => {
+  const videos = {
+    "2026-11-14": {
+      [VIDEO.id]: { title: VIDEO.title, seconds: 600 },
+      "web:comic1": { title: "Asterix", seconds: 300, url: "https://example.com/comic", kind: "reading" },
+    },
+  };
+  const event = dayTotalEvent("2026-11-14", 1_794_684_451_183, 900, videos);
+  assert.equal(event.readingSeconds, 300);
+  assert.deepEqual(event.videos[1], {
+    itemId: "web:comic1",
+    url: "https://example.com/comic",
+    site: "example.com",
+    contentKind: "reading",
+    title: "Asterix",
+    seconds: 300,
+  });
+  assert.deepEqual(eventProblems(event), []);
+  // no reading, no field
+  const plain = { "2026-11-14": { [VIDEO.id]: { title: VIDEO.title, seconds: 600 } } };
+  assert.equal(dayTotalEvent("2026-11-14", 1, 600, plain).readingSeconds, undefined);
+});
+
+test("an item of another site can be taken out of a day too", () => {
+  const event = videoRemovedEvent("2026-11-14", 1_794_670_420_000, "web:abc123");
+  assert.equal(event.itemId, "web:abc123");
+  assert.equal(event.videoId, undefined);
+  assert.deepEqual(eventProblems(event), []);
 });

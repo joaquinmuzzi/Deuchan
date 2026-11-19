@@ -10,7 +10,7 @@ files to upload. The package is made with `npm run package` (`dist/deuchan-<vers
 
 **Summary** (it is the `description` of the manifest, 132 characters at most):
 
-> Counts the time you spend watching German on YouTube, automatically. Daily goal, charts and optional encrypted sync.
+> Counts the time you spend watching German, automatically: on YouTube, or every video of an immersion profile. Goal and charts.
 
 **Category:** Education
 
@@ -30,7 +30,12 @@ WHAT YOU GET
   ignores the rest. When it gets one wrong, a button in the popup marks that video as German, or as not
   German, and it is remembered.
 • Click a day to see which videos made it up, take out the ones that were not German, or correct the
-  minutes if the day looks wrong. The correction shows on all your computers.
+  minutes if the day looks wrong.
+• An immersion profile, for a Chrome profile you use only for German: every video that plays with sound
+  counts, on any site (Twitch, streaming sites, anything), with no guessing. It is off by default and set
+  for each Chrome profile apart.
+• Reading with no video, like a comic: a button in the popup counts it until you stop it, or until you
+  leave the computer for 15 minutes. It counts toward your goal.
 • A daily goal that you set, with what is left today and a progress bar, and your streak.
 • A dashboard: totals, daily and monthly averages, an activity heatmap by month, a chart of your time per
   day (7 days to 1 year, with your goal as a line) and your average for each weekday.
@@ -38,17 +43,15 @@ WHAT YOU GET
 • Light and dark mode.
 
 PRIVATE BY DEFAULT
-Everything stays in your browser. Nothing is sent anywhere unless you turn on sync. No accounts, no ads, no
-analytics, no trackers.
+Everything stays in your browser. Nothing is sent anywhere. No accounts, no ads, no analytics, no trackers.
 
-OPTIONAL SYNC BETWEEN YOUR COMPUTERS
-Turn it on in the dashboard to get a sync key, and enter that key on your other computers: they share
-their time per day and all show the total. Your time is encrypted in your browser (AES-256-GCM) before it
-is sent, with a key that never leaves it, so the server cannot read it. There are no accounts. You can turn
-sync off, or delete your data from the server, whenever you want.
+OPTIONAL: SEND TO MOSAIK
+If you use Mosaik, an app that puts together how you learn languages, Deuchan can send it what you watch:
+to Mosaik on your own computer, or on your own server with a device token. Every computer sends its own
+time, and the dashboard shows the total of all of them.
 
 OPEN SOURCE
-The extension and the sync server are open source (MIT): https://github.com/joaquinmuzzi/deuchan
+The extension is open source (MIT): https://github.com/joaquinmuzzi/deuchan
 
 Deuchan is an independent project. It is not affiliated with, endorsed by or sponsored by YouTube or
 Google. YouTube is a trademark of Google LLC.
@@ -60,7 +63,6 @@ Google. YouTube is a trademark of Google LLC.
 2. [Dashboard, light](store/screenshot-2-dashboard-light.jpg)
 3. [The popup](store/screenshot-3-popup.jpg): there is no video in the browser that took it, so the answer
    of the tab ("Counting German") was given by hand; everything else is the real popup.
-4. [The sync panel](store/screenshot-4-sync.jpg): with a made-up key, hidden.
 
 **Small promo tile** (440 × 280): [promo-small-440x280.jpg](store/promo-small-440x280.jpg)
 
@@ -72,30 +74,32 @@ Google. YouTube is a trademark of Google LLC.
 
 **Single purpose:**
 
-> Track how much time the user spends watching German-language videos on YouTube, show their progress
-> toward a daily goal, and optionally sync that progress between the user's own computers.
+> Track how much time the user spends watching German-language videos (on YouTube, or any video in a Chrome
+> profile the user sets for German) and reading, and show their progress toward a daily goal.
 
 **Permission justifications:**
 
-| Permission                                                              | Why                                                                                                                                                                                                                                                                                 |
-| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `storage`                                                               | Keeps, in the browser of the user, the seconds watched per day, the videos of the last 60 days with their title and seconds (never sent), the daily goal, the settings and the decisions of the user about which videos are in German.                                              |
-| `alarms`                                                                | Starts the sync of the progress every few minutes, only while the user has sync on. A service worker cannot keep a timer, so it needs an alarm.                                                                                                                                     |
-| Host permission `https://sync-production-78f2.up.railway.app/*`         | The sync server. Used only when the user turns sync on, to send and receive one encrypted block with the progress. It is the only address on the internet the extension can talk to.                                                                                                |
-| Optional host permissions `http://127.0.0.1/*` and `http://localhost/*` | Not granted at install. Asked for only when the user turns on "Send to Mosaik" in the dashboard: it sends the watch time to Mosaik, an app of the user that runs on their own computer. Nothing goes to another computer.                                                           |
-| Optional host permission `https://*/*`                                  | Not granted at install, and never granted whole: when the user turns on "Send to Mosaik" with the address of their own Mosaik server, the extension asks for that one host only (`https://<their host>/*`). The server takes the data only with a device token the user made in it. |
-| Content scripts on `https://www.youtube.com/*`                          | Read, in the page of the video, whether it is playing, which audio track plays and the language of its captions, title and description, to count only the time of German videos. Only the id and the title of the video that is counted are kept, on the computer of the user.      |
+| Permission                                                              | Why                                                                                                                                                                                                                                                                                                                |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `storage`                                                               | Keeps, in the browser of the user, the seconds watched per day, the videos and readings of the last 60 days with their title, address and seconds, the daily goal, the settings and the decisions of the user about which videos are in German.                                                                    |
+| `alarms`                                                                | Sends to Mosaik every minute, only while the user has it on, and counts the reading the user started by hand. A service worker cannot keep a timer, so it needs an alarm.                                                                                                                                          |
+| `idle`                                                                  | Stops the reading counted by hand when nobody has used the computer for 15 minutes, so that time away is not counted. It says only whether the computer is in use.                                                                                                                                                 |
+| `activeTab`                                                             | When the user presses "Count reading" in the popup, reads the address and the title of that one tab, to name what is being read.                                                                                                                                                                                   |
+| Optional permission `scripting`                                         | Not granted at install. Asked for only when the user turns on the immersion profile: it adds the script that finds the videos of other sites.                                                                                                                                                                      |
+| Optional host permissions `http://127.0.0.1/*` and `http://localhost/*` | Not granted at install. Asked for only when the user turns on "Send to Mosaik" in the dashboard: it sends the watch time to Mosaik, an app of the user that runs on their own computer. Nothing goes to another computer.                                                                                          |
+| Optional host permission `https://*/*`                                  | Not granted at install, and never granted whole for Mosaik: when the user turns on "Send to Mosaik" with the address of their own Mosaik server, the extension asks for that one host only (`https://<their host>/*`). The server takes the data only with a device token the user made in it.                     |
+| Optional host permission `<all_urls>`                                   | Not granted at install. Asked for only when the user turns on the immersion profile, for a Chrome profile they use only for German: every video that plays with sound counts, on any site. The script only looks for videos and whether they play; only the address and title of a page where one played are kept. |
+| Content scripts on `https://www.youtube.com/*`                          | Read, in the page of the video, whether it is playing, which audio track plays and the language of its captions, title and description, to count only the time of German videos. Only the id and the title of the video that is counted are kept, on the computer of the user.                                     |
 
 **Remote code:** No. All the code is in the package; the extension loads nothing from the internet.
 
 **Data usage** (the form lists categories of data; please read its own definitions as you fill it, as I
 could not see it):
 
-- _User activity_: **yes, if you consider the seconds watched per day to be it.** It is the only data that
-  goes to the internet, and only when the user turns sync on, encrypted so that the developer cannot read
-  it. With "Send to Mosaik" on (off by default), the extension also sends the watch times and the ids and
-  titles of the videos to the user's own Mosaik, at the address they set: on their computer (`127.0.0.1`
-  or `localhost`) or their own server over https, with a device token; the developer never receives them.
+- _User activity_: **yes, if you consider the seconds watched per day to be it.** Nothing goes to the
+  developer. With "Send to Mosaik" on (off by default), the extension sends the watch times and the ids,
+  titles and addresses of the videos to the user's own Mosaik, at the address they set: on their computer
+  (`127.0.0.1` or `localhost`) or their own server over https, with a device token.
 - _Website content_: the extension reads the title, description and caption language of a video, only in the
   browser and only to decide if it is German. It keeps the title and id of the German videos of the last 60
   days, on the computer only, never sent, so that the user can see what made up a day. If the form counts
@@ -115,9 +119,9 @@ used for purposes unrelated to the single purpose, and not used to decide credit
 > The extension counts time on YouTube videos in German. To try it: open any German video on youtube.com
 > (for example a news or a vlog channel in German), press play, and open the extension popup: it says
 > "Counting German" and the time of today goes up. Open the dashboard from the popup ("Dashboard"). A video
-> in another language says "Not German, not counted". Sync is optional: in the dashboard, the cloud button
-> turns it on and shows a sync key; entering that key in another browser profile syncs both. No account or
-> login is needed for anything.
+> in another language says "Not German, not counted". In the dashboard settings, the immersion profile
+> counts every video of any site (it asks for access to the sites first). "Count reading" in the popup
+> counts time with no video. No account or login is needed for anything.
 
 ## What has to be done by hand
 

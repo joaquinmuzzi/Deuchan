@@ -1,18 +1,22 @@
 import { goalMinutesOf } from "../src/goal.js";
-import { migrate } from "../src/log.js";
-import { describeStatus } from "../src/status.js";
+import { migrate, shownLog } from "../src/log.js";
+import { readManual } from "../src/manual.js";
+import { hasOthers, withOtherDevices } from "../src/mosaik-days.js";
+import { describeManual, describeStatus } from "../src/status.js";
 import { summarize } from "../src/summary.js";
-import { effectiveLog } from "../src/sync-data.js";
 import { setUpTheme } from "../src/theme.js";
 
 const byId = (id) => document.getElementById(id);
 
 let log;
-let others;
+let mosaikDays;
+let mosaikOn = false;
+let manualSession = null;
 let goalMinutes;
 
 function render() {
-  const summary = summarize(effectiveLog(migrate(log), others), new Date(), goalMinutes);
+  // This computer, live, and what Mosaik says of the others
+  const summary = summarize(withOtherDevices(shownLog(migrate(log)), mosaikDays), new Date(), goalMinutes);
   byId("today").textContent = summary.today;
   byId("goalText").textContent = summary.goalText;
   byId("goalBlock").dataset.met = String(summary.goalMet);
@@ -21,7 +25,33 @@ function render() {
   byId("streak").textContent = summary.streak;
   byId("dailyAverage").textContent = summary.dailyAverage;
   byId("week").textContent = summary.week;
+  const scope = byId("scope");
+  scope.hidden = !mosaikOn;
+  scope.textContent = hasOthers(mosaikDays) ? "All your computers, with Mosaik" : "This computer only";
+  renderManual();
 }
+
+function renderManual() {
+  const { running, label, text } = describeManual(manualSession, Date.now() / 1000);
+  byId("manual").dataset.running = String(running);
+  byId("manualButton").textContent = label;
+  byId("manualText").textContent = text;
+}
+
+// Reading with no video: counted from now on the page of this tab, until it is stopped
+byId("manualButton").addEventListener("click", async () => {
+  if (manualSession) {
+    await chrome.runtime.sendMessage({ type: "manual:stop" }).catch(() => {});
+    return;
+  }
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const result = tab
+    ? await chrome.runtime.sendMessage({ type: "manual:start", tabId: tab.id }).catch(() => null)
+    : null;
+  if (!result?.session) {
+    byId("manualText").textContent = "This page cannot be counted: open the page you read on";
+  }
+});
 
 async function renderStatus() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -57,24 +87,43 @@ byId("dashboard").addEventListener("click", () => {
 });
 
 setUpTheme(byId("theme"));
-const stored = await chrome.storage.local.get(["log", "others", "goalMinutes"]);
+const stored = await chrome.storage.local.get([
+  "log",
+  "mosaikDays",
+  "mosaikSettings",
+  "manualSession",
+  "goalMinutes",
+]);
 log = stored.log;
-others = stored.others;
+mosaikDays = stored.mosaikDays;
+mosaikOn = stored.mosaikSettings?.enabled === true;
+manualSession = readManual(stored.manualSession);
 goalMinutes = goalMinutesOf(stored.goalMinutes);
 render();
 renderStatus();
+// The time of the other computers, if Mosaik has something newer
+chrome.runtime.sendMessage({ type: "mosaik:refresh-days" }).catch(() => {});
 
 // The popup can stay open while a video plays or the goal changes
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.log) {
     log = changes.log.newValue;
   }
-  if (changes.others) {
-    others = changes.others.newValue;
+  if (changes.mosaikDays) {
+    mosaikDays = changes.mosaikDays.newValue;
+  }
+  if (changes.mosaikSettings) {
+    mosaikOn = changes.mosaikSettings.newValue?.enabled === true;
+  }
+  if (changes.manualSession) {
+    manualSession = readManual(changes.manualSession.newValue);
   }
   if (changes.goalMinutes) {
     goalMinutes = goalMinutesOf(changes.goalMinutes.newValue);
   }
   render();
 });
-setInterval(renderStatus, 1000);
+setInterval(() => {
+  renderStatus();
+  renderManual();
+}, 1000);

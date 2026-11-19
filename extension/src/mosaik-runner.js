@@ -8,6 +8,7 @@
  * - `mosaikSentDays`      `{ "<day>": seconds }`, the last total of each day put in the queue
  * - `mosaikState`         what the last sending did, for the panel
  * - `mosaikBackfilledAt`  when the history was sent, the first time
+ * - `mosaikDays`          what Mosaik says of the days of every computer (see `mosaik-days.js`)
  *
  * The storage, the alarms, the permissions and the way to reach the hub are given from outside, so it
  * is tested with no browser.
@@ -22,6 +23,7 @@ import {
   DEFAULT_HUB_URL,
   checkDevice,
   checkHealth,
+  fetchDays,
   hubOrigins,
   isLocalHub,
   normalizeHubUrl,
@@ -41,8 +43,11 @@ import {
   takeBatch,
   videoRemovedEvent,
 } from "./mosaik-events.js";
-import { migrate } from "./log.js";
-import { effectiveLog } from "./sync-data.js";
+import { migrate, shownLog } from "./log.js";
+import { REFRESH_MS, cleanDaysAnswer, dayRange, readMosaikDays } from "./mosaik-days.js";
+
+/** The name Mosaik gives to the computer it runs on, when nothing sends a token. */
+export const LOCAL_DEVICE = "principal";
 
 export const MOSAIK_ALARM = "deuchan-mosaik";
 const PERIOD_MINUTES = 1;
@@ -156,17 +161,17 @@ export function createMosaikRunner({
 
   /**
    * Closes the open event if nothing came for it, and puts in the queue a new total of every day that
-   * does not show what was sent last: today as it grows, a corrected day, a day another computer added
-   * time to through sync. With `all`, every day goes again: that is the history.
+   * does not show what was sent last: today as it grows, a corrected day. Only the time of this
+   * computer: Mosaik adds the computers up. With `all`, every day goes again: that is the history.
    */
   const prepare = ({ all = false } = {}) =>
     exclusive(async () => {
-      const stored = await storage.get(["mosaikOutbox", "mosaikSentDays", "log", "others", "videos"]);
+      const stored = await storage.get(["mosaikOutbox", "mosaikSentDays", "log", "videos"]);
       const at = now();
-      const shown = effectiveLog(migrate(stored.log), stored.others).days;
+      const shown = shownLog(migrate(stored.log)).days;
       const sent = { ...stored.mosaikSentDays };
       const events = all
-        ? backfillEvents(shown, stored.videos, at)
+        ? backfillEvents(shown, stored.videos, at, sent)
         : changedDays(shown, sent).map(({ day, seconds }) => dayTotalEvent(day, at, seconds, stored.videos));
       for (const event of events) {
         sent[event.day] = event.seconds;
@@ -239,6 +244,46 @@ export function createMosaikRunner({
     return { ok: true, sent };
   }
 
+  /** The name Mosaik gives to this computer: the one of its token, or the computer of the hub. */
+  async function ownDevice(url, token) {
+    if (!token) {
+      return LOCAL_DEVICE;
+    }
+    const device = await checkDevice({ baseUrl: url, token, fetchImpl, timeoutMs });
+    return device.ok && device.device ? device.device : null;
+  }
+
+  /**
+   * Asks Mosaik for the days of every computer, at most every few minutes unless `force`. Nothing is
+   * lost when it cannot answer: the last answer stays, and without one the time of this computer is
+   * shown alone.
+   */
+  async function refreshDays(force = false) {
+    const { enabled, url, token } = await settings();
+    if (!enabled) {
+      return { skipped: "off" };
+    }
+    const saved = readMosaikDays((await storage.get("mosaikDays")).mosaikDays);
+    if (!force && now() - saved.fetchedAt < REFRESH_MS) {
+      return { skipped: "fresh" };
+    }
+    if (!(await permissions.contains({ origins: hubOrigins(url) }))) {
+      return { error: "permission-missing" };
+    }
+    const device = saved.device ?? (await ownDevice(url, token));
+    const today = new Date(now());
+    const result = await fetchDays({ baseUrl: url, token, ...dayRange(today), fetchImpl, timeoutMs });
+    if (!result.ok) {
+      await setState({ daysError: result.error });
+      return { error: result.error };
+    }
+    await storage.set({
+      mosaikDays: { fetchedAt: now(), device, days: cleanDaysAnswer(result.body, today) },
+    });
+    await setState({ daysError: null });
+    return { ok: true };
+  }
+
   /** The history: a total for every day the dashboard shows, then a sending. */
   async function backfill() {
     if (!(await settings()).enabled) {
@@ -257,6 +302,9 @@ export function createMosaikRunner({
 
     /** Sends the history again, whatever was sent before. */
     backfill: () => serialized(backfill),
+
+    /** Asks Mosaik for the days of every computer; with `force`, even if it asked a moment ago. */
+    refreshDays: (force) => serialized(() => refreshDays(force)),
 
     /**
      * Turns it on, at the hub on this computer or at a Mosaik server (which needs this computer's device
@@ -284,11 +332,14 @@ export function createMosaikRunner({
           }
         }
         await storage.set({ mosaikSettings: { enabled: true, url, token } });
+        // Another address or token can be another computer for Mosaik
+        await storage.remove("mosaikDays");
         await schedule();
         const health = await checkHealth({ baseUrl: url, fetchImpl, timeoutMs });
         await setState({ status: "waiting", hubVersion: health.ok ? health.version : null, lastError: null });
         const { mosaikBackfilledAt } = await storage.get("mosaikBackfilledAt");
         const result = mosaikBackfilledAt ? await send() : await backfill();
+        await refreshDays(true);
         return { health, ...result };
       }),
 
@@ -299,7 +350,7 @@ export function createMosaikRunner({
         await storage.set({ mosaikSettings: { enabled: false, url, token } });
         await schedule();
         // The totals sent are forgotten too: turned on again, every day is sent as it is then
-        await exclusive(() => storage.remove(["mosaikOutbox", "mosaikSentDays"]));
+        await exclusive(() => storage.remove(["mosaikOutbox", "mosaikSentDays", "mosaikDays"]));
         await storage.set({ mosaikState: { status: "off" } });
         return {};
       }),
@@ -338,6 +389,7 @@ export function createMosaikRunner({
     async onAlarm(name) {
       if (name === MOSAIK_ALARM) {
         await serialized(send);
+        await serialized(() => refreshDays());
       }
     },
   };
