@@ -15,6 +15,7 @@ import { IDLE_SECONDS, MANUAL_ALARM, flushManual, manualItem, readManual, startM
 import { othersOn } from "./mosaik-days.js";
 import { createMosaikRunner, queueRemoval, queueWatched } from "./mosaik-runner.js";
 import { isVideoId, withOverride } from "./overrides.js";
+import { forgetTab, splitByPage, trackPage } from "./pages.js";
 import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
 
 let queue = Promise.resolve();
@@ -164,7 +165,22 @@ chrome.idle.onStateChanged.addListener((state) => {
     enqueue(() => stepManual({ idle: true })).catch(() => {});
   }
 });
+// The pages each tab shows, to name the time of videos on other sites (see pages.js). Chrome only says
+// the address and title of the tabs Deuchan can see, which in the immersion profile is every one.
+let tabPages = {};
+chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
+  if (change.url !== undefined || change.title !== undefined) {
+    tabPages = trackPage(
+      tabPages,
+      tabId,
+      { url: change.url ?? tab.url, title: change.title ?? tab.title },
+      Date.now() / 1000,
+    );
+  }
+});
+
 chrome.tabs.onRemoved.addListener(async (tabId) => {
+  tabPages = forgetTab(tabPages, tabId);
   const session = readManual((await chrome.storage.local.get("manualSession")).manualSession);
   if (session?.tabId === tabId) {
     enqueue(() => stepManual({ stop: true })).catch(() => {});
@@ -281,11 +297,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
   if (message?.type === "watched" && Array.isArray(message.intervals)) {
-    // A video on another site is named after the page of its tab: a frame cannot see it
-    const video = message.page
-      ? cleanVideo({ id: webItemId(sender.tab?.url), title: sender.tab?.title, url: sender.tab?.url })
-      : cleanVideo(message.video);
-    queue = queue.then(() => save(message.intervals, video)).catch(() => {});
+    if (message.page) {
+      // A video on another site is named after the page of its tab, which a frame cannot see: each part
+      // of the time after the page it was watched on (see pages.js)
+      const tab = sender.tab;
+      const parts = splitByPage(tabPages, tab?.id, message.intervals, tab, Date.now() / 1000);
+      for (const { url, title, intervals } of parts) {
+        const video = cleanVideo({ id: webItemId(url), title, url });
+        queue = queue.then(() => save(intervals, video)).catch(() => {});
+      }
+    } else {
+      const video = cleanVideo(message.video);
+      queue = queue.then(() => save(message.intervals, video)).catch(() => {});
+    }
   } else if (
     message?.type === "override" &&
     isVideoId(message.videoId) &&
