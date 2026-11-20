@@ -18,6 +18,12 @@ export const SETTLE_SECONDS = 3;
 /** The pages kept per tab: an interval is never older than a few of them. */
 export const MAX_PAGES_PER_TAB = 10;
 
+/**
+ * The title of a page without the count of unread notifications that many sites (Twitch, Facebook) put
+ * in front of it: "(2) Twitch" is "Twitch".
+ */
+export const pageTitle = (title) => (typeof title === "string" ? title.replace(/^\(\d+\+?\)\s+/, "") : title);
+
 /** The pages with a tab's change: a new address, a new title, or both. The given ones are not changed. */
 export function trackPage(pages, tabId, { url, title }, at) {
   const list = pages[tabId] ?? [];

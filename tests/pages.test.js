@@ -5,6 +5,7 @@ import {
   MAX_PAGES_PER_TAB,
   SETTLE_SECONDS,
   forgetTab,
+  pageTitle,
   splitByPage,
   trackPage,
 } from "../extension/src/pages.js";
@@ -75,4 +76,12 @@ test("only the newest pages of a tab are kept, and a closed tab is forgotten", (
   }
   assert.equal(pages[TAB].length, MAX_PAGES_PER_TAB);
   assert.deepEqual(forgetTab(pages, TAB), {});
+});
+
+test("a page's title loses the count of notifications in front of it", () => {
+  assert.equal(pageTitle("(2) LumiiMari - Twitch"), "LumiiMari - Twitch");
+  assert.equal(pageTitle("(99+) Facebook"), "Facebook");
+  assert.equal(pageTitle("Teil (2) der Serie"), "Teil (2) der Serie");
+  assert.equal(pageTitle("(2)"), "(2)");
+  assert.equal(pageTitle(undefined), undefined);
 });

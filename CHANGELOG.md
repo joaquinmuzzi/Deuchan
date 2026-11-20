@@ -38,6 +38,8 @@ note on what to update.
 - On sites that change page without loading one (Twitch, from one channel to another), the time just
   before a change goes to the page it was watched on, and a page no longer gets the title of the one
   before: the address changes a moment before the title.
+- The title of a page on another site no longer starts with the count of its unread notifications, as
+  Twitch puts it in the tab: "(2) Twitch" is saved as "Twitch".
 - A video with automatic dubbing was taken for German because YouTube makes automatic captions in all the
   languages of the dubbing, German among them. Now the audio track that is playing decides, so an English
   video that plays in Spanish is not counted, and one that plays in German is. Without that information
