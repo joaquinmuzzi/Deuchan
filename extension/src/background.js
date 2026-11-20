@@ -15,7 +15,7 @@ import { IDLE_SECONDS, MANUAL_ALARM, flushManual, manualItem, readManual, startM
 import { othersOn } from "./mosaik-days.js";
 import { createMosaikRunner, queueRemoval, queueWatched } from "./mosaik-runner.js";
 import { isVideoId, withOverride } from "./overrides.js";
-import { forgetTab, splitByPage, trackPage } from "./pages.js";
+import { forgetTab, pageTitle, splitByPage, trackPage } from "./pages.js";
 import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
 
 let queue = Promise.resolve();
@@ -303,7 +303,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const tab = sender.tab;
       const parts = splitByPage(tabPages, tab?.id, message.intervals, tab, Date.now() / 1000);
       for (const { url, title, intervals } of parts) {
-        const video = cleanVideo({ id: webItemId(url), title, url });
+        const video = cleanVideo({ id: webItemId(url), title: pageTitle(title), url });
         queue = queue.then(() => save(intervals, video)).catch(() => {});
       }
     } else {
