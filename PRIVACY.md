@@ -49,8 +49,10 @@ its language. When you turn it on in the dashboard settings, your browser asks y
 
 - runs a small script in every page you open in that profile, which only looks for videos and whether they
   play, with sound;
-- keeps, for a page where a video played, its address, its title and the seconds, in the list of the day
-  above. Pages where nothing played are not recorded.
+- counts the time a tab plays sound (a podcast, for example), as Chrome tells extensions whether a tab is
+  playing sound, and whether it is muted;
+- keeps, for a page where a video or sound played, its address, its title and the seconds, in the list of
+  the day above. Pages where nothing played are not recorded.
 
 Turning it off stops the script. The permissions stay granted until you remove them in `chrome://extensions`.
 

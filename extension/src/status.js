@@ -3,12 +3,16 @@
  * answered, or `undefined` when there is no content script there (a page that is not YouTube, out of
  * the immersion profile, or a page with no video). `reply.immersion` is true in the immersion profile.
  *
+ * `sound` is true when the tab plays sound that the immersion profile counts (see audio.js).
+ *
  * `action` is the link to correct a wrong guess about the language: `german` is what pressing it
  * decides. There is none while the language is not known, or when there is no video.
  */
-export function describeStatus(reply) {
+export function describeStatus(reply, sound = false) {
   if (!reply) {
-    return { kind: "idle", text: "No video here" };
+    return sound
+      ? { kind: "counting", text: "Counting sound (immersion profile)" }
+      : { kind: "idle", text: "No video here" };
   }
   if (reply.german === null) {
     return { kind: "idle", text: "Detecting the language…" };

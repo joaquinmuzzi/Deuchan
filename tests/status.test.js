@@ -6,6 +6,10 @@ import { Watcher } from "../extension/src/watcher.js";
 
 test("no reply means there is no video in the tab, and there is nothing to override", () => {
   assert.deepEqual(describeStatus(undefined), { kind: "idle", text: "No video here" });
+  assert.deepEqual(describeStatus(undefined, true), {
+    kind: "counting",
+    text: "Counting sound (immersion profile)",
+  });
 });
 
 test("an unknown language is being detected, with no link yet", () => {

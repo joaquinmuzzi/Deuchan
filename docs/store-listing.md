@@ -10,7 +10,7 @@ files to upload. The package is made with `npm run package` (`dist/deuchan-<vers
 
 **Summary** (it is the `description` of the manifest, 132 characters at most):
 
-> Counts the time you spend watching German, automatically: on YouTube, or every video of an immersion profile. Goal and charts.
+> Counts the time you spend on German, automatically: YouTube, or every video and podcast of an immersion profile. Goal and charts.
 
 **Category:** Education
 

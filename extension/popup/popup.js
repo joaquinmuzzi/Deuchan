@@ -59,7 +59,13 @@ async function renderStatus() {
   const reply = tab
     ? await chrome.tabs.sendMessage(tab.id, { type: "status" }).catch(() => undefined)
     : undefined;
-  const { kind, text, action } = describeStatus(reply);
+  // A page with no video may still play sound that counts (a podcast, in the immersion profile)
+  const sound =
+    !reply && tab
+      ? (await chrome.runtime.sendMessage({ type: "audio:status", tabId: tab.id }).catch(() => null))
+          ?.counting === true
+      : false;
+  const { kind, text, action } = describeStatus(reply, sound);
   byId("status").dataset.kind = kind;
   byId("statusText").textContent = text;
   const button = byId("override");

@@ -22,7 +22,8 @@ really get.
   (for the last 60 days), take out the ones that were not German, or say how many minutes you really
   watched.
 - **An immersion profile.** In a Chrome profile you use only for German, turn it on in the settings of the
-  dashboard and every video that plays with sound counts, on any site, with no guessing.
+  dashboard and every video that plays with sound counts, on any site, with no guessing. So does any tab
+  that plays sound, like a podcast.
 - **Reading by hand.** "Count reading" in the popup counts reading with no video, like a comic, until you
   stop it or leave the computer for 15 minutes. It counts toward your goal.
 - **Local and private.** The log stays in your browser. Nothing is sent anywhere unless you turn on

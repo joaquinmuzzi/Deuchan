@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Deuchan",
   "version": "0.1.0",
-  "description": "Counts the time you spend watching German, automatically: on YouTube, or every video of an immersion profile. Goal and charts.",
+  "description": "Counts the time you spend on German, automatically: YouTube, or every video and podcast of an immersion profile. Goal and charts.",
   "homepage_url": "https://github.com/joaquinmuzzi/deuchan",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "alarms", "idle", "activeTab"],
