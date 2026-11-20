@@ -37,6 +37,9 @@ note on what to update.
 
 ### Fixed
 
+- In the dashboard, the minutes of a day follow the day until you type in them, and Save with the minutes
+  untouched corrects nothing. Before, the minutes stayed as they were when the day was opened: Save after
+  "Not German" put the time of the video back.
 - On sites that change page without loading one (Twitch, from one channel to another), the time just
   before a change goes to the page it was watched on, and a page no longer gets the title of the one
   before: the address changes a moment before the title.
