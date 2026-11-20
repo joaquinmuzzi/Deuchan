@@ -3,7 +3,9 @@
 // coverage.js), and paints the toolbar icon of each tab. When the person turns on sending to Mosaik, it
 // also keeps what it counts in the queue of Mosaik, in the same write (see mosaik-runner.js).
 //
-// It also keeps the immersion profile going (immersion.js) and the reading counted by hand (manual.js).
+// It also keeps the immersion profile going (immersion.js), with the tabs that play sound there
+// (audio.js), and the reading counted by hand (manual.js).
+import { AUDIO_ALARM, flushAudible, hears, readAudible, setHeard } from "./audio.js";
 import { addCoverage, isValidInterval } from "./coverage.js";
 import { correctDay, isDayKey } from "./corrections.js";
 import { IDLE_COLOR, drawIcons, iconColor } from "./icon.js";
@@ -61,6 +63,18 @@ async function save(intervals, video) {
   // Only while sending to Mosaik is on: off, nothing more is kept than before
   const mosaikOutbox = queueWatched(stored, counted, video, () => crypto.randomUUID());
   await chrome.storage.local.set({ log, covered, videos, ...(mosaikOutbox ? { mosaikOutbox } : {}) });
+}
+
+/**
+ * Saves time on a page of another site: each part after the page of the tab it was on (see pages.js).
+ * In the single writer.
+ */
+async function savePageTime(tabId, tab, intervals) {
+  const parts = splitByPage(tabPages, tabId, intervals, tab, Date.now() / 1000);
+  for (const part of parts) {
+    const video = cleanVideo({ id: webItemId(part.url), title: pageTitle(part.title), url: part.url });
+    await save(part.intervals, video);
+  }
 }
 
 async function saveOverride(videoId, german) {
@@ -169,6 +183,9 @@ chrome.idle.onStateChanged.addListener((state) => {
 // the address and title of the tabs Deuchan can see, which in the immersion profile is every one.
 let tabPages = {};
 chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
+  if (change.audible !== undefined || change.mutedInfo !== undefined || change.url !== undefined) {
+    stepAudio({ tabId, tab }).catch(() => {});
+  }
   if (change.url !== undefined || change.title !== undefined) {
     tabPages = trackPage(
       tabPages,
@@ -180,7 +197,12 @@ chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
 });
 
 chrome.tabs.onRemoved.addListener(async (tabId) => {
-  tabPages = forgetTab(tabPages, tabId);
+  // The sound of a closed tab ends, named after its last page; then its pages go
+  stepAudio({ tabId, tab: null })
+    .catch(() => {})
+    .finally(() => {
+      tabPages = forgetTab(tabPages, tabId);
+    });
   const session = readManual((await chrome.storage.local.get("manualSession")).manualSession);
   if (session?.tabId === tabId) {
     enqueue(() => stepManual({ stop: true })).catch(() => {});
@@ -203,6 +225,79 @@ async function scheduleImmersion() {
   } else if (!on && registered.length > 0) {
     await chrome.scripting.unregisterContentScripts({ ids: [IMMERSION_SCRIPT_ID] });
   }
+}
+
+// Sound in the immersion profile (see audio.js)
+
+async function immersionOn() {
+  const { immersion } = await chrome.storage.local.get("immersion");
+  return immersionOf(immersion) && (await chrome.permissions.contains(IMMERSION_PERMISSIONS));
+}
+
+/**
+ * Counts what the tabs that play sound played, in the single writer. With `tabId`, that tab changed:
+ * `tab` is how it is now, or null when it was closed, and `notGerman` is set when the person said what
+ * its page is. Without it, every tab is looked at again and what is open is counted: a minute went by,
+ * or the immersion profile was turned on or off.
+ */
+function stepAudio({ tabId, tab, notGerman } = {}) {
+  return enqueue(async () => {
+    const stored = await chrome.storage.session.get(["audible", "audioQuiet"]);
+    let audible = readAudible(stored.audible);
+    const quiet = { ...stored.audioQuiet };
+    const now = Date.now() / 1000;
+    const on = await immersionOn();
+    let tabs;
+    if (tabId === undefined) {
+      const playing = on ? await chrome.tabs.query({ audible: true }) : [];
+      const known = new Set(playing.map((each) => String(each.id)));
+      const gone = await Promise.all(
+        Object.keys(audible)
+          .filter((key) => !known.has(key))
+          .map((key) => chrome.tabs.get(Number(key)).catch(() => ({ id: Number(key), closed: true }))),
+      );
+      tabs = [...playing, ...gone];
+    } else {
+      tabs = [tab ?? { id: tabId, closed: true }];
+    }
+    for (const current of tabs) {
+      const url = current.url ?? "";
+      if (notGerman !== undefined && current.id === tabId) {
+        if (notGerman) {
+          quiet[tabId] = url;
+        } else {
+          delete quiet[tabId];
+        }
+      }
+      // A page said to be not German stays so until it changes address
+      if (quiet[current.id] !== undefined && (current.closed || quiet[current.id] !== url)) {
+        delete quiet[current.id];
+      }
+      const heard = on && !current.closed && hears(current) && quiet[current.id] === undefined;
+      const changed = setHeard(audible, current.id, heard, now);
+      audible = changed.audible;
+      // What was heard before the page was said to be not German is not counted either
+      if (changed.interval && !(notGerman === true && current.id === tabId)) {
+        await savePageTime(current.id, current.closed ? null : current, [changed.interval]);
+      }
+    }
+    if (tabId === undefined) {
+      const flushed = flushAudible(audible, now);
+      audible = flushed.audible;
+      for (const part of flushed.parts) {
+        const current = tabs.find((each) => each.id === part.tabId);
+        await savePageTime(part.tabId, current, [part.interval]);
+      }
+    }
+    await chrome.storage.session.set({ audible, audioQuiet: quiet });
+    if (Object.keys(audible).length > 0) {
+      if (!(await chrome.alarms.get(AUDIO_ALARM))) {
+        await chrome.alarms.create(AUDIO_ALARM, { periodInMinutes: 1 });
+      }
+    } else {
+      await chrome.alarms.clear(AUDIO_ALARM);
+    }
+  });
 }
 
 // The old sync between computers
@@ -233,12 +328,16 @@ chrome.runtime.onInstalled.addListener(() => {
 // there (and that there is none while it is off); the same for the script of the immersion profile
 mosaik.schedule().catch(() => {});
 scheduleImmersion().catch(() => {});
+stepAudio().catch(() => {});
 chrome.storage.local
   .get("manualSession")
   .then(({ manualSession }) => showManual(readManual(manualSession) !== null))
   .catch(() => {});
 chrome.alarms.onAlarm.addListener(({ name }) => {
   mosaik.onAlarm(name).catch(() => {});
+  if (name === AUDIO_ALARM) {
+    stepAudio().catch(() => {});
+  }
   if (name === MANUAL_ALARM) {
     // The computer may have slept: if nobody is there, the reading is over
     chrome.idle
@@ -249,10 +348,12 @@ chrome.alarms.onAlarm.addListener(({ name }) => {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.immersion) {
     scheduleImmersion().catch(() => {});
+    stepAudio().catch(() => {});
   }
 });
 chrome.permissions.onRemoved.addListener(() => {
   scheduleImmersion().catch(() => {});
+  stepAudio().catch(() => {});
 });
 
 // What the pages of the extension (the dashboard, the popup) can ask for. Only the pages of the
@@ -267,6 +368,10 @@ const CONTROLS = {
       ? enqueue(() => removeFromDay(message.day, message.videoId)).then(() => ({}))
       : Promise.resolve({ error: "invalid" }),
   "immersion:refresh": () => scheduleImmersion().then(() => ({})),
+  "audio:status": async (message) => {
+    const { audible } = await chrome.storage.session.get("audible");
+    return { counting: Object.hasOwn(readAudible(audible), String(message.tabId)) };
+  },
   "manual:start": (message) => manualStart(message),
   "manual:stop": () => enqueue(() => stepManual({ stop: true })).then(() => ({})),
   "mosaik:enable": (message) => mosaik.enable(message.url, message.token),
@@ -298,14 +403,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   if (message?.type === "watched" && Array.isArray(message.intervals)) {
     if (message.page) {
-      // A video on another site is named after the page of its tab, which a frame cannot see: each part
-      // of the time after the page it was watched on (see pages.js)
-      const tab = sender.tab;
-      const parts = splitByPage(tabPages, tab?.id, message.intervals, tab, Date.now() / 1000);
-      for (const { url, title, intervals } of parts) {
-        const video = cleanVideo({ id: webItemId(url), title: pageTitle(title), url });
-        queue = queue.then(() => save(intervals, video)).catch(() => {});
-      }
+      // A video on another site is named after the page of its tab, which a frame cannot see
+      enqueue(() => savePageTime(sender.tab?.id, sender.tab, message.intervals)).catch(() => {});
     } else {
       const video = cleanVideo(message.video);
       queue = queue.then(() => save(message.intervals, video)).catch(() => {});
@@ -318,5 +417,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     queue = queue.then(() => saveOverride(message.videoId, message.german)).catch(() => {});
   } else if (message?.type === "language" && sender.tab?.id !== undefined) {
     chrome.action.setIcon({ tabId: sender.tab.id, imageData: drawIcons(iconColor(message.german)) });
+    // The sound of a page on another site said to be not German does not count either
+    if (typeof message.german === "boolean" && message.page === true) {
+      stepAudio({ tabId: sender.tab.id, tab: sender.tab, notGerman: !message.german }).catch(() => {});
+    }
   }
 });

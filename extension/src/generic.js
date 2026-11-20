@@ -22,7 +22,8 @@
     send: (intervals) =>
       chrome.runtime.sendMessage({ type: "watched", intervals, page: true }).catch(() => {}),
   });
-  const announce = (german) => chrome.runtime.sendMessage({ type: "language", german }).catch(() => {});
+  const announce = (german) =>
+    chrome.runtime.sendMessage({ type: "language", german, page: true }).catch(() => {});
 
   const videos = new Set();
   let german = true;
