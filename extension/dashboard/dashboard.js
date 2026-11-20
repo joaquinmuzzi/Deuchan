@@ -165,11 +165,19 @@ function render() {
 const dayDialog = byId("dayDialog");
 const dayInput = byId("dayInput");
 const dayError = byId("dayError");
+// Whether the person typed minutes: until then the field follows the day, which a "Not German" changes
+let dayInputEdited = false;
+
+/** The minutes of a day as the field shows them before anything is typed. */
+const shownMinutes = (day) => String(Math.round((current().days[day] ?? 0) / 60));
 
 function renderDetail() {
   const total = current().days[openDay] ?? 0;
   byId("dayTitle").textContent = longDayName.format(dateOf(openDay));
   byId("dayTotal").textContent = formatClock(total);
+  if (!dayInputEdited) {
+    dayInput.value = shownMinutes(openDay);
+  }
   const list = dayItems(dayVideos(videos, openDay), mosaikDays, openDay);
   byId("dayVideos").replaceChildren(
     ...list.map((video) => {
@@ -209,7 +217,8 @@ function renderDetail() {
 
 function openDetail(day) {
   openDay = day;
-  dayInput.value = String(Math.round((current().days[day] ?? 0) / 60));
+  dayInputEdited = false;
+  dayInput.value = shownMinutes(day);
   dayError.textContent = "";
   renderDetail();
   dayDialog.showModal();
@@ -218,9 +227,14 @@ function openDetail(day) {
 
 byId("dayCancel").addEventListener("click", () => dayDialog.close());
 dayInput.addEventListener("input", () => {
+  dayInputEdited = true;
   dayError.textContent = "";
 });
 byId("dayForm").addEventListener("submit", (event) => {
+  // Saved as it was shown, the day is left as it is counted: a correction would freeze it
+  if (!dayInputEdited) {
+    return;
+  }
   const minutes = parseDayMinutes(dayInput.value);
   if (minutes === null) {
     event.preventDefault();
