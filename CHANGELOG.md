@@ -11,6 +11,9 @@ note on what to update.
 
 ### Changed
 
+- **A day ends at 4:00, not at midnight,** as in Anki and Mosaik: what is watched at 01:00 counts for the
+  evening before, in the totals, the goal, the streak and the charts. The days that were already counted stay
+  as they are. Update every computer, so that they all agree on the day.
 - **The sync between computers is gone.** Every computer, and every Chrome profile, sends its own time
   straight to Mosaik with its own device token, and the dashboard and the popup show the total of all of
   them, as Mosaik adds it up. Nothing has to be synced by hand. When it updates, the extension deletes what

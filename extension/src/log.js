@@ -12,11 +12,21 @@ export const STORAGE_VERSION = 1;
 
 export const emptyLog = () => ({ version: STORAGE_VERSION, days: {} });
 
-/** The key of a day in the user's own time zone, as `YYYY-MM-DD`. */
+/** The hour a day starts at, as in Anki and Mosaik: what is watched at 01:00 belongs to the evening before. */
+export const DAY_START_HOUR = 4;
+
+/** The day `count` days before the one of `date`, at noon so that daylight saving changes cannot skip a day. */
+export function daysBefore(date, count) {
+  const back = count + (date.getHours() < DAY_START_HOUR ? 1 : 0);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - back, 12);
+}
+
+/** The key of the day of a moment in the user's own time zone, as `YYYY-MM-DD`. */
 export function dayKey(date) {
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
+  const start = daysBefore(date, 0);
+  const month = String(start.getMonth() + 1).padStart(2, "0");
+  const day = String(start.getDate()).padStart(2, "0");
+  return `${start.getFullYear()}-${month}-${day}`;
 }
 
 /** Brings data saved by an older version up to date, and anything unreadable to an empty log. */
@@ -43,11 +53,6 @@ export function addSeconds(log, key, seconds) {
     return log;
   }
   return { ...log, days: { ...log.days, [key]: (log.days[key] ?? 0) + seconds } };
-}
-
-/** The day `count` days before `date`, at noon so that daylight saving changes cannot skip a day. */
-export function daysBefore(date, count) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - count, 12);
 }
 
 /** The seconds of each of the last `count` days, the oldest first, ending today. */

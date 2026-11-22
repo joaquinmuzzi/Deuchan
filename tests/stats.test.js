@@ -175,6 +175,19 @@ test("daysMeetingGoal counts the days that reached the goal", () => {
   assert.equal(daysMeetingGoal(log, TODAY, 7, 1800), 2);
 });
 
+test("before 4:00 the statistics still end the day before, also across a month", () => {
+  const night = new Date(2026, 10, 1, 1); // 1 November, 01:00: still 31 October
+  const log = logWith({ "2026-10-31": 100, "2026-10-30": 300 });
+  assert.equal(dailyAverage(log, night), 200);
+  assert.equal(monthlyAverage(log, night), 400);
+  const groups = heatmap(log, night, 2);
+  assert.deepEqual(
+    groups.map(({ month }) => month),
+    ["2026-09", "2026-10"],
+  );
+  assert.equal(groups[1].weeks.flat().filter(Boolean).at(-1).day, "2026-10-31");
+});
+
 test("dashboardData gathers the cards, the heatmap and the weekdays", () => {
   const data = dashboardData(logWith({ "2026-10-24": 3725 }), TODAY);
   assert.equal(data.cards.today, "1:02:05");

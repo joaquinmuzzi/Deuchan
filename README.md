@@ -18,6 +18,7 @@ really get.
 - **Only German.** It works out the language of each video and ignores the rest. When it gets
   one wrong, a button in the popup marks that video as German, or as not German, and it is
   remembered.
+- **A day that ends at 4:00.** As in Anki: what you watch after midnight counts for the evening before.
 - **A day you can explain and correct.** Click a day in the dashboard to see which videos made it up
   (for the last 60 days), take out the ones that were not German, or say how many minutes you really
   watched.

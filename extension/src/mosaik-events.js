@@ -22,6 +22,7 @@
  */
 import { isVideoId } from "./overrides.js";
 import { cleanUrl, isItemId, siteOf } from "./items.js";
+import { DAY_START_HOUR } from "./log.js";
 import { dayVideos, readingSeconds } from "./videos.js";
 
 export const SOURCE = "deuchan";
@@ -246,6 +247,8 @@ export const videoRemovedEvent = (day, at, id) => ({
   kind: "video_removed",
   language: LANGUAGE,
   day,
+  // So that Mosaik knows which stretches belong to that day
+  dayStartHour: DAY_START_HOUR,
   at,
   ...(isVideoId(id) ? { videoId: id } : { itemId: id }),
 });
