@@ -50,7 +50,8 @@ its language. When you turn it on in the dashboard settings, your browser asks y
 - runs a small script in every page you open in that profile, which only looks for videos and whether they
   play, with sound;
 - counts the time a tab plays sound (a podcast, for example), as Chrome tells extensions whether a tab is
-  playing sound, and whether it is muted;
+  playing sound, and whether it is muted. A sound counts once it has lasted 30 seconds; until then, its page
+  is kept only in memory, and forgotten if the sound ends before;
 - keeps, for a page where a video or sound played, its address, its title and the seconds, in the list of
   the day above. Pages where nothing played are not recorded.
 

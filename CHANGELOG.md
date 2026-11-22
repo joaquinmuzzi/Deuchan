@@ -29,6 +29,8 @@ note on what to update.
   default, and asks for the optional `scripting` permission and access to the sites.
 - In the immersion profile, any tab that plays sound counts too, like a podcast or a radio, whatever plays
   it; the popup says "Counting sound". YouTube is left to its own script, and a muted tab does not count.
+  A sound counts once it has lasted 30 seconds without a break, and then from its start, so that a word a
+  dictionary says does not; after that, the shorter sounds of the same site in that tab count too.
 - "Count reading" in the popup counts reading with no video, like a comic, on the page of the tab, until it
   is stopped, the tab is closed, or the computer is not used for 15 minutes (the time of those minutes is
   taken back). It counts toward the goal, and goes to Mosaik as reading.

@@ -1,17 +1,23 @@
+import { MIN_SOUND_SECONDS } from "./audio.js";
+
 /**
  * What the popup says about the video of the current tab. `reply` is what the content script
  * answered, or `undefined` when there is no content script there (a page that is not YouTube, out of
  * the immersion profile, or a page with no video). `reply.immersion` is true in the immersion profile.
  *
- * `sound` is true when the tab plays sound that the immersion profile counts (see audio.js).
+ * `sound` is for a tab that plays sound in the immersion profile (see audio.js): `"counting"`, or
+ * `"waiting"` while it has not lasted enough to count. Null when it plays none.
  *
  * `action` is the link to correct a wrong guess about the language: `german` is what pressing it
  * decides. There is none while the language is not known, or when there is no video.
  */
-export function describeStatus(reply, sound = false) {
+export function describeStatus(reply, sound = null) {
   if (!reply) {
-    return sound
-      ? { kind: "counting", text: "Counting sound (immersion profile)" }
+    if (sound === "counting") {
+      return { kind: "counting", text: "Counting sound (immersion profile)" };
+    }
+    return sound === "waiting"
+      ? { kind: "idle", text: `Sound, counted after ${MIN_SOUND_SECONDS} seconds` }
       : { kind: "idle", text: "No video here" };
   }
   if (reply.german === null) {
