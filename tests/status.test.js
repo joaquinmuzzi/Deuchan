@@ -6,9 +6,13 @@ import { Watcher } from "../extension/src/watcher.js";
 
 test("no reply means there is no video in the tab, and there is nothing to override", () => {
   assert.deepEqual(describeStatus(undefined), { kind: "idle", text: "No video here" });
-  assert.deepEqual(describeStatus(undefined, true), {
+  assert.deepEqual(describeStatus(undefined, "counting"), {
     kind: "counting",
     text: "Counting sound (immersion profile)",
+  });
+  assert.deepEqual(describeStatus(undefined, "waiting"), {
+    kind: "idle",
+    text: "Sound, counted after 30 seconds",
   });
 });
 

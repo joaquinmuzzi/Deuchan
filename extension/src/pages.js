@@ -44,6 +44,19 @@ export function trackPage(pages, tabId, { url, title }, at) {
   return { ...pages, [tabId]: next.slice(-MAX_PAGES_PER_TAB) };
 }
 
+/**
+ * The pages with one that was known from before they were tracked: what a tab showed since `since`,
+ * kept somewhere else while the background script was stopped.
+ */
+export function knowPage(pages, tabId, { url, title, since }) {
+  const list = pages[tabId] ?? [];
+  if (typeof url !== "string" || (list.length > 0 && list[0].since <= since)) {
+    return pages;
+  }
+  const known = { url, since, title: typeof title === "string" ? title : "", titled: true };
+  return { ...pages, [tabId]: [known, ...list].slice(-MAX_PAGES_PER_TAB) };
+}
+
 /** The pages of a tab that is closed are forgotten. */
 export function forgetTab(pages, tabId) {
   return Object.fromEntries(Object.entries(pages).filter(([key]) => key !== String(tabId)));

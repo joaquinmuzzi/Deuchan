@@ -5,7 +5,7 @@
 //
 // It also keeps the immersion profile going (immersion.js), with the tabs that play sound there
 // (audio.js), and the reading counted by hand (manual.js).
-import { AUDIO_ALARM, flushAudible, hears, readAudible, setHeard } from "./audio.js";
+import { AUDIO_ALARM, flushSound, forgetSound, hears, isCounting, readSound, setHeard } from "./audio.js";
 import { addCoverage, isValidInterval } from "./coverage.js";
 import { correctDay, isDayKey } from "./corrections.js";
 import { IDLE_COLOR, drawIcons, iconColor } from "./icon.js";
@@ -17,7 +17,7 @@ import { IDLE_SECONDS, MANUAL_ALARM, flushManual, manualItem, readManual, startM
 import { othersOn } from "./mosaik-days.js";
 import { createMosaikRunner, queueRemoval, queueWatched } from "./mosaik-runner.js";
 import { isVideoId, withOverride } from "./overrides.js";
-import { forgetTab, pageTitle, splitByPage, trackPage } from "./pages.js";
+import { forgetTab, knowPage, pageTitle, splitByPage, trackPage } from "./pages.js";
 import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
 
 let queue = Promise.resolve();
@@ -241,24 +241,29 @@ async function immersionOn() {
  * or the immersion profile was turned on or off.
  */
 function stepAudio({ tabId, tab, notGerman } = {}) {
+  // When it happened, not when its turn comes: a page that came after it must get none of its time
+  const now = Date.now() / 1000;
   return enqueue(async () => {
-    const stored = await chrome.storage.session.get(["audible", "audioQuiet"]);
-    let audible = readAudible(stored.audible);
+    const stored = await chrome.storage.session.get(["sound", "audioQuiet"]);
+    let sound = readSound(stored.sound);
     const quiet = { ...stored.audioQuiet };
-    const now = Date.now() / 1000;
     const on = await immersionOn();
     let tabs;
     if (tabId === undefined) {
       const playing = on ? await chrome.tabs.query({ audible: true }) : [];
       const known = new Set(playing.map((each) => String(each.id)));
       const gone = await Promise.all(
-        Object.keys(audible)
+        Object.keys(sound.open)
           .filter((key) => !known.has(key))
           .map((key) => chrome.tabs.get(Number(key)).catch(() => ({ id: Number(key), closed: true }))),
       );
       tabs = [...playing, ...gone];
     } else {
       tabs = [tab ?? { id: tabId, closed: true }];
+    }
+    // The background script may have been stopped since the sound started, and forgotten the pages
+    for (const [id, stretch] of Object.entries(sound.open)) {
+      tabPages = knowPage(tabPages, id, stretch);
     }
     for (const current of tabs) {
       const url = current.url ?? "";
@@ -274,23 +279,26 @@ function stepAudio({ tabId, tab, notGerman } = {}) {
         delete quiet[current.id];
       }
       const heard = on && !current.closed && hears(current) && quiet[current.id] === undefined;
-      const changed = setHeard(audible, current.id, heard, now);
-      audible = changed.audible;
       // What was heard before the page was said to be not German is not counted either
-      if (changed.interval && !(notGerman === true && current.id === tabId)) {
+      if (notGerman === true && current.id === tabId) {
+        sound = forgetSound(sound, current.id);
+      }
+      const changed = setHeard(sound, current, heard, now);
+      sound = current.closed ? forgetSound(changed.sound, current.id) : changed.sound;
+      if (changed.interval) {
         await savePageTime(current.id, current.closed ? null : current, [changed.interval]);
       }
     }
     if (tabId === undefined) {
-      const flushed = flushAudible(audible, now);
-      audible = flushed.audible;
+      const flushed = flushSound(sound, now);
+      sound = flushed.sound;
       for (const part of flushed.parts) {
         const current = tabs.find((each) => each.id === part.tabId);
         await savePageTime(part.tabId, current, [part.interval]);
       }
     }
-    await chrome.storage.session.set({ audible, audioQuiet: quiet });
-    if (Object.keys(audible).length > 0) {
+    await chrome.storage.session.set({ sound, audioQuiet: quiet });
+    if (Object.keys(sound.open).length > 0) {
       if (!(await chrome.alarms.get(AUDIO_ALARM))) {
         await chrome.alarms.create(AUDIO_ALARM, { periodInMinutes: 1 });
       }
@@ -369,8 +377,11 @@ const CONTROLS = {
       : Promise.resolve({ error: "invalid" }),
   "immersion:refresh": () => scheduleImmersion().then(() => ({})),
   "audio:status": async (message) => {
-    const { audible } = await chrome.storage.session.get("audible");
-    return { counting: Object.hasOwn(readAudible(audible), String(message.tabId)) };
+    const sound = readSound((await chrome.storage.session.get("sound")).sound);
+    if (!Object.hasOwn(sound.open, String(message.tabId))) {
+      return { sound: null };
+    }
+    return { sound: isCounting(sound, message.tabId, Date.now() / 1000) ? "counting" : "waiting" };
   },
   "manual:start": (message) => manualStart(message),
   "manual:stop": () => enqueue(() => stepManual({ stop: true })).then(() => ({})),

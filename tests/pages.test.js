@@ -5,6 +5,7 @@ import {
   MAX_PAGES_PER_TAB,
   SETTLE_SECONDS,
   forgetTab,
+  knowPage,
   pageTitle,
   splitByPage,
   trackPage,
@@ -67,6 +68,23 @@ test("the first page known also takes the time before it", () => {
   const pages = trackPage({}, TAB, { url: A, title: "LumiiMari - Twitch" }, 50);
   const parts = splitByPage(pages, TAB, [{ from: 40, to: 60 }], null, 60);
   assert.deepEqual(parts, [{ url: A, title: "LumiiMari - Twitch", intervals: [{ from: 40, to: 60 }] }]);
+});
+
+test("a page known from before the background script was stopped takes its own time", () => {
+  const known = { url: A, title: "LumiiMari - Twitch", since: 40 };
+  // The change of address is the first thing seen after it woke up
+  const woken = trackPage({}, TAB, { url: B, title: "LumiiMari - Twitch" }, 60);
+  assert.deepEqual(splitByPage(knowPage(woken, TAB, known), TAB, [{ from: 40, to: 60 }], null, 60), [
+    { url: A, title: "LumiiMari - Twitch", intervals: [{ from: 40, to: 60 }] },
+  ]);
+  // With nothing seen, as when the tab is closed
+  assert.deepEqual(splitByPage(knowPage({}, TAB, known), TAB, [{ from: 40, to: 60 }], null, 60), [
+    { url: A, title: "LumiiMari - Twitch", intervals: [{ from: 40, to: 60 }] },
+  ]);
+  // Pages seen since before it are better known
+  const seen = trackPage({}, TAB, { url: B, title: "Lumizap - Twitch" }, 30);
+  assert.equal(knowPage(seen, TAB, known), seen);
+  assert.equal(knowPage(seen, TAB, { since: 10 }), seen);
 });
 
 test("only the newest pages of a tab are kept, and a closed tab is forgotten", () => {
