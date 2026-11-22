@@ -223,6 +223,7 @@ test("a removal names the day, the video and the moment", () => {
     kind: "video_removed",
     language: "de",
     day: "2026-11-14",
+    dayStartHour: 4,
     at: 1_794_670_420_000,
     videoId: VIDEO.id,
   });

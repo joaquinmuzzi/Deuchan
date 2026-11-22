@@ -22,6 +22,23 @@ test("dayKey uses the local date with zero padding", () => {
   assert.equal(dayKey(new Date(2026, 0, 5, 23, 59)), "2026-01-05");
 });
 
+test("a day ends at 4:00: the early hours belong to the day before", () => {
+  assert.equal(dayKey(new Date(2026, 9, 25, 0, 0)), "2026-10-24");
+  assert.equal(dayKey(new Date(2026, 9, 25, 3, 59, 59)), "2026-10-24");
+  assert.equal(dayKey(new Date(2026, 9, 25, 4, 0)), "2026-10-25");
+  assert.equal(dayKey(new Date(2027, 0, 1, 2, 0)), "2026-12-31");
+});
+
+test("the last days and the streak before 4:00 end with the day before", () => {
+  const log = logWith({ "2026-10-24": 60, "2026-10-23": 30 });
+  const night = new Date(2026, 9, 25, 1, 30);
+  assert.deepEqual(lastDays(log, night, 2), [
+    { day: "2026-10-23", seconds: 30 },
+    { day: "2026-10-24", seconds: 60 },
+  ]);
+  assert.equal(streak(log, night), 2);
+});
+
 test("addSeconds adds to a day without changing the given log", () => {
   const log = emptyLog();
   const once = addSeconds(log, "2026-10-24", 30);

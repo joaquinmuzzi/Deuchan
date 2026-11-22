@@ -21,7 +21,7 @@ const ALLOWED = {
     "channelId",
   ],
   day_total: ["id", "source", "kind", "language", "day", "at", "seconds", "readingSeconds", "videos"],
-  video_removed: ["id", "source", "kind", "language", "day", "at", "videoId", "itemId"],
+  video_removed: ["id", "source", "kind", "language", "day", "dayStartHour", "at", "videoId", "itemId"],
 };
 const DAY_VIDEO = [...ITEM, "title", "seconds"];
 
@@ -104,6 +104,11 @@ export function eventProblems(event) {
 
   if (event.kind === "video_removed") {
     if (!DAY.test(event.day ?? "")) fail("day");
+    if (
+      event.dayStartHour !== undefined &&
+      !(Number.isInteger(event.dayStartHour) && event.dayStartHour >= 0 && event.dayStartHour <= 23)
+    )
+      fail("dayStartHour");
     if (!isTime(event.at)) fail("at");
     problems.push(...itemProblems(event));
     if (event.id !== `deuchan:rm:${event.day}:${event.videoId ?? event.itemId}:${event.at}`)

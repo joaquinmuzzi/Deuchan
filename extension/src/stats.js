@@ -33,8 +33,7 @@ function daysSinceFirst(log, today) {
   if (first === null) {
     return 0;
   }
-  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
-  return Math.max(Math.round((end - dateOf(first)) / 86_400_000) + 1, 1);
+  return Math.max(Math.round((daysBefore(today, 0) - dateOf(first)) / 86_400_000) + 1, 1);
 }
 
 /** Average seconds per day since the first day with time, today included. */
@@ -50,7 +49,8 @@ export function monthlyAverage(log, today) {
     return 0;
   }
   const [year, month] = first.split("-").map(Number);
-  const months = (today.getFullYear() - year) * 12 + (today.getMonth() - (month - 1)) + 1;
+  const end = daysBefore(today, 0);
+  const months = (end.getFullYear() - year) * 12 + (end.getMonth() - (month - 1)) + 1;
   return totalSeconds(log) / Math.max(months, 1);
 }
 
@@ -70,11 +70,12 @@ export function level(seconds, most) {
  */
 export function heatmap(log, today, months) {
   const groups = [];
+  const end = daysBefore(today, 0);
   for (let back = months - 1; back >= 0; back -= 1) {
-    const first = new Date(today.getFullYear(), today.getMonth() - back, 1, 12);
+    const first = new Date(end.getFullYear(), end.getMonth() - back, 1, 12);
     const offset = first.getDay(); // the weekday of the 1st, Sunday is 0
     const lastDay =
-      back === 0 ? today.getDate() : new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+      back === 0 ? end.getDate() : new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
     const weeks = [];
     for (let day = 1; day <= lastDay; day += 1) {
       const week = Math.floor((day - 1 + offset) / 7);
