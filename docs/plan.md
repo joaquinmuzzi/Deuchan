@@ -6,12 +6,12 @@ request that finishes it.
 
 ## Where it stands
 
-- Works well for one user, German only, loaded unpacked. Not published anywhere.
-- The store listing, the privacy policy, the screenshots and the packaging script are ready, but written
-  for German only: [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`.
-- German is assumed in many places: `extension/src/language.js` (detection), the popup and dashboard
-  labels ("Not German"), the `setGerman` messages, `generic.js` (immersion profile), and
-  `LANGUAGE = "de"` in `extension/src/mosaik-events.js`.
+- Works well for one user, loaded unpacked. Not published anywhere. Since phase 1 it counts any language.
+- The store listing, the privacy policy, the screenshots and the packaging script are ready:
+  [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
+  any language; the screenshots still show German (task 2.2).
+- Mosaik keeps only German apart, so sending to it pauses while the target is another language (see the
+  note of task 1.4).
 
 ## Goal
 
@@ -50,7 +50,7 @@ data stays German.
       `language.js`.
 - [x] **1.4 Mosaik.** Send the target language instead of the fixed `de`, or keep sending only German if
       Mosaik cannot take other languages yet (check its ingest contract). Depends on 1.1.
-- [ ] **1.5 Docs.** README, CONTRIBUTING (the wrong detection issue template too) and the store listing
+- [x] **1.5 Docs.** README, CONTRIBUTING (the wrong detection issue template too) and the store listing
       speak of any language. Depends on 1.2 and 1.3.
 
 ## Phase 2: publish
@@ -142,3 +142,13 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   `day_totals` (newest snapshot per device, day and language), totals filtered by its target language like
   the GSM sessions are, and `/api/agent/deuchan/days` taking a `language`; then add the languages to
   `MOSAIK_LANGUAGES` and pass the target to `fetchDays`.
+- 2026-11-23, task 1.5: README, CONTRIBUTING, the issue templates, the store listing and PRIVACY.md speak of
+  the language the person learns. The summary (and the manifest `description`) leads with Japanese, Spanish,
+  Korean and German and promises YouTube only, as detection does; the immersion profile is in the
+  description. The wrong detection form asks for the target language. The screenshots and the reviewers'
+  test instructions still use German (task 2.2 redoes the images). The name stays "Deuchan" (D1).
+  **Phase 1 is done.** Covered by tests only, not tried by hand in Chrome: picking the language on a new
+  install and in the dashboard settings, detection of a real video in another language (audio track,
+  automatic captions, and `chrome.i18n.detectLanguage` on titles), the popup and dashboard labels in another
+  language, overrides kept per language, and Mosaik pausing (and resuming) when the target changes. Try them
+  by hand before task 2.2 takes the new screenshots.

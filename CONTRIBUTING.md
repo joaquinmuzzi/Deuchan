@@ -6,10 +6,10 @@ development environment and send changes. By taking part you agree to follow the
 
 ## Ways to contribute
 
-- **Report a wrong language detection.** Deuchan only counts German videos, and deciding the
-  language of a video is a guess. Open a
+- **Report a wrong language detection.** Deuchan only counts videos in the language you learn, and
+  deciding the language of a video is a guess. Open a
   [Wrong language detection](https://github.com/joaquinmuzzi/deuchan/issues/new?template=wrong_detection.yml)
-  issue with a link to the video and what went wrong.
+  issue with a link to the video, the language you set in Deuchan and what went wrong.
 - **Report a bug** (time is not counted, the popup is empty, the extension breaks a page) with the
   [Bug report](https://github.com/joaquinmuzzi/deuchan/issues/new?template=bug_report.yml) form.
 - **Suggest a feature** with the

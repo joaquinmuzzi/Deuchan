@@ -6,7 +6,7 @@ Instructions for Claude Code sessions in this repository. Read this first, then
 ## The project
 
 Deuchan is a Manifest V3 browser extension that counts the time someone spends on input in the
-language they learn (today only German): YouTube videos by default, every video and sound of an
+language they learn (any language since phase 1 of the plan): YouTube videos by default, every video and sound of an
 "immersion profile", and reading counted by hand. It shows the time against a daily goal, with a
 dashboard. Everything stays in the browser unless "Send to Mosaik" is turned on. The maintainer is
 also its main user.

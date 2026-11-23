@@ -1,5 +1,5 @@
 name: Wrong language detection
-description: A German video was not counted, or a video that is not German was.
+description: A video in the language you learn was not counted, or a video in another language was.
 labels: ["detection"]
 body:
   - type: input
@@ -9,13 +9,20 @@ body:
       description: A public YouTube link, so the video can be checked.
     validations:
       required: true
+  - type: input
+    id: target
+    attributes:
+      label: The language you learn
+      description: The language set in the settings of the Deuchan dashboard, for example Japanese.
+    validations:
+      required: true
   - type: dropdown
     id: kind
     attributes:
       label: What went wrong?
       options:
-        - A German video was not counted
-        - A video that is not German was counted
+        - A video in the language I learn was not counted
+        - A video in another language was counted
     validations:
       required: true
   - type: textarea

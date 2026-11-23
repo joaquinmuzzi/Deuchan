@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 18 November 2026._
+_Last updated: 23 November 2026._
 
 **In short:** Deuchan keeps what it counts on your own computer, and sends nothing to the internet. If you turn
 on "Send to Mosaik", it sends what you watched and read to Mosaik, an app of yours (on your own computer, or on
@@ -17,11 +17,13 @@ Contact: joaquin.hola.muzzi@gmail.com, or an
 
 ## What Deuchan does by default
 
-Deuchan runs on `youtube.com` pages. To count the time you watch German, it reads, **in your browser**:
+Deuchan runs on `youtube.com` pages. To count the time you watch the language you learn, it reads, **in your
+browser**:
 
 - whether the video is playing or paused;
 - the language of the audio and of the captions of the video, and its title and description, only to decide
-  whether it is in German. The description is not stored. The title is kept only in the list of videos
+  whether it is in the language you learn. For a language other than German, the title and description may
+  go to Chrome's built-in language detector, which works on your computer. The description is not stored. The title is kept only in the list of videos
   described below. Nothing is sent anywhere.
 
 It stores on your computer (in `chrome.storage.local`):
@@ -31,8 +33,10 @@ It stores on your computer (in `chrome.storage.local`):
   each one and the seconds of it, so that you can see what a day was made of and correct it (with "Send to
   Mosaik" on, it goes to your Mosaik: [see below](#what-happens-when-you-turn-on-send-to-mosaik));
 - the **corrections** you make to a day (a number of seconds, and when you made it);
-- your **daily goal** and your settings (light or dark, the range of the chart, the immersion profile);
-- the **ids of the videos you marked** as German or as not German, so the decision is remembered;
+- your **daily goal** and your settings (the language you learn, light or dark, the range of the chart, the
+  immersion profile);
+- the **ids of the videos you marked** as in the language you learn or not, for each language, so the
+  decision is remembered;
 - only if you turn on "Send to Mosaik": its settings (with the device token, if your Mosaik is on a
   server), the events that wait to be sent to it, and the totals per day it answers with.
 
@@ -43,7 +47,7 @@ recommendations.
 ## The immersion profile
 
 The immersion profile is **optional and off by default**, and is set for each Chrome profile apart. It is for a
-Chrome profile you use only for German: every video that plays with sound counts, on any site, without guessing
+Chrome profile you use only for the language you learn: every video that plays with sound counts, on any site, without guessing
 its language. When you turn it on in the dashboard settings, your browser asks you for two permissions:
 `scripting`, and access to the sites you visit. Then Deuchan:
 
@@ -78,7 +82,7 @@ dashboard (the squares button). Then:
   Dispositivos) and paste in Deuchan. It is kept only in this browser and sent only to that address, with
   every request. You can revoke it in the server at any time.
 - Your browser asks you for the permission to reach that one address; without it, nothing is sent.
-- Every minute, Deuchan sends Mosaik:
+- Every minute, Deuchan sends Mosaik, each item with the language it was counted in:
   - each **stretch of a video or a reading**: when it started and ended, the seconds counted, and the id, the
     title and the address of what it was;
   - the **total of each day on this computer**, with the videos and readings of that day (id, title,
