@@ -79,10 +79,10 @@ async function savePageTime(tabId, tab, intervals) {
 }
 
 /** Remembers what the person said about a video, among the decisions of the target language they learn now. */
-async function saveOverride(videoId, german) {
+async function saveOverride(videoId, inTarget) {
   const key = overridesKey((await chrome.storage.local.get(TARGET_KEY))[TARGET_KEY]);
   const { [key]: overrides } = await chrome.storage.local.get(key);
-  await chrome.storage.local.set({ [key]: withOverride(overrides, videoId, german) });
+  await chrome.storage.local.set({ [key]: withOverride(overrides, videoId, inTarget) });
 }
 
 /**
@@ -95,7 +95,7 @@ async function correct(day, seconds) {
   await chrome.storage.local.set({ log });
 }
 
-/** An item of a day was not German: the day loses its time here, and a video will not count again. */
+/** An item of a day was not in the target language: the day loses its time here, and a video will not count again. */
 async function removeFromDay(day, id) {
   const stored = await chrome.storage.local.get([
     "log",
@@ -239,11 +239,11 @@ async function immersionOn() {
 
 /**
  * Counts what the tabs that play sound played, in the single writer. With `tabId`, that tab changed:
- * `tab` is how it is now, or null when it was closed, and `notGerman` is set when the person said what
+ * `tab` is how it is now, or null when it was closed, and `notInTarget` is set when the person said what
  * its page is. Without it, every tab is looked at again and what is open is counted: a minute went by,
  * or the immersion profile was turned on or off.
  */
-function stepAudio({ tabId, tab, notGerman } = {}) {
+function stepAudio({ tabId, tab, notInTarget } = {}) {
   // When it happened, not when its turn comes: a page that came after it must get none of its time
   const now = Date.now() / 1000;
   return enqueue(async () => {
@@ -270,20 +270,20 @@ function stepAudio({ tabId, tab, notGerman } = {}) {
     }
     for (const current of tabs) {
       const url = current.url ?? "";
-      if (notGerman !== undefined && current.id === tabId) {
-        if (notGerman) {
+      if (notInTarget !== undefined && current.id === tabId) {
+        if (notInTarget) {
           quiet[tabId] = url;
         } else {
           delete quiet[tabId];
         }
       }
-      // A page said to be not German stays so until it changes address
+      // A page said to be not in the target language stays so until it changes address
       if (quiet[current.id] !== undefined && (current.closed || quiet[current.id] !== url)) {
         delete quiet[current.id];
       }
       const heard = on && !current.closed && hears(current) && quiet[current.id] === undefined;
-      // What was heard before the page was said to be not German is not counted either
-      if (notGerman === true && current.id === tabId) {
+      // What was heard before the page was said to be not in the target language is not counted either
+      if (notInTarget === true && current.id === tabId) {
         sound = forgetSound(sound, current.id);
       }
       const changed = setHeard(sound, current, heard, now);
@@ -403,7 +403,7 @@ const CONTROLS = {
   "mosaik:refresh-days": (message) => mosaik.refreshDays(message.force === true),
 };
 
-// The icon of every tab starts grey; a tab with a German video paints its own in orange
+// The icon of every tab starts grey; a tab with a video in the target language paints its own in orange
 chrome.action.setIcon({ imageData: drawIcons(IDLE_COLOR) });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -433,14 +433,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (
     message?.type === "override" &&
     isVideoId(message.videoId) &&
-    typeof message.german === "boolean"
+    typeof message.inTarget === "boolean"
   ) {
-    queue = queue.then(() => saveOverride(message.videoId, message.german)).catch(() => {});
+    queue = queue.then(() => saveOverride(message.videoId, message.inTarget)).catch(() => {});
   } else if (message?.type === "language" && sender.tab?.id !== undefined) {
-    chrome.action.setIcon({ tabId: sender.tab.id, imageData: drawIcons(iconColor(message.german)) });
-    // The sound of a page on another site said to be not German does not count either
-    if (typeof message.german === "boolean" && message.page === true) {
-      stepAudio({ tabId: sender.tab.id, tab: sender.tab, notGerman: !message.german }).catch(() => {});
+    chrome.action.setIcon({ tabId: sender.tab.id, imageData: drawIcons(iconColor(message.inTarget)) });
+    // The sound of a page on another site said to be not in the target language does not count either
+    if (typeof message.inTarget === "boolean" && message.page === true) {
+      stepAudio({ tabId: sender.tab.id, tab: sender.tab, notInTarget: !message.inTarget }).catch(() => {});
     }
   }
 });

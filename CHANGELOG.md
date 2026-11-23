@@ -15,6 +15,8 @@ note on what to update.
   automatic captions are compared with it, and for languages other than German the title and description go
   to Chrome's built-in language detector, on your computer. German keeps its word list, and "this video is /
   is not German" decisions keep working; decisions about a video are kept for each language separately.
+- **The popup and the dashboard say the name of the language you learn:** "Not Japanese", "Counting
+  Japanese", "Mark as Japanese", and the note of the immersion profile. For German they read as before.
 
 - **A day ends at 4:00, not at midnight,** as in Anki and Mosaik: what is watched at 01:00 counts for the
   evening before, in the totals, the goal, the streak and the charts. The days that were already counted stay

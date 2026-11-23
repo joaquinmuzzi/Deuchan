@@ -3,7 +3,7 @@
  *
  * Every tab reports the intervals of the clock in which its video played. The background script
  * keeps the intervals already counted (`covered`, sorted and without overlaps) and credits only the
- * part of a new interval that is not in them. Two German videos playing together for a minute are
+ * part of a new interval that is not in them. Two videos playing together for a minute are
  * a minute, not two; an hour of one video followed by an hour of another is two hours.
  */
 

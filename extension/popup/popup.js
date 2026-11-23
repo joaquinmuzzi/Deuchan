@@ -4,6 +4,7 @@ import { readManual } from "../src/manual.js";
 import { hasOthers, withOtherDevices } from "../src/mosaik-days.js";
 import { describeManual, describeStatus } from "../src/status.js";
 import { summarize } from "../src/summary.js";
+import { TARGET_KEY, targetName } from "../src/target.js";
 import { setUpTheme } from "../src/theme.js";
 
 const byId = (id) => document.getElementById(id);
@@ -13,6 +14,8 @@ let mosaikDays;
 let mosaikOn = false;
 let manualSession = null;
 let goalMinutes;
+// The name of the language the person learns, which the status says: "Counting German"
+let language;
 
 function render() {
   // This computer, live, and what Mosaik says of the others
@@ -64,14 +67,14 @@ async function renderStatus() {
     !reply && tab
       ? (await chrome.runtime.sendMessage({ type: "audio:status", tabId: tab.id }).catch(() => null))?.sound
       : null;
-  const { kind, text, action } = describeStatus(reply, sound);
+  const { kind, text, action } = describeStatus(reply, sound, language);
   byId("status").dataset.kind = kind;
   byId("statusText").textContent = text;
   const button = byId("override");
   button.hidden = !action;
   if (action) {
     button.textContent = action.label;
-    button.dataset.german = String(action.german);
+    button.dataset.inTarget = String(action.inTarget);
   }
 }
 
@@ -80,7 +83,7 @@ byId("override").addEventListener("click", async (event) => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab) {
     await chrome.tabs
-      .sendMessage(tab.id, { type: "setGerman", german: event.currentTarget.dataset.german === "true" })
+      .sendMessage(tab.id, { type: "setInTarget", inTarget: event.currentTarget.dataset.inTarget === "true" })
       .catch(() => {});
   }
   renderStatus();
@@ -98,12 +101,14 @@ const stored = await chrome.storage.local.get([
   "mosaikSettings",
   "manualSession",
   "goalMinutes",
+  TARGET_KEY,
 ]);
 log = stored.log;
 mosaikDays = stored.mosaikDays;
 mosaikOn = stored.mosaikSettings?.enabled === true;
 manualSession = readManual(stored.manualSession);
 goalMinutes = goalMinutesOf(stored.goalMinutes);
+language = targetName(stored[TARGET_KEY]);
 render();
 renderStatus();
 // The time of the other computers, if Mosaik has something newer
@@ -125,6 +130,10 @@ chrome.storage.onChanged.addListener((changes) => {
   }
   if (changes.goalMinutes) {
     goalMinutes = goalMinutesOf(changes.goalMinutes.newValue);
+  }
+  if (changes[TARGET_KEY]) {
+    language = targetName(changes[TARGET_KEY].newValue);
+    renderStatus();
   }
   render();
 });

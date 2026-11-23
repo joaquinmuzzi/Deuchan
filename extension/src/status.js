@@ -1,4 +1,5 @@
 import { MIN_SOUND_SECONDS } from "./audio.js";
+import { DEFAULT_TARGET, languageName } from "./target.js";
 
 /**
  * What the popup says about the video of the current tab. `reply` is what the content script
@@ -8,10 +9,12 @@ import { MIN_SOUND_SECONDS } from "./audio.js";
  * `sound` is for a tab that plays sound in the immersion profile (see audio.js): `"counting"`, or
  * `"waiting"` while it has not lasted enough to count. Null when it plays none.
  *
- * `action` is the link to correct a wrong guess about the language: `german` is what pressing it
+ * `language` is the name of the target language, as `targetName` gives it ("German"): the texts say it.
+ *
+ * `action` is the link to correct a wrong guess about the language: `inTarget` is what pressing it
  * decides. There is none while the language is not known, or when there is no video.
  */
-export function describeStatus(reply, sound = null) {
+export function describeStatus(reply, sound = null, language = languageName(DEFAULT_TARGET)) {
   if (!reply) {
     if (sound === "counting") {
       return { kind: "counting", text: "Counting sound (immersion profile)" };
@@ -20,21 +23,21 @@ export function describeStatus(reply, sound = null) {
       ? { kind: "idle", text: `Sound, counted after ${MIN_SOUND_SECONDS} seconds` }
       : { kind: "idle", text: "No video here" };
   }
-  if (reply.german === null) {
+  if (reply.inTarget === null) {
     return { kind: "idle", text: "Detecting the language…" };
   }
-  if (!reply.german) {
+  if (!reply.inTarget) {
     return {
       kind: "off",
-      text: "Not German, not counted",
-      action: { german: true, label: "Mark as German" },
+      text: `Not ${language}, not counted`,
+      action: { inTarget: true, label: `Mark as ${language}` },
     };
   }
-  const counting = reply.immersion ? "Counting (immersion profile)" : "Counting German";
+  const counting = reply.immersion ? "Counting (immersion profile)" : `Counting ${language}`;
   return {
     kind: reply.playing ? "counting" : "idle",
-    text: reply.playing ? counting : "German video, paused",
-    action: { german: false, label: "Not German?" },
+    text: reply.playing ? counting : `${language} video, paused`,
+    action: { inTarget: false, label: `Not ${language}?` },
   };
 }
 

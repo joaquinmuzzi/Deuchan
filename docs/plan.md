@@ -44,7 +44,7 @@ data stays German.
       fallback (title and description) uses German function words; for other languages, try
       `chrome.i18n.detectLanguage` (built into Chrome) passed in as a function so the module stays pure
       and testable. Keep the German word list if it still does better for German. Depends on 1.1.
-- [ ] **1.3 Labels and messages.** "Not German", "Counting German" and the like say the language's
+- [x] **1.3 Labels and messages.** "Not German", "Counting German" and the like say the language's
       name, from `Intl.DisplayNames`. Rename `setGerman` and `german` in messages and state to something
       neutral (`setTarget`, `inTarget`). Depends on 1.1. Can run in parallel with 1.2 if it does not touch
       `language.js`.
@@ -119,3 +119,12 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   in its status (watcher.js, status shown by popup.js), `notGerman` in background.js `stepAudio`, the
   `german` state of generic.js, `germanScore`/`GERMAN_WORDS` in language.js (meant to stay: they are the
   German word list), and every label in popup.js and the dashboard.
+- 2026-11-23, task 1.3: the texts take the name from `targetName(saved)` in `target.js` (the name of
+  `targetOf(saved)`, "German" while nothing is saved); `describeStatus(reply, sound, language)` takes that
+  name, and the popup and the dashboard follow `targetLanguage` as it changes. The vocabulary is `inTarget`:
+  the popup sends `{ type: "setInTarget", inTarget }` to `content.js` and `generic.js`, which send
+  `override` and `language` with an `inTarget` field; `Watcher#setInTarget` and `watcher.status.inTarget`;
+  `notInTarget` in `stepAudio`; `TARGET_COLOR` in `icon.js` (was `GERMAN_COLOR`). Nothing stored changed:
+  the renamed fields only travel in messages, and overrides were always `{ videoId: boolean }`, so
+  `STORAGE_VERSION` stays 1. Still German on purpose: the word list in `language.js`, the default, and the
+  manifest `description` (task 1.5).

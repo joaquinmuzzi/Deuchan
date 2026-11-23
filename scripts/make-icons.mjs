@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { deflateSync } from "node:zlib";
 
-import { GERMAN_COLOR, IDLE_COLOR, iconCells, iconShape, insideRoundedRect } from "../extension/src/icon.js";
+import { TARGET_COLOR, IDLE_COLOR, iconCells, iconShape, insideRoundedRect } from "../extension/src/icon.js";
 
 export const SIZES = [16, 32, 48, 128];
 
@@ -98,7 +98,7 @@ export function renderIcon(size, color) {
 
 /** The files of the icons: the app's orange one, and the grey one the toolbar starts with. */
 export const FILES = SIZES.flatMap((size) => [
-  { path: `icon-${size}.png`, size, color: GERMAN_COLOR },
+  { path: `icon-${size}.png`, size, color: TARGET_COLOR },
   { path: `idle-${size}.png`, size, color: IDLE_COLOR },
 ]);
 

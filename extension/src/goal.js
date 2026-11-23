@@ -1,4 +1,4 @@
-/** The daily goal: how many minutes of German a day the user wants. Kept as `goalMinutes`. */
+/** The daily goal: how many minutes of the target language a day the user wants. Kept as `goalMinutes`. */
 export const DEFAULT_GOAL_MINUTES = 30;
 export const MIN_GOAL_MINUTES = 1;
 export const MAX_GOAL_MINUTES = 600;

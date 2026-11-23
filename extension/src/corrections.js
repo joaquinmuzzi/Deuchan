@@ -1,6 +1,6 @@
 /**
  * Correcting the time of a day, when the extension counted more than was really watched (a video
- * left playing in a background tab, a video taken for German that was not).
+ * left playing in a background tab, a video taken for the target language that was not).
  *
  * What was counted is never changed. The correction is kept apart, as `adjust`: the seconds to add
  * (negative to take away) to what this computer counted, and when it was made. The day then shows what

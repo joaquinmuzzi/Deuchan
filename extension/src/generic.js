@@ -1,6 +1,7 @@
 // Runs in every page and frame of every site while the immersion profile is on (see immersion.js),
 // added by the background script. Every video that plays with sound counts: in this Chrome profile
-// everything is German, so there is no language to guess. The person can still say a page is not.
+// everything is in the target language, so there is no language to guess. The person can still say
+// a page is not.
 (async () => {
   // Added again when the page runs it twice (an extension update)
   if (globalThis.deuchanGeneric) {
@@ -22,11 +23,11 @@
     send: (intervals) =>
       chrome.runtime.sendMessage({ type: "watched", intervals, page: true }).catch(() => {}),
   });
-  const announce = (german) =>
-    chrome.runtime.sendMessage({ type: "language", german, page: true }).catch(() => {});
+  const announce = (inTarget) =>
+    chrome.runtime.sendMessage({ type: "language", inTarget, page: true }).catch(() => {});
 
   const videos = new Set();
-  let german = true;
+  let inTarget = true;
   let playing = false;
   let stopped = false;
 
@@ -49,8 +50,8 @@
       return;
     }
     if (videos.size === 0) {
-      watcher.setGerman(now(), german);
-      announce(german);
+      watcher.setInTarget(now(), inTarget);
+      announce(inTarget);
     }
     videos.add(video);
     for (const type of ["playing", "pause", "waiting", "ended", "volumechange", "emptied"]) {
@@ -79,10 +80,10 @@
     }
     if (message?.type === "status") {
       sendResponse({ ...watcher.status, immersion: true });
-    } else if (message?.type === "setGerman" && typeof message.german === "boolean") {
-      german = message.german;
-      watcher.setGerman(now(), german);
-      announce(german);
+    } else if (message?.type === "setInTarget" && typeof message.inTarget === "boolean") {
+      inTarget = message.inTarget;
+      watcher.setInTarget(now(), inTarget);
+      announce(inTarget);
     }
   });
 

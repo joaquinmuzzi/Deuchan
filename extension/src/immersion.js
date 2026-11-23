@@ -1,9 +1,11 @@
 /**
- * The immersion profile: in a Chrome profile used only for German, every video counts, on any site,
- * without guessing its language. It is kept as `immersion: { enabled }` in the storage of the extension,
- * which every Chrome profile has apart, so it is on in one profile and off in the others by itself.
+ * The immersion profile: in a Chrome profile used only for the target language, every video counts,
+ * on any site, without guessing its language. It is kept as `immersion: { enabled }` in the storage of
+ * the extension, which every Chrome profile has apart, so it is on in one profile and off in the
+ * others by itself.
  *
- * On YouTube the content script counts every video (a video marked "Not German" still does not count).
+ * On YouTube the content script counts every video (a video marked as not in the target language
+ * still does not count).
  * On other sites a script is added to every page while it is on (`generic.js`), which needs two optional
  * permissions, asked for when it is turned on: `scripting` and access to all the sites.
  */
