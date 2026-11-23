@@ -110,6 +110,7 @@ users) and from what people write.
       (Pages is switched on). Its Chrome and Edge buttons work: both stores published 0.1.0.
 - [ ] **3.2 Announce it** where people count their input: r/LearnJapanese, r/languagelearning,
       r/German, the Refold community. Draft the posts in a session; the maintainer posts them.
+      **Drafted** in [announce.md](announce.md); stays open until the maintainer has posted them.
 - [ ] **3.3 Listen.** Turn feedback into issues; fix what blocks people first. Watch which features
       people ask for.
 
@@ -336,3 +337,12 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
 - 2026-11-23, after 2.7: the maintainer checked it by hand with his own accounts, in Chrome with the
   unpacked extension: Netflix and Crunchyroll counted in the target language with the title in the popup,
   and switching the audio to another language stopped the count. Released as 0.2.0.
+- 2026-11-23, task 3.2 (drafted, not posted): [announce.md](announce.md) has a checklist, a summary of each
+  place's rules, one draft per place and replies to have ready. The item stays unticked until the maintainer
+  has posted; then tick it and note where and when. Reddit could not be read from the session (the fetch tool
+  refuses reddit.com, and opening it in the browser was blocked), so the rules come from search results and
+  third-party mirrors and must be checked on the live sidebars: r/LearnJapanese takes self-promotion only in
+  its Wednesday "Material Recs and Self-Promo" thread; r/languagelearning allows limited self-promotion when
+  the author says so; r/German seemed to prohibit all promotion, so the draft asks its moderators first. Refold
+  gathers at refold.la/join (Discord servers and a Discourse forum); the forum has no rule on promotion, the
+  Discord rules were not read. Check that the Chrome listing shows 0.2.0 before posting.
