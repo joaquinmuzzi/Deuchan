@@ -23,10 +23,21 @@
 import { isVideoId } from "./overrides.js";
 import { cleanUrl, isItemId, siteOf } from "./items.js";
 import { DAY_START_HOUR } from "./log.js";
+import { DEFAULT_TARGET } from "./target.js";
 import { dayVideos, readingSeconds } from "./videos.js";
 
 export const SOURCE = "deuchan";
-export const LANGUAGE = "de";
+
+/**
+ * The languages whose time Mosaik keeps apart from the others. Mosaik takes any language tag, but it
+ * adds every `day_total` of Deuchan to the same daily total, whatever its language: a day in Japanese
+ * would go into the German totals of Mosaik (and replace the German total of that computer and day). So
+ * events are only made while the target is one of these; with another target, sending pauses.
+ */
+export const MOSAIK_LANGUAGES = Object.freeze(["de"]);
+
+/** Whether Mosaik can take the time of this language (a bare code, as `targetOf` gives). */
+export const mosaikTakes = (language) => MOSAIK_LANGUAGES.includes(language);
 
 /** Two reports of the same video this close are one event. */
 export const JOIN_GAP_MS = 30_000;
@@ -148,8 +159,9 @@ export function closeIdle(outbox, nowMs) {
  * @param {number} newSeconds
  * @param {{ id: string, title?: string, url?: string, kind?: string } | null} video
  * @param {() => string} randomUUID
+ * @param {string} [language]  the target language, as a bare code
  */
-export function addWatched(outbox, interval, newSeconds, video, randomUUID) {
+export function addWatched(outbox, interval, newSeconds, video, randomUUID, language = DEFAULT_TARGET) {
   if (!(newSeconds > 0) || !isItemId(video?.id)) {
     return outbox;
   }
@@ -158,6 +170,8 @@ export function addWatched(outbox, interval, newSeconds, video, randomUUID) {
   const open = outbox.open;
   const joinable = (event) =>
     itemOf(event) === video.id &&
+    // An event never changes language: one made before the target changed is closed, not joined
+    event.language === language &&
     from - event.to <= JOIN_GAP_MS &&
     to >= event.from &&
     event.to - event.from < MAX_EVENT_MS;
@@ -206,7 +220,7 @@ export function addWatched(outbox, interval, newSeconds, video, randomUUID) {
       id: `deuchan:iv:${randomUUID()}`,
       source: SOURCE,
       kind: "watch_interval",
-      language: LANGUAGE,
+      language,
       from,
       to,
       seconds: newSeconds,
@@ -217,7 +231,7 @@ export function addWatched(outbox, interval, newSeconds, video, randomUUID) {
 }
 
 /** The total of a day on this computer, at the moment `at`, with its items. */
-export function dayTotalEvent(day, at, seconds, videos) {
+export function dayTotalEvent(day, at, seconds, videos, language = DEFAULT_TARGET) {
   const list = dayVideos(videos, day)
     .slice(0, MAX_DAY_VIDEOS)
     .map((video) => ({
@@ -231,7 +245,7 @@ export function dayTotalEvent(day, at, seconds, videos) {
     id: `deuchan:day:${day}:${at}`,
     source: SOURCE,
     kind: "day_total",
-    language: LANGUAGE,
+    language,
     day,
     at,
     seconds: total,
@@ -241,11 +255,11 @@ export function dayTotalEvent(day, at, seconds, videos) {
 }
 
 /** An item that the person took out of a day. */
-export const videoRemovedEvent = (day, at, id) => ({
+export const videoRemovedEvent = (day, at, id, language = DEFAULT_TARGET) => ({
   id: `deuchan:rm:${day}:${id}:${at}`,
   source: SOURCE,
   kind: "video_removed",
-  language: LANGUAGE,
+  language,
   day,
   // So that Mosaik knows which stretches belong to that day
   dayStartHour: DAY_START_HOUR,
@@ -276,7 +290,7 @@ export function changedDays(shown, sent) {
  * for every day that was sent before and has no time here now (the old sync sent the time of all the
  * computers together).
  */
-export function backfillEvents(shown, videos, at, sent = {}) {
+export function backfillEvents(shown, videos, at, sent = {}, language = DEFAULT_TARGET) {
   const days = new Set([
     ...Object.keys(shown).filter((day) => shownSeconds(shown[day]) > 0),
     ...Object.keys(sent ?? {}).filter((day) => !(shownSeconds(shown[day]) > 0)),
@@ -284,7 +298,7 @@ export function backfillEvents(shown, videos, at, sent = {}) {
   return [...days]
     .filter((day) => DAY.test(day))
     .sort()
-    .map((day) => dayTotalEvent(day, at, shown[day] ?? 0, videos));
+    .map((day) => dayTotalEvent(day, at, shown[day] ?? 0, videos, language));
 }
 
 /** The first events of the queue, to send them. */

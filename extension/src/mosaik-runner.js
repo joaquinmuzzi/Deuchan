@@ -10,6 +10,10 @@
  * - `mosaikBackfilledAt`  when the history was sent, the first time
  * - `mosaikDays`          what Mosaik says of the days of every computer (see `mosaik-days.js`)
  *
+ * It reads `targetLanguage` too: while the target is a language Mosaik cannot keep apart from German
+ * (see `MOSAIK_LANGUAGES`), sending is paused. What already waits in the queue was made in German and
+ * still goes; nothing new is queued, and Mosaik's days (German time) are not asked for or shown.
+ *
  * The storage, the alarms, the permissions and the way to reach the hub are given from outside, so it
  * is tested with no browser.
  *
@@ -37,6 +41,7 @@ import {
   changedDays,
   closeIdle,
   dayTotalEvent,
+  mosaikTakes,
   pendingCount,
   readOutbox,
   removeSent,
@@ -45,6 +50,7 @@ import {
 } from "./mosaik-events.js";
 import { migrate, shownLog } from "./log.js";
 import { REFRESH_MS, cleanDaysAnswer, dayRange, readMosaikDays } from "./mosaik-days.js";
+import { TARGET_KEY, targetOf } from "./target.js";
 
 /** The name Mosaik gives to the computer it runs on, when nothing sends a token. */
 export const LOCAL_DEVICE = "principal";
@@ -68,27 +74,39 @@ export function readMosaikSettings(saved) {
 }
 
 /**
+ * The language the new events go with: the target (`targetLanguage` in `stored`), or `null` when Mosaik
+ * cannot keep that language apart from German yet (see `MOSAIK_LANGUAGES`) and sending is paused. Events
+ * already made keep the language they were made with, and are still sent.
+ */
+export function mosaikLanguage(stored) {
+  const language = targetOf(stored?.[TARGET_KEY]);
+  return mosaikTakes(language) ? language : null;
+}
+
+/**
  * For the background script, in the same read and write as the log: the queue with what was just
- * counted, as `{ interval, newSeconds }` items of one video, or `null` when sending to Mosaik is off and
- * nothing is to be kept.
+ * counted, as `{ interval, newSeconds }` items of one video, or `null` when sending to Mosaik is off (or
+ * paused for the target language) and nothing is to be kept.
  */
 export function queueWatched(stored, counted, video, randomUUID) {
-  if (!readMosaikSettings(stored.mosaikSettings).enabled) {
+  const language = mosaikLanguage(stored);
+  if (!readMosaikSettings(stored.mosaikSettings).enabled || !language) {
     return null;
   }
   let outbox = readOutbox(stored.mosaikOutbox);
   for (const { interval, newSeconds } of counted) {
-    outbox = addWatched(outbox, interval, newSeconds, video, randomUUID);
+    outbox = addWatched(outbox, interval, newSeconds, video, randomUUID, language);
   }
   return outbox;
 }
 
-/** For the background script: the queue with a video taken out of a day, or `null` when it is off. */
+/** For the background script: the queue with a video taken out of a day, or `null` when it is off or paused. */
 export function queueRemoval(stored, day, videoId, at) {
-  if (!readMosaikSettings(stored.mosaikSettings).enabled) {
+  const language = mosaikLanguage(stored);
+  if (!readMosaikSettings(stored.mosaikSettings).enabled || !language) {
     return null;
   }
-  return addToQueue(readOutbox(stored.mosaikOutbox), [videoRemovedEvent(day, at, videoId)]);
+  return addToQueue(readOutbox(stored.mosaikOutbox), [videoRemovedEvent(day, at, videoId, language)]);
 }
 
 /** What a failed request leaves as the status of the panel. */
@@ -166,17 +184,34 @@ export function createMosaikRunner({
    */
   const prepare = ({ all = false } = {}) =>
     exclusive(async () => {
-      const stored = await storage.get(["mosaikOutbox", "mosaikSentDays", "log", "videos"]);
+      const stored = await storage.get(["mosaikOutbox", "mosaikSentDays", "log", "videos", TARGET_KEY]);
       const at = now();
       const shown = shownLog(migrate(stored.log)).days;
       const sent = { ...stored.mosaikSentDays };
+      const language = mosaikLanguage(stored);
+      // The open events were made in German before the target changed: they are closed and sent as usual
+      const closed = closeIdle(readOutbox(stored.mosaikOutbox), at);
+      if (!language) {
+        // Paused. The log keeps one total per day whatever the language, so a day changed now has time in
+        // another language: it is taken as sent, so that it does not reach the German totals of Mosaik
+        // later, when the target is German again (unless that day gets German time too).
+        if (!all) {
+          for (const { day, seconds } of changedDays(shown, sent)) {
+            sent[day] = seconds;
+          }
+        }
+        await storage.set({ mosaikOutbox: closed, mosaikSentDays: sent });
+        return { outbox: closed, queued: 0, paused: true };
+      }
       const events = all
-        ? backfillEvents(shown, stored.videos, at, sent)
-        : changedDays(shown, sent).map(({ day, seconds }) => dayTotalEvent(day, at, seconds, stored.videos));
+        ? backfillEvents(shown, stored.videos, at, sent, language)
+        : changedDays(shown, sent).map(({ day, seconds }) =>
+            dayTotalEvent(day, at, seconds, stored.videos, language),
+          );
       for (const event of events) {
         sent[event.day] = event.seconds;
       }
-      const outbox = addToQueue(closeIdle(readOutbox(stored.mosaikOutbox), at), events);
+      const outbox = addToQueue(closed, events);
       await storage.set({ mosaikOutbox: outbox, mosaikSentDays: sent });
       return { outbox, queued: events.length };
     });
@@ -191,7 +226,7 @@ export function createMosaikRunner({
       await setState({ status: "permission-missing", lastAttemptAt: now() });
       return { error: "permission-missing" };
     }
-    const { outbox } = await prepare();
+    const { outbox, paused } = await prepare();
     await setState({ status: "sending", startedAt: now(), pending: pendingCount(outbox) });
 
     let size = BATCH_SIZE;
@@ -240,8 +275,13 @@ export function createMosaikRunner({
       await setState({ ...common, status: statusOf(failure), lastError: failure.error });
       return { error: statusOf(failure), sent };
     }
-    await setState({ ...common, status: "ok", lastError: null, ...(sent > 0 ? { lastSentAt: now() } : {}) });
-    return { ok: true, sent };
+    await setState({
+      ...common,
+      status: paused ? "paused" : "ok",
+      lastError: null,
+      ...(sent > 0 ? { lastSentAt: now() } : {}),
+    });
+    return { ok: true, sent, ...(paused ? { paused } : {}) };
   }
 
   /** The name Mosaik gives to this computer: the one of its token, or the computer of the hub. */
@@ -262,6 +302,11 @@ export function createMosaikRunner({
     const { enabled, url, token } = await settings();
     if (!enabled) {
       return { skipped: "off" };
+    }
+    if (!mosaikLanguage(await storage.get(TARGET_KEY))) {
+      // Mosaik's days are German time: they are not added to the time of another language
+      await storage.remove("mosaikDays");
+      return { skipped: "paused" };
     }
     const saved = readMosaikDays((await storage.get("mosaikDays")).mosaikDays);
     if (!force && now() - saved.fetchedAt < REFRESH_MS) {
@@ -289,7 +334,11 @@ export function createMosaikRunner({
     if (!(await settings()).enabled) {
       return { error: "off" };
     }
-    const { queued } = await prepare({ all: true });
+    const { queued, paused } = await prepare({ all: true });
+    if (paused) {
+      // Nothing of the history goes while paused; it goes when it is turned on, or asked for, in German
+      return { queued, ...(await send()) };
+    }
     await storage.set({ mosaikBackfilledAt: now() });
     return { queued, ...(await send()) };
   }

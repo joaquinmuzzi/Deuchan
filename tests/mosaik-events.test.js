@@ -5,6 +5,7 @@ import {
   JOIN_GAP_MS,
   MAX_EVENT_MS,
   MAX_QUEUED,
+  MOSAIK_LANGUAGES,
   addToQueue,
   addWatched,
   backfillEvents,
@@ -12,6 +13,7 @@ import {
   closeIdle,
   dayTotalEvent,
   emptyOutbox,
+  mosaikTakes,
   pendingCount,
   readOutbox,
   removeSent,
@@ -377,4 +379,30 @@ test("an item of another site can be taken out of a day too", () => {
   assert.equal(event.itemId, "web:abc123");
   assert.equal(event.videoId, undefined);
   assert.deepEqual(eventProblems(event), []);
+});
+
+test("an event made with another target carries that language, and never joins one of another", () => {
+  const uuid = uuids();
+  const german = addWatched(emptyOutbox(), { from: START, to: START + 2 }, 2, VIDEO, uuid);
+  assert.equal(german.open.language, "de", "German while no language is given");
+  const japanese = addWatched(german, { from: START + 2, to: START + 4 }, 2, VIDEO, uuid, "ja");
+  assert.equal(japanese.open.language, "ja");
+  assert.notEqual(japanese.open.id, german.open.id, "a new event, not the German one grown");
+  assert.deepEqual(
+    japanese.queued.map((event) => [event.id, event.language]),
+    [[german.open.id, "de"]],
+    "the German one is closed with the language it was made with",
+  );
+  assert.equal(dayTotalEvent("2026-11-14", 1, 60, {}, "ja").language, "ja");
+  assert.equal(videoRemovedEvent("2026-11-14", 1, VIDEO.id, "ja").language, "ja");
+  assert.deepEqual(
+    backfillEvents({ "2026-11-14": 60 }, {}, 1, {}, "ja").map((event) => event.language),
+    ["ja"],
+  );
+});
+
+test("Mosaik takes German only, until it keeps other languages apart", () => {
+  assert.deepEqual(MOSAIK_LANGUAGES, ["de"]);
+  assert.equal(mosaikTakes("de"), true);
+  assert.equal(mosaikTakes("ja"), false);
 });

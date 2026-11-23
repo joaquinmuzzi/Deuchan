@@ -17,6 +17,10 @@ note on what to update.
   is not German" decisions keep working; decisions about a video are kept for each language separately.
 - **The popup and the dashboard say the name of the language you learn:** "Not Japanese", "Counting
   Japanese", "Mark as Japanese", and the note of the immersion profile. For German they read as before.
+- **Sending to Mosaik pauses while the language you learn is not German.** Mosaik adds every day it gets to
+  its German totals, so time in another language would end up counted as German. While the target is another
+  language, nothing new is sent and the time of your other computers is not asked for; what was counted in
+  German before still goes, and the Mosaik panel says it is paused. In German nothing changes.
 
 - **A day ends at 4:00, not at midnight,** as in Anki and Mosaik: what is watched at 01:00 counts for the
   evening before, in the totals, the goal, the streak and the charts. The days that were already counted stay

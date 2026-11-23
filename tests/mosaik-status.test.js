@@ -82,3 +82,10 @@ test("the numbers say what waits, what was refused and what was dropped", () => 
     "12 events waiting · 2 refused · 40 dropped (the queue was full)",
   );
 });
+
+test("paused for the target language, it says so", () => {
+  assert.deepEqual(describeMosaik({ enabled: true }, { status: "paused", lastSentAt: NOW }, NOW), {
+    tone: "off",
+    text: "Paused: Mosaik only counts German for now. What was counted in German still goes.",
+  });
+});

@@ -48,7 +48,7 @@ data stays German.
       name, from `Intl.DisplayNames`. Rename `setGerman` and `german` in messages and state to something
       neutral (`setTarget`, `inTarget`). Depends on 1.1. Can run in parallel with 1.2 if it does not touch
       `language.js`.
-- [ ] **1.4 Mosaik.** Send the target language instead of the fixed `de`, or keep sending only German if
+- [x] **1.4 Mosaik.** Send the target language instead of the fixed `de`, or keep sending only German if
       Mosaik cannot take other languages yet (check its ingest contract). Depends on 1.1.
 - [ ] **1.5 Docs.** README, CONTRIBUTING (the wrong detection issue template too) and the store listing
       speak of any language. Depends on 1.2 and 1.3.
@@ -128,3 +128,17 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   the renamed fields only travel in messages, and overrides were always `{ videoId: boolean }`, so
   `STORAGE_VERSION` stays 1. Still German on purpose: the word list in `language.js`, the default, and the
   manifest `description` (task 1.5).
+- 2026-11-23, task 1.4: Mosaik's ingest takes any language tag (`^[a-z]{2,3}(-…)*$`) and stores it in
+  `raw_events` and in the Deuchan `sessions`, but its `day_totals` table has no language: per device and
+  day it keeps the newest `day_total` whatever its language, and the dashboard and `/api/agent/deuchan/days`
+  add them all up as the German total. A day in another language would replace the German total of that
+  device and day. So Deuchan only makes events while the target is in `MOSAIK_LANGUAGES` (`["de"]`, in
+  `mosaik-events.js`); the builders take the language (default `"de"`) and the runner passes
+  `mosaikLanguage(stored)` (the target, or `null` when paused). Paused: what is queued keeps its language and
+  still goes, nothing new is queued, the days that change are marked as sent (the log has one total per day
+  whatever the language, so a day with time in another language is not sent later unless it gets German time
+  too), the history is not sent (`mosaikBackfilledAt` stays unset), `mosaikDays` is removed and not asked for,
+  and `mosaikState.status` is `"paused"`. Follow-up for the Mosaik repository: a `language` column in
+  `day_totals` (newest snapshot per device, day and language), totals filtered by its target language like
+  the GSM sessions are, and `/api/agent/deuchan/days` taking a `language`; then add the languages to
+  `MOSAIK_LANGUAGES` and pass the target to `fetchDays`.

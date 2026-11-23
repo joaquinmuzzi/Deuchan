@@ -3,11 +3,12 @@ import { test } from "node:test";
 
 import { correctDay } from "../extension/src/corrections.js";
 import { migrate, shownLog } from "../extension/src/log.js";
-import { JOIN_GAP_MS, readOutbox } from "../extension/src/mosaik-events.js";
+import { JOIN_GAP_MS, pendingCount as pendingCountOf, readOutbox } from "../extension/src/mosaik-events.js";
 import {
   BATCH_SIZE,
   MOSAIK_ALARM,
   createMosaikRunner,
+  mosaikLanguage,
   queueRemoval,
   queueWatched,
   readMosaikSettings,
@@ -173,7 +174,7 @@ function computer({ days = { [DAY]: 0 }, enabled = false, granted = [ORIGIN], hu
   /** What the background script does when a tab reports: the log and the queue in one write. */
   const save = (intervals, video = VIDEO) =>
     exclusive(async () => {
-      const stored = await storage.get(["log", "mosaikSettings", "mosaikOutbox"]);
+      const stored = await storage.get(["log", "mosaikSettings", "mosaikOutbox", "targetLanguage"]);
       const log = migrate(stored.log);
       const counted = [];
       for (const interval of intervals) {
@@ -611,4 +612,80 @@ test("turned off, what Mosaik said of the other computers is forgotten", async (
   await pc.storage.set({ mosaikDays: { fetchedAt: 1, device: "principal", days: {} } });
   await pc.runner.disable();
   assert.equal((await pc.storage.get("mosaikDays")).mosaikDays, undefined);
+});
+
+test("with another target, what was counted in German still goes, and nothing new is made", async () => {
+  const pc = computer({ enabled: true, days: { [DAY]: 0 } });
+  // Ends right before the clock of the computer, so the event is still open
+  await pc.watch(START + 40, 10);
+  await pc.runner.flush();
+  assert.deepEqual(pc.hub.totals(), { [DAY]: 20 });
+  const germanOpen = (await pc.outbox()).open;
+  assert.equal(germanOpen.language, "de");
+
+  // The person now learns Japanese: the open German event closes and goes, still in German
+  await pc.storage.set({ targetLanguage: "ja" });
+  await pc.watch(START + 600, 10);
+  assert.deepEqual((await pc.outbox()).open, germanOpen, "no Japanese event is added");
+  assert.equal(queueRemoval(await pc.storage.get(null), DAY, VIDEO.id, 1), null);
+  pc.time.now += 10 * 60_000;
+  const result = await pc.runner.flush();
+  assert.equal(result.paused, true);
+  assert.equal((await pc.state()).status, "paused");
+  const sent = [...pc.hub.kept.values()];
+  assert.ok(
+    sent.every((event) => event.language === "de"),
+    "every event Mosaik has is German",
+  );
+  assert.ok(sent.some((event) => event.id === germanOpen.id));
+  assert.deepEqual(pc.hub.totals(), { [DAY]: 20 }, "the day with Japanese time is not sent");
+  for (const batch of pc.hub.batches) {
+    assert.deepEqual(batchProblems({ events: batch }), []);
+  }
+  assert.equal(pendingCountOf(await pc.outbox()), 0);
+});
+
+test("back in German, a day that had time in another language is not sent until it gets German time", async () => {
+  const pc = computer({ enabled: true, days: { [DAY]: 0 } });
+  await pc.storage.set({ targetLanguage: "ja" });
+  await pc.watch(START, 10);
+  await pc.runner.flush();
+  assert.equal(pc.hub.kept.size, 0);
+
+  await pc.storage.set({ targetLanguage: "de" });
+  await pc.runner.flush();
+  assert.equal(pc.hub.kept.size, 0, "the Japanese time of the day does not reach Mosaik");
+
+  await pc.watch(START + 600, 5);
+  pc.time.now += 10 * 60_000;
+  await pc.runner.flush();
+  const intervals = [...pc.hub.kept.values()].filter((event) => event.kind === "watch_interval");
+  assert.equal(intervals.length, 1);
+  assert.equal(intervals[0].language, "de");
+  assert.equal(intervals[0].seconds, 10);
+});
+
+test("with another target, the history is not sent and Mosaik's days are not asked for", async () => {
+  const hub = fakeHub();
+  hub.days = { [DAY]: { seconds: 900, readingSeconds: 0, devices: { principal: 900 }, items: [] } };
+  const pc = computer({ hub, days: { [DAY]: 600 } });
+  await pc.storage.set({ targetLanguage: "ja", mosaikDays: { fetchedAt: 1, device: "principal", days: {} } });
+  const result = await pc.runner.enable(URL);
+  assert.equal(result.paused, true);
+  assert.equal(hub.kept.size, 0);
+  assert.equal(hub.daysAsked.length, 0);
+  assert.equal(pc.storage.data.mosaikBackfilledAt, undefined, "the history goes once it is German");
+  assert.equal(pc.storage.data.mosaikDays, undefined, "German time of other computers is not shown");
+  assert.deepEqual(await pc.runner.refreshDays(true), { skipped: "paused" });
+
+  await pc.storage.set({ targetLanguage: "de" });
+  assert.equal((await pc.runner.backfill()).ok, true);
+  assert.deepEqual(hub.totals(), { [DAY]: 600 });
+});
+
+test("the language of new events is the target, while Mosaik can take it", () => {
+  assert.equal(mosaikLanguage({}), "de", "German while nothing is saved");
+  assert.equal(mosaikLanguage({ targetLanguage: "de" }), "de");
+  assert.equal(mosaikLanguage({ targetLanguage: "ja" }), null);
+  assert.equal(mosaikLanguage({ targetLanguage: "nonsense!" }), "de");
 });

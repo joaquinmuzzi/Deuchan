@@ -72,6 +72,12 @@ export function describeMosaik(settings, state, now) {
   if (["not-running", "outdated", "permission-missing", "token-invalid"].includes(status)) {
     return { tone: "warn", text: mosaikErrorText(status) };
   }
+  if (status === "paused") {
+    return {
+      tone: "off",
+      text: "Paused: Mosaik only counts German for now. What was counted in German still goes.",
+    };
+  }
   if (status === "error") {
     return { tone: "warn", text: mosaikErrorText(state.lastError) };
   }
