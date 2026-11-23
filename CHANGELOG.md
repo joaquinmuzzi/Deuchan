@@ -9,6 +9,10 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-23
+
+Streaming sites: Netflix, Crunchyroll, Prime Video and Disney+ count in the language you learn.
+
 ### Added
 
 - **Streaming sites without the immersion profile.** "Count streaming sites" in the dashboard settings turns on
