@@ -110,16 +110,22 @@
     }
   });
 
+  // The video element listened to, to check every few seconds that it still plays
+  let attached = null;
+  const playsNow = (video) => video !== null && video.isConnected && !video.paused && !video.ended;
+
   function attach(video) {
     if (video.dataset.deuchan) {
       return;
     }
     video.dataset.deuchan = "attached";
+    attached = video;
     const startIfPlaying = () => !video.paused && watcher.play(now());
     video.addEventListener("playing", startIfPlaying);
-    video.addEventListener("pause", () => watcher.pause(now()));
-    video.addEventListener("waiting", () => watcher.pause(now()));
-    video.addEventListener("ended", () => watcher.pause(now()));
+    // A player that fails empties the element (`emptied`, sometimes `error`) and sends no `pause`
+    for (const type of ["pause", "waiting", "ended", "emptied", "error"]) {
+      video.addEventListener(type, () => watcher.pause(now()));
+    }
     startIfPlaying();
   }
 
@@ -175,7 +181,10 @@
     }
   });
 
-  setInterval(() => watcher.flush(now()), FLUSH_EVERY_MS);
+  setInterval(() => {
+    watcher.sync(now(), playsNow(attached));
+    watcher.flush(now());
+  }, FLUSH_EVERY_MS);
   // The audio track can change while the video plays (the viewer picks another language)
   setInterval(() => currentVideoId && askForVideo(), RECHECK_EVERY_MS);
   document.addEventListener("visibilitychange", () => document.hidden && watcher.flush(now()));

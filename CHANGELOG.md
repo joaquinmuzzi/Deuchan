@@ -16,6 +16,12 @@ note on what to update.
   `npm run lint:firefox` checks it with Mozilla's linter. Not on Firefox Add-ons yet. See
   [docs/firefox.md](docs/firefox.md).
 
+### Fixed
+
+- A YouTube video no longer goes on counting after its player fails ("Something went wrong"): the player
+  empties the video without saying it paused, and the time kept adding up for as long as the tab stayed open.
+  Now the count stops within two seconds.
+
 ## [0.1.0] - 2026-11-23
 
 The first version submitted to the Chrome Web Store, as Inputly.
