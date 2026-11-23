@@ -7,8 +7,8 @@ request that finishes it.
 ## Where it stands
 
 - Works well for one user, loaded unpacked. Version 0.1.0 is in review in the Chrome Web Store and in Edge
-  Add-ons. Since phase 1 it counts any language. A Firefox build exists (task 2.6), not yet tried in a real
-  Firefox nor submitted to Firefox Add-ons.
+  Add-ons. Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
+  not yet submitted to Firefox Add-ons.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
   any language, the screenshots show a Japanese learner (task 2.2), and the listing is ready to paste
@@ -287,3 +287,14 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   minified or generated code), although the linter's metadata flags six files as possibly minified, a false
   positive of its indentation heuristic. By hand: a Mozilla account with two-step authentication, then the
   submission ([store-listing.md](store-listing.md#firefox-add-ons-amo)). The id is fixed with the first upload.
+- 2026-11-23, after 2.6: the Firefox build was tried in Firefox 160 (installed with winget), driven with
+  Selenium and geckodriver `--allow-system-access` (Marionette refuses `moz-extension://` pages without it), and
+  checked through `browser.storage.local`. Worked: the settings open at install; an English video counts, the
+  icon turns orange and the popup says "Counting English"; a Spanish one says "Not English, not counted" and
+  adds nothing; the immersion permission is asked from the click and **another site counts right after the
+  grant** (open point 1 of 2.6 is settled); a tab with only sound goes from "waiting" to "counting"; "Count
+  reading" counts. Found: (1) YouTube's player failed twice under automation and the video went on counting
+  (fixed in content.js: `emptied`/`error` and a check every two seconds, `Watcher.sync`; the bug was in Chrome
+  too); (2) the settings say "For a Chrome profile" in Firefox; (3) a 2-second sound clip in a loop counted
+  only 8 of about 80 seconds, to check again with a real podcast. Not tried: "Mark as …", the day details,
+  Mosaik.

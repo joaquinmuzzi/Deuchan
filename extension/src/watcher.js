@@ -31,6 +31,18 @@ export class Watcher {
     this.flush(now);
   }
 
+  /**
+   * What the player says right now, checked every few seconds: stops the count of a video that stopped
+   * without an event saying so. When YouTube's player fails ("Something went wrong") it empties the video
+   * element, which leaves it paused without a `pause` event, and the time went on counting for as long as
+   * the tab stayed open. It never starts the count: only the `playing` event does that.
+   */
+  sync(now, playing) {
+    if (!playing && this.#tracker.isPlaying) {
+      this.pause(now);
+    }
+  }
+
   /** The language of the current video is known: `true` for the target language, `false` for anything else. */
   setInTarget(now, inTarget) {
     this.#tracker.tick(now);

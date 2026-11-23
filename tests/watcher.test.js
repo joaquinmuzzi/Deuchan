@@ -83,3 +83,24 @@ test("the watcher reports what the status needs", () => {
   watcher.newVideo(3);
   assert.equal(watcher.status.inTarget, null);
 });
+
+test("sync stops the count of a video that stopped without a pause event", () => {
+  const { sent, watcher } = setup();
+  watcher.setInTarget(0, true);
+  watcher.play(0);
+  watcher.sync(2, true);
+  // The player failed and emptied the element at about 3: it is paused, and no event said so
+  watcher.sync(4, false);
+  watcher.flush(60);
+  assert.deepEqual(sent, [[{ from: 0, to: 4 }]]);
+  assert.equal(watcher.status.playing, false);
+});
+
+test("sync never starts the count", () => {
+  const { sent, watcher } = setup();
+  watcher.setInTarget(0, true);
+  watcher.sync(0, true);
+  watcher.flush(10);
+  assert.deepEqual(sent, []);
+  assert.equal(watcher.status.playing, false);
+});
