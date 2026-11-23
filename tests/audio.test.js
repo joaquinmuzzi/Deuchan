@@ -8,6 +8,7 @@ import {
   hears,
   isCounting,
   readSound,
+  resumeSound,
   setHeard,
 } from "../extension/src/audio.js";
 
@@ -162,4 +163,51 @@ test("only sound is read back from storage", () => {
   for (const saved of [undefined, null, "x", {}, { open: [], proven: 3 }]) {
     assert.deepEqual(readSound(saved), NOTHING);
   }
+});
+
+test("a computer that slept with a tab playing counts until the last look, not the hours it slept", () => {
+  // Counting since 100, last looked at 160; the next look comes three hours later
+  const sound = {
+    open: { 4: { since: 100, site: "open.spotify.com", url: PODCAST, title: "T" } },
+    proven: { 4: "open.spotify.com" },
+    checkedAt: 160,
+  };
+  const later = 160 + 3 * 3600;
+  const resumed = resumeSound(sound, later);
+  assert.deepEqual(resumed.parts, [{ tabId: 4, interval: { from: 100, to: 160 } }]);
+  // The tab may still be audible: from now on it counts again, without the wait
+  assert.equal(resumed.sound.open[4].since, later);
+  assert.equal(flushSound(resumed.sound, later + 60).parts[0].interval.from, later);
+});
+
+test("a short stretch that slept does not count, and starts again from nothing", () => {
+  const sound = {
+    open: { 4: { since: 150, site: "lexikon.example", url: WORD, title: "T" } },
+    proven: {},
+    checkedAt: 160,
+  };
+  const resumed = resumeSound(sound, 10_000);
+  assert.deepEqual(resumed.parts, []);
+  assert.equal(resumed.sound.open[4].since, 10_000);
+  assert.equal(isCounting(resumed.sound, "4", 10_000 + MIN_SOUND_SECONDS - 1), false);
+});
+
+test("the minutes that come on time are left alone", () => {
+  const sound = {
+    open: { 4: { since: 100, site: "open.spotify.com", url: PODCAST, title: "T" } },
+    proven: { 4: "open.spotify.com" },
+    checkedAt: 160,
+  };
+  assert.deepEqual(resumeSound(sound, 220), { sound, parts: [] });
+  // A sound saved before the last look was kept has nothing to compare with
+  assert.deepEqual(resumeSound(NOTHING, 10_000), { sound: NOTHING, parts: [] });
+});
+
+test("the last look is kept with the sound", () => {
+  assert.equal(readSound({ open: {}, proven: {}, checkedAt: 12 }).checkedAt, 12);
+  assert.equal("checkedAt" in readSound({ open: {}, proven: {}, checkedAt: "x" }), false);
+  const kept = { open: {}, proven: {}, checkedAt: 12 };
+  assert.equal(setHeard(kept, tab(PODCAST), true, 20).sound.checkedAt, 12);
+  assert.equal(flushSound(kept, 20).sound.checkedAt, 12);
+  assert.equal(forgetSound(kept, 4).checkedAt, 12);
 });

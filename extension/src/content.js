@@ -9,12 +9,14 @@
     { overridesKey, verdict },
     { immersionOf },
     { TARGET_KEY, targetOf },
+    { createSender },
   ] = await Promise.all([
     import(chrome.runtime.getURL("src/watcher.js")),
     import(chrome.runtime.getURL("src/language.js")),
     import(chrome.runtime.getURL("src/overrides.js")),
     import(chrome.runtime.getURL("src/immersion.js")),
     import(chrome.runtime.getURL("src/target.js")),
+    import(chrome.runtime.getURL("src/delivery.js")),
   ]);
   const saved = await chrome.storage.local.get(["immersion", TARGET_KEY]);
   let immersion = immersionOf(saved.immersion);
@@ -30,9 +32,10 @@
   const now = () => Date.now() / 1000;
   // The video that is playing, so that the time can be explained afterwards: which videos made a day
   let currentVideo = null;
+  // The time is kept until the background script says it is written, and sent again if it is not
+  const sender = createSender((message) => chrome.runtime.sendMessage(message));
   const watcher = new Watcher({
-    send: (intervals) =>
-      chrome.runtime.sendMessage({ type: "watched", intervals, video: currentVideo }).catch(() => {}),
+    send: (intervals) => sender.send({ type: "watched", intervals, video: currentVideo }),
   });
 
   // The toolbar icon of this tab turns orange while the video is in the target language
@@ -210,6 +213,7 @@
     updateAd();
     watcher.sync(now(), playsNow(attached));
     watcher.flush(now());
+    sender.retry(now());
   }, FLUSH_EVERY_MS);
   // The audio track can change while the video plays (the viewer picks another language)
   setInterval(() => currentVideoId && askForVideo(), RECHECK_EVERY_MS);

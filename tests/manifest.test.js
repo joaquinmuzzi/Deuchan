@@ -82,7 +82,7 @@ test("the immersion profile asks for optional permissions only, the same that th
   for (const [, file] of imported) {
     assert.ok(everywhere.includes(file), file);
   }
-  assert.deepEqual(everywhere.sort(), ["src/tracker.js", "src/watcher.js"]);
+  assert.deepEqual(everywhere.sort(), ["src/delivery.js", "src/tracker.js", "src/watcher.js"]);
 });
 
 test("the modules the content script imports can be reached from the page", () => {
