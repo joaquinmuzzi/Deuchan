@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inputly – Track your language input</title>
+    <meta
+      name="description"
+      content="A browser extension that counts your input in the language you learn: it detects the language of each YouTube video. Daily goal, charts, private, no account."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fdf6ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#19160f" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href="https://joaquinmuzzi.github.io/Inputly/" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png" />
+    <link rel="icon" type="image/png" sizes="128x128" href="img/icon-128.png" />
+    <link rel="apple-touch-icon" href="img/icon-128.png" />
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Open Graph and Twitter cards: absolute addresses, since the sites that read them need them -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Inputly" />
+    <meta property="og:title" content="Inputly – Track your language input" />
+    <meta
+      property="og:description"
+      content="Counts your input in the language you learn: detects the language of each YouTube video. Daily goal, charts, private, no account."
+    />
+    <meta property="og:url" content="https://joaquinmuzzi.github.io/Inputly/" />
+    <meta property="og:image" content="https://joaquinmuzzi.github.io/Inputly/img/promo.jpg" />
+    <meta property="og:image:width" content="440" />
+    <meta property="og:image:height" content="280" />
+    <meta
+      property="og:image:alt"
+      content="Inputly: counts the time you spend on input in the language you learn"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Inputly – Track your language input" />
+    <meta
+      name="twitter:description"
+      content="Counts your input in the language you learn: detects the language of each YouTube video. Daily goal, charts, private, no account."
+    />
+    <meta name="twitter:image" content="https://joaquinmuzzi.github.io/Inputly/img/promo.jpg" />
+    <meta
+      name="twitter:image:alt"
+      content="Inputly: counts the time you spend on input in the language you learn"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to the content</a>
+
+    <header class="hero">
+      <div class="wrap">
+        <p class="brand">
+          <img src="img/icon-128.png" alt="" width="40" height="40" />
+          <span>Inputly</span>
+        </p>
+        <h1>Count the time you spend on input in the language you learn</h1>
+        <p class="lead">
+          A browser extension for people who learn a language by immersion: Japanese, Spanish, Korean, German,
+          French, Chinese or any other. No timers to start or stop: you watch, and it adds up the minutes
+          against a daily goal.
+        </p>
+        <ul class="install" aria-label="Install Inputly">
+          <li>
+            <a class="button" href="https://chromewebstore.google.com/detail/imadljjebohcpkeopadcifnodmfbndel"
+              >Add to Chrome</a
+            >
+          </li>
+          <li>
+            <a
+              class="button"
+              href="https://microsoftedge.microsoft.com/addons/detail/ofophfcnojdmdffnfljneagppnnjelpp"
+              >Add to Edge</a
+            >
+          </li>
+          <li>
+            <a class="button secondary" href="https://github.com/joaquinmuzzi/Inputly#install-from-the-source"
+              >Firefox: install from source</a
+            >
+          </li>
+        </ul>
+        <p class="small">Free, open source, no account.</p>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="wrap" aria-labelledby="different">
+        <h2 id="different">What makes Inputly different</h2>
+        <ul class="features">
+          <li>
+            <h3>It decides the language of each video</h3>
+            <p>
+              No account or profile kept only for the language: Inputly looks at the audio track that plays,
+              the automatic captions YouTube makes from the speech or, when there are none, the title and
+              description, on your computer. Videos in other languages are not counted.
+            </p>
+          </li>
+          <li>
+            <h3>One click corrects it</h3>
+            <p>
+              When it gets a video wrong, a button in the popup marks it as in your language, or as not, and
+              the choice is remembered. Open a day to see the videos that made it up, take one out, or correct
+              the minutes.
+            </p>
+          </li>
+          <li>
+            <h3>Your day ends at 4:00</h3>
+            <p>Not at midnight: an episode watched late at night counts for that day.</p>
+          </li>
+          <li>
+            <h3>Any site, any sound, if you want</h3>
+            <p>
+              Turn on the immersion profile in a browser profile you use only for the language you learn:
+              every video that plays with sound counts, on any site, and so does a podcast. It is off by
+              default.
+            </p>
+          </li>
+          <li>
+            <h3>Reading counts too</h3>
+            <p>
+              A button in the popup counts a comic, a book or an article until you stop it, or until you leave
+              the computer for 15 minutes.
+            </p>
+          </li>
+          <li>
+            <h3>Honest seconds</h3>
+            <p>
+              It counts the real seconds a video plays. Pausing, rewinding and looping are handled, at 2x a
+              minute is still a minute, and two tabs playing at once count once.
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <section class="wrap" aria-labelledby="see">
+        <h2 id="see">What you see</h2>
+        <p>
+          A daily goal, what is left today, your streak, and a dashboard with totals, an activity heatmap,
+          your time per day and your average for each weekday. Light and dark mode.
+        </p>
+        <div class="shots">
+          <figure class="wide">
+            <img
+              src="img/popup.jpg"
+              width="960"
+              height="600"
+              alt="The Inputly popup in dark mode, saying Counting Japanese, with 38 minutes counted today, 6 minutes left of a 45-minute goal, and a 37-day streak."
+            />
+            <figcaption>The popup says whether the video you watch is counted.</figcaption>
+          </figure>
+          <figure class="wide">
+            <img
+              src="img/day-videos.jpg"
+              width="960"
+              height="600"
+              loading="lazy"
+              alt="A day opened in the dashboard: four videos and readings in Japanese with their minutes, each with a Not Japanese button, and a field for the minutes you really watched."
+            />
+            <figcaption>Open a day to see what made it up, and correct it.</figcaption>
+          </figure>
+          <figure>
+            <img
+              src="img/dashboard-light.jpg"
+              width="960"
+              height="600"
+              loading="lazy"
+              alt="The dashboard in light mode: totals for today, 7 days, 30 days and all time, a heatmap of activity by month, a bar chart of time per day against the goal, and the average per weekday."
+            />
+            <figcaption>The dashboard, light.</figcaption>
+          </figure>
+          <figure>
+            <img
+              src="img/dashboard-dark.jpg"
+              width="960"
+              height="600"
+              loading="lazy"
+              alt="The same dashboard in dark mode."
+            />
+            <figcaption>The dashboard, dark.</figcaption>
+          </figure>
+          <figure class="wide">
+            <img
+              src="img/language.jpg"
+              width="960"
+              height="600"
+              loading="lazy"
+              alt="The settings of the dashboard with the list of languages open and Japanese selected."
+            />
+            <figcaption>Pick your language when you install it, and change it any time.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="wrap" aria-labelledby="privacy">
+        <h2 id="privacy">Private, with no account</h2>
+        <p>
+          Everything stays in your browser. No sign-up, no ads, no analytics, no trackers, and nothing is sent
+          anywhere unless you turn on the optional link to Mosaik, an app of your own. This page loads nothing
+          from other sites either. Read the
+          <a href="https://github.com/joaquinmuzzi/Inputly/blob/main/PRIVACY.md">privacy policy</a>.
+        </p>
+      </section>
+
+      <section class="wrap" aria-labelledby="open">
+        <h2 id="open">Open source</h2>
+        <p>
+          The code is on <a href="https://github.com/joaquinmuzzi/Inputly">GitHub</a> under the MIT license.
+          Ideas and bugs go to the <a href="https://github.com/joaquinmuzzi/Inputly/issues">issues</a>. If
+          Inputly is useful to you, give it a star or
+          <a href="https://ko-fi.com/muzzijoaquin">support it on Ko-fi</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <p>
+          <a href="https://github.com/joaquinmuzzi">Created by Frodouwu</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/joaquinmuzzi/Inputly">Star on GitHub</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://ko-fi.com/muzzijoaquin">Ko-fi</a>
+        </p>
+        <p class="small">
+          Inputly is an independent project. It is not affiliated with, endorsed by or sponsored by YouTube or
+          Google. YouTube is a trademark of Google LLC.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

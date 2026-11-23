@@ -47,6 +47,8 @@ days, weeks and months, so you can see how much input you really get.
 
 Version 0.1.0 is in review in the Chrome Web Store and in Edge Add-ons. See the [changelog](CHANGELOG.md).
 
+The site is at <https://joaquinmuzzi.github.io/Inputly/>.
+
 ## Install from the source
 
 - **Chrome or Edge:** open `chrome://extensions` (or `edge://extensions`), turn on Developer mode, press
