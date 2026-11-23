@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Inputly popup, for the store</title>
+    <!-- The real popup (in the frame, with the demo chrome API) beside a few lines on what it does.
+         capture.mjs opens it at 800 × 500 CSS pixels with 1.6 device pixels each: 1280 × 800. -->
+    <script>
+      // The frame follows the theme of the popup it shows (`?theme=dark`)
+      document.documentElement.dataset.theme = new URLSearchParams(location.search).get("theme") ?? "dark";
+    </script>
+    <link rel="stylesheet" href="../../extension/src/theme.css" />
+    <style>
+      html {
+        height: 100%;
+      }
+
+      body {
+        display: flex;
+        gap: 44px;
+        align-items: center;
+        height: 100%;
+        margin: 0;
+        padding: 0 48px;
+        box-sizing: border-box;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      iframe {
+        flex: none;
+        width: 352px;
+        height: 300px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: 0 18px 40px rgb(0 0 0 / 35%);
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        color: var(--strong);
+        font-size: 30px;
+        line-height: 1.15;
+      }
+
+      p {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      strong {
+        color: var(--text);
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="popup" title="Inputly popup"></iframe>
+    <div>
+      <h1>Counts only the videos in Japanese</h1>
+      <p>
+        Inputly works out the language of <strong>each video</strong> from its audio track, its captions and
+        its title, and counts only the ones in the language you learn.
+      </p>
+      <p>Wrong guess? <strong>One click</strong> corrects it, and it is remembered.</p>
+      <p>Your day ends at <strong>4:00</strong>, so a late night counts for the day before.</p>
+    </div>
+    <script>
+      // The popup takes the same query (the theme), and the frame grows to the height of the popup
+      const frame = document.getElementById("popup");
+      frame.addEventListener("load", () => {
+        const resize = () => {
+          frame.style.height = `${frame.contentDocument.documentElement.scrollHeight}px`;
+        };
+        resize();
+        new ResizeObserver(resize).observe(frame.contentDocument.body);
+      });
+      frame.src = `../../extension/popup/popup.html${location.search}`;
+    </script>
+  </body>
+</html>

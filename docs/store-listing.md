@@ -64,15 +64,20 @@ Inputly is an independent project. It is not affiliated with, endorsed by or spo
 Google. YouTube is a trademark of Google LLC.
 ```
 
-**Images** (1280 × 800 JPEG, from the real extension with demo data):
+**Images** (1280 × 800 JPEG, from the real extension pages with the invented history of someone who learns
+Japanese; the first two show what only Inputly does):
 
-1. [Dashboard, dark](store/screenshot-1-dashboard-dark.jpg)
-2. [Dashboard, light](store/screenshot-2-dashboard-light.jpg)
-3. [The popup](store/screenshot-3-popup.jpg): there is no video in the browser that took it, so the answer
-   of the tab ("Counting German") was given by hand; everything else is the real popup.
+1. [A day opened to its videos](store/screenshot-1-day-videos.jpg), each with "Not Japanese" to take it out
+   of the day, and the minutes to correct.
+2. [The popup](store/screenshot-2-popup.jpg) saying "Counting Japanese", beside a few lines on the detection
+   per video, the one-click correction and the day that ends at 4:00. The answer of the YouTube tab is
+   given by the demo, as there is no video playing; everything else is the real popup.
+3. [Dashboard, dark](store/screenshot-3-dashboard-dark.jpg)
+4. [Dashboard, light](store/screenshot-4-dashboard-light.jpg)
+5. [The language picker](store/screenshot-5-language.jpg) in the settings, drawn as an open list (a native
+   drop-down does not show in a screenshot).
 
-The images still show German, the language they were made with; task 2.2 of the [plan](plan.md) makes them
-again in another language too.
+They are made with `node scripts/screenshots/capture.mjs` (see task 2.2 in the [plan](plan.md#notes)).
 
 **Small promo tile** (440 × 280): [promo-small-440x280.jpg](store/promo-small-440x280.jpg)
 

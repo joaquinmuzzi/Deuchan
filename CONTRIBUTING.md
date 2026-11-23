@@ -65,8 +65,9 @@ extension/
   manifest.json      the extension (Manifest V3)
   src/               modules without browser APIs, covered by tests
   popup/ dashboard/  the pages of the extension
-scripts/             tools: the one that draws the icons (`npm run icons`) and the one that makes the
-                     zip for the Chrome Web Store (`npm run package`)
+scripts/             tools: the one that draws the icons (`npm run icons`), the one that makes the
+                     zip for the Chrome Web Store (`npm run package`) and, in screenshots/, the one
+                     that makes the store images from the real pages with demo data
 docs/                the listing for the store, with its images
 tests/               node:test tests
 ```
