@@ -7,13 +7,16 @@ in [Firefox Add-ons (AMO)](#firefox-add-ons-amo).
 
 ## Store listing tab
 
-**Name:** Inputly – Track your language input
+**Name:** Inputly – Language Immersion Tracker for YouTube & Netflix
 
-It is the `name` of the manifest (75 characters at most). The toolbar button says only "Inputly".
+It is the `name` of the manifest (75 characters at most; this one is 58). The toolbar button says only
+"Inputly". The words after the dash are the ones people search for ("immersion", "tracker", the sites):
+store search weighs the name first and the summary second. Prime Video and Disney+ stay out of the name and
+the summary while they are experimental, and Crunchyroll is in the summary.
 
-**Summary** (it is the `description` of the manifest, 132 characters at most):
+**Summary** (it is the `description` of the manifest, 132 characters at most; this one is 117):
 
-> Counts your input in the language you learn: detects the language of each YouTube video. Daily goal, charts, private, no account.
+> Counts your input hours in any language on YouTube, Netflix and Crunchyroll. Daily goal, streak, private, no account.
 
 **Category:** Education
 
@@ -22,34 +25,39 @@ It is the `name` of the manifest (75 characters at most). The toolbar button say
 **Description:**
 
 ```
-Inputly counts the time you spend on input in the language you learn (Japanese, Spanish, Korean, German,
-French, Chinese or any other) and shows it against a daily goal. No timers to start or stop: you watch,
-and it adds up the minutes. It is made for people who learn a language by immersion and want to know how
-much input they really get.
+Inputly counts the minutes you watch in the language you learn, on YouTube, Netflix and Crunchyroll, and
+shows them against a daily goal. Any language, no timers, no account.
+
+New in 0.2: Netflix and Crunchyroll count by the audio track that plays (turn them on in the settings).
+
+It is made for people who learn a language by immersion (Japanese, Spanish, Korean, German, French,
+Chinese or any other) and want to know how many hours of input they really get. You watch, and it adds up
+the minutes.
 
 WHAT MAKES INPUTLY DIFFERENT
-• It decides the language of each YouTube video. You do not need an account or a profile kept only for
-  the language: Inputly looks at the audio track that plays and the automatic captions YouTube makes from
-  the speech or, when there are none, at the title and description (with Chrome's built-in language
+• It decides the language of each video. You do not need an account or a profile kept only for the
+  language: on YouTube, Inputly looks at the audio track that plays and the automatic captions made from
+  the speech or, when there are none, at the title and description (with the browser's built-in language
   detector, on your computer). Videos in other languages are not counted.
 • One click corrects it. When it gets a video wrong, a button in the popup marks it as in your language, or
   as not, and the choice is remembered. Click a day in the dashboard to see the videos that made it up,
   take one out, or correct the minutes of the whole day.
 • Your day ends at 4:00, not at midnight: an episode watched late at night counts for that day.
-• An immersion profile counts any site and any sound. Turn it on in a Chrome profile you use only for the
+• An immersion profile counts any site and any sound. Turn it on in a browser profile you use only for the
   language you learn: every video that plays with sound counts, on any site, and so does any tab that plays
   sound for 30 seconds or more, like a podcast. It is off by default.
 • Reading counts too. A button in the popup counts a comic, a book or an article until you stop it, or until
   you leave the computer for 15 minutes.
-• Private, with no account. Everything stays in your browser. No sign-up, no ads, no analytics, no
-  trackers.
+• Private, with no account. Your history stays in your browser unless you turn on the optional export to
+  Mosaik, an app you run yourself. No sign-up, no ads, no analytics, no trackers.
 
 HOW IT COUNTS
 • It counts the real seconds a video in your language plays. Pausing, rewinding and looping are handled,
   and at 2x a minute is still a minute. Two tabs playing at once count once.
-• By itself it counts YouTube. Netflix and Crunchyroll count too once you turn them on in the settings (Prime
-  Video and Disney+ as experimental): Inputly reads which audio track the player plays and counts it only in
-  your language. Other sites (Twitch, podcasts) count with the immersion profile on.
+• YouTube counts as soon as you install it. Netflix and Crunchyroll count once you turn them on in the
+  settings (two more streaming sites are there as experimental): Inputly reads which audio track the player
+  plays and counts it only in your language, so subtitles never decide. Other sites count with the
+  immersion profile on.
 • Pick your language when you install it, and change it any time in the settings. The popup says it:
   "Counting Japanese", "Not Japanese, not counted".
 
@@ -63,23 +71,28 @@ WHAT YOU SEE
 OPEN SOURCE
 The extension is open source (MIT): https://github.com/joaquinmuzzi/inputly
 
-Inputly is an independent project. It is not affiliated with, endorsed by or sponsored by YouTube, Google,
-Netflix, Crunchyroll, Amazon or Disney. YouTube is a trademark of Google LLC; the other names are trademarks
-of their owners.
+Inputly is an independent project. It is not affiliated with, endorsed by or sponsored by YouTube, Netflix
+or Crunchyroll. The names are trademarks of their owners.
 ```
 
 **Images** (1280 × 800 JPEG, from the real extension pages with the invented history of someone who learns
-Japanese; the first two show what only Inputly does). Upload them in this order:
+Japanese; the first one shows the streaming sites people search for, the next two what only Inputly does).
+Upload them in this order:
 
-1. [A day opened to its videos](store/screenshot-1-day-videos.jpg), each with "Not Japanese" to take it out
+1. [The popup on a streaming episode](store/screenshot-1-streaming.jpg) saying "Counting Japanese" under a
+   made-up episode title, beside "Netflix and Crunchyroll count too" and a few lines on the audio track. The
+   answer of the tab is given by the demo; everything else is the real popup.
+2. [A day opened to its videos](store/screenshot-2-day-videos.jpg), each with "Not Japanese" to take it out
    of the day, and the minutes to correct.
-2. [The popup](store/screenshot-2-popup.jpg) saying "Counting Japanese", beside a few lines on the detection
+3. [The popup](store/screenshot-3-popup.jpg) saying "Counting Japanese", beside a few lines on the detection
    per video, the one-click correction and the day that ends at 4:00. The answer of the YouTube tab is
    given by the demo, as there is no video playing; everything else is the real popup.
-3. [Dashboard, dark](store/screenshot-3-dashboard-dark.jpg)
-4. [Dashboard, light](store/screenshot-4-dashboard-light.jpg)
+4. [Dashboard, dark](store/screenshot-4-dashboard-dark.jpg)
 5. [The language picker](store/screenshot-5-language.jpg) in the settings, drawn as an open list (a native
    drop-down does not show in a screenshot).
+
+Edge Add-ons takes only PNG: the same script writes a PNG of each image, and of the promo tile, to
+`dist/subir-a-la-tienda/` (not committed).
 
 They are made with `node scripts/screenshots/capture.mjs` (see task 2.2 in the [plan](plan.md#notes)).
 

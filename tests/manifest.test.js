@@ -106,7 +106,8 @@ test("the modules those modules import can be reached too", () => {
 });
 
 test("the manifest and the package have the same name", () => {
-  // The manifest name is the store name, "Inputly – Track your language input": its first word is the name
+  // The manifest name is the store name, "Inputly – Language Immersion Tracker for YouTube & Netflix": its
+  // first word is the name, and the toolbar says only that
   assert.equal(manifest.name.split(" ")[0].toLowerCase(), packageJson.name);
   assert.equal(manifest.action.default_title, "Inputly");
 });

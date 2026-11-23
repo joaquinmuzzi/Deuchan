@@ -6,8 +6,10 @@
 // `chrome` API (chrome-stub.js) in each extension page, opens the pages in a headless Chrome or Edge
 // through the DevTools protocol, and saves JPEGs at the exact sizes the store asks for. Set CHROME to the
 // browser's path if it is not found. Nothing here is packaged: `npm run package` takes only `extension/`.
+// It also writes a PNG of each image to dist/subir-a-la-tienda/ (not committed), since Edge Add-ons takes
+// only PNG.
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, extname, join, normalize, resolve } from "node:path";
@@ -17,20 +19,44 @@ import { DEMO_NOW, OPENED_DAY, demoStorage } from "./demo-data.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const OUT = join(ROOT, "docs/store");
+const PNG_OUT = join(ROOT, "dist/subir-a-la-tienda");
 const QUALITY = 90;
 
-/** What the YouTube tab answers in the popup: a Japanese video that plays. */
-const PLAYING_STATUS = { inTarget: true, playing: true, immersion: false };
+/**
+ * What the tab answers in the popup, picked with `?status=` in the page address: a Japanese YouTube video
+ * that plays, or an episode on a streaming site (Netflix or Crunchyroll) whose audio track is Japanese. The
+ * episode is made up: no real show's name or art appears in the store images.
+ */
+const STATUSES = {
+  youtube: { inTarget: true, playing: true, immersion: false },
+  streaming: {
+    inTarget: true,
+    playing: true,
+    immersion: false,
+    title: "Lantern Street S1:E4 The Night Market",
+  },
+};
 
 /**
  * The images, in the order of the listing: the first ones show what only Inputly does (a video counted
  * only when it is in the language, and each one can be taken out of its day). `scale` is how many image
  * pixels each CSS pixel takes: the dialogs are small, so their pages are drawn larger to stay readable.
- * `act` runs in the page once it has loaded.
+ * `query` is added to the page address (the popup frame passes it on to the popup). `act` runs in the page
+ * once it has loaded.
  */
 const SHOTS = [
   {
-    file: "screenshot-1-day-videos.jpg",
+    // The streaming sites first: they are what people search for
+    file: "screenshot-1-streaming.jpg",
+    page: "scripts/screenshots/popup-frame.html",
+    query: "status=streaming",
+    theme: "dark",
+    width: 1280,
+    height: 800,
+    scale: 1.6,
+  },
+  {
+    file: "screenshot-2-day-videos.jpg",
     page: "extension/dashboard/dashboard.html",
     theme: "dark",
     width: 1280,
@@ -40,7 +66,7 @@ const SHOTS = [
           document.activeElement.blur();`,
   },
   {
-    file: "screenshot-2-popup.jpg",
+    file: "screenshot-3-popup.jpg",
     page: "scripts/screenshots/popup-frame.html",
     theme: "dark",
     width: 1280,
@@ -48,17 +74,9 @@ const SHOTS = [
     scale: 1.6,
   },
   {
-    file: "screenshot-3-dashboard-dark.jpg",
+    file: "screenshot-4-dashboard-dark.jpg",
     page: "extension/dashboard/dashboard.html",
     theme: "dark",
-    width: 1280,
-    height: 800,
-    scale: 1,
-  },
-  {
-    file: "screenshot-4-dashboard-light.jpg",
-    page: "extension/dashboard/dashboard.html",
-    theme: "light",
     width: 1280,
     height: 800,
     scale: 1,
@@ -114,7 +132,7 @@ function serve() {
       const demo = {
         now: DEMO_NOW,
         storage: demoStorage({ theme: url.searchParams.get("theme") ?? "dark" }),
-        status: PLAYING_STATUS,
+        status: STATUSES[url.searchParams.get("status") ?? "youtube"],
       };
       const head =
         `<script>window.inputlyDemo = ${JSON.stringify(demo)};</script>` +
@@ -224,7 +242,8 @@ async function capture(client, origin, shot) {
     features: [{ name: "prefers-color-scheme", value: shot.theme }],
   });
   const loaded = client.once("Page.loadEventFired");
-  await client.send("Page.navigate", { url: `${origin}/${shot.page}?theme=${shot.theme}` });
+  const query = shot.query ? `&${shot.query}` : "";
+  await client.send("Page.navigate", { url: `${origin}/${shot.page}?theme=${shot.theme}${query}` });
   await loaded;
   // The pages render after reading the storage, and the popup frame loads the popup after its own load
   await wait(800);
@@ -238,9 +257,15 @@ async function capture(client, origin, shot) {
   await client.send("Runtime.evaluate", { expression: "document.fonts.ready", awaitPromise: true });
   const { data } = await client.send("Page.captureScreenshot", { format: "jpeg", quality: QUALITY });
   writeFileSync(join(OUT, shot.file), Buffer.from(data, "base64"));
-  console.log(`Wrote docs/store/${shot.file} (${shot.width} × ${shot.height})`);
+  const png = await client.send("Page.captureScreenshot", { format: "png" });
+  const pngFile = shot.file.replace(/\.jpg$/, ".png");
+  writeFileSync(join(PNG_OUT, pngFile), Buffer.from(png.data, "base64"));
+  console.log(
+    `Wrote docs/store/${shot.file} and dist/subir-a-la-tienda/${pngFile} (${shot.width} × ${shot.height})`,
+  );
 }
 
+mkdirSync(PNG_OUT, { recursive: true });
 const server = await serve();
 const origin = `http://127.0.0.1:${server.address().port}`;
 const profile = mkdtempSync(join(tmpdir(), "inputly-shots-"));
