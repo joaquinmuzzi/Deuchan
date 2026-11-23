@@ -9,6 +9,8 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-23
+
 ### Changed
 
 - The store name is now "Inputly – Language Immersion Tracker for YouTube & Netflix" and the summary names
