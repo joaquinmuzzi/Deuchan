@@ -10,7 +10,7 @@ request that finishes it.
   [Chrome Web Store](https://chromewebstore.google.com/detail/imadljjebohcpkeopadcifnodmfbndel) and in
   [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ofophfcnojdmdffnfljneagppnnjelpp) (both
   approved on 2026-11-23). Version 0.1.1 (the fixes of 2.8, 2.9 and the failed YouTube player) is
-  submitted to both. Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
+  published too, and 0.2.0 (the streaming sites of 2.7) follows it. Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
   not yet submitted to Firefox Add-ons.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
@@ -332,3 +332,7 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   real playback, ads on any of the four, Firefox. Follow-ups: the maintainer's check by hand
   ([streaming.md](streaming.md#checking-by-hand)); a Crunchyroll ad rule if a free tier with ads shows up; more
   Amazon stores for Prime Video if someone asks.
+
+- 2026-11-23, after 2.7: the maintainer checked it by hand with his own accounts, in Chrome with the
+  unpacked extension: Netflix and Crunchyroll counted in the target language with the title in the popup,
+  and switching the audio to another language stopped the count. Released as 0.2.0.
