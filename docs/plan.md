@@ -9,7 +9,8 @@ request that finishes it.
 - Version 0.1.0 is published in the
   [Chrome Web Store](https://chromewebstore.google.com/detail/imadljjebohcpkeopadcifnodmfbndel) and in
   [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ofophfcnojdmdffnfljneagppnnjelpp) (both
-  approved on 2026-11-23). Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
+  approved on 2026-11-23). Version 0.1.1 (the fixes of 2.8, 2.9 and the failed YouTube player) is
+  submitted to both. Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
   not yet submitted to Firefox Add-ons.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
