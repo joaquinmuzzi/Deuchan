@@ -7,23 +7,33 @@ import { Tracker } from "./tracker.js";
  *
  * While the language is still unknown (the page has not shown the captions yet), the time is kept
  * and credited as soon as the video turns out to be in the target language, or dropped if it is not.
+ *
+ * An ad is not input: while one plays (see `setAd`) nothing is counted, and the verdict stays the
+ * video's, since the ad plays in the same player before, in the middle of or after it.
  */
 export class Watcher {
   #tracker = new Tracker();
   #inTarget = null;
+  #ad = false;
   #send;
 
   constructor({ send }) {
     this.#send = send;
   }
 
-  /** What the popup shows: the verdict on the language (`null` while unknown) and whether it plays. */
+  /**
+   * What the popup shows: the verdict on the language (`null` while unknown), whether it is counted as
+   * playing, and whether an ad plays instead of the video.
+   */
   get status() {
-    return { inTarget: this.#inTarget, playing: this.#tracker.isPlaying };
+    return { inTarget: this.#inTarget, playing: this.#tracker.isPlaying, ad: this.#ad };
   }
 
+  /** The video element plays. During an ad it plays the ad, which does not count. */
   play(now) {
-    this.#tracker.play(now);
+    if (!this.#ad) {
+      this.#tracker.play(now);
+    }
   }
 
   pause(now) {
@@ -40,6 +50,27 @@ export class Watcher {
   sync(now, playing) {
     if (!playing && this.#tracker.isPlaying) {
       this.pause(now);
+    }
+  }
+
+  /**
+   * Whether the player shows an ad, told every time it may have changed (it does nothing if nothing did).
+   * An ad stops the count and saves the video's time before it; when it ends, the count goes on if the
+   * element plays (`playing`), because the video may resume in the same element without a new `playing`
+   * event.
+   */
+  setAd(now, showing, playing) {
+    if (showing === this.#ad) {
+      return;
+    }
+    if (showing) {
+      this.pause(now);
+      this.#ad = true;
+    } else {
+      this.#ad = false;
+      if (playing) {
+        this.play(now);
+      }
     }
   }
 

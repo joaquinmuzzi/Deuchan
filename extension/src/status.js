@@ -11,6 +11,8 @@ import { DEFAULT_TARGET, languageName } from "./target.js";
  *
  * `language` is the name of the target language, as `targetName` gives it ("German"): the texts say it.
  *
+ * `reply.ad` is true while an ad plays in the player: it is not counted, whatever the video's language.
+ *
  * `action` is the link to correct a wrong guess about the language: `inTarget` is what pressing it
  * decides. There is none while the language is not known, or when there is no video.
  */
@@ -22,6 +24,11 @@ export function describeStatus(reply, sound = null, language = languageName(DEFA
     return sound === "waiting"
       ? { kind: "idle", text: `Sound, counted after ${MIN_SOUND_SECONDS} seconds` }
       : { kind: "idle", text: "No video here" };
+  }
+  // The ad comes first: during a pre-roll the language may not be known yet, and the time is not counted
+  // either way
+  if (reply.ad) {
+    return { kind: "idle", text: "Ad, not counted" };
   }
   if (reply.inTarget === null) {
     return { kind: "idle", text: "Detecting the language…" };

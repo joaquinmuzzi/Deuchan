@@ -129,9 +129,34 @@
     startIfPlaying();
   }
 
+  // Whether the player shows an ad. YouTube plays ads in the same video element as the video, so its
+  // `playing` events would count them. The player data was tried first (a real pre-roll, 2026-11-23): during
+  // the ad, `getAdState()` said -1 (no ad), and `getVideoData()` and `getPlayerResponse()` gave the video's own
+  // id, so nothing there tells them apart (which also means the language verdict, made from that data, stays
+  // the video's). The `ad-showing` class on `#movie_player` was there from the first frame of the ad to the
+  // last, skipped or not, and went away just before the video's `playing`. The player's own CSS hangs on that
+  // class, and it can be read from this isolated world and watched without polling. Overlay ads over a
+  // playing video do not set it, and do not need to: the video still plays.
+  const AD_CLASS = "ad-showing";
+  let player = null;
+  const updateAd = () =>
+    watcher.setAd(now(), player?.classList.contains(AD_CLASS) ?? false, playsNow(attached));
+  const adObserver = new MutationObserver(updateAd);
+
+  function watchPlayer() {
+    const found = document.getElementById("movie_player");
+    if (found && found !== player) {
+      player = found;
+      adObserver.disconnect();
+      adObserver.observe(player, { attributes: true, attributeFilter: ["class"] });
+      updateAd();
+    }
+  }
+
   function lookForVideo() {
     const video = document.querySelector("video.html5-main-video");
     if (video) {
+      watchPlayer();
       attach(video);
     }
   }
@@ -182,6 +207,7 @@
   });
 
   setInterval(() => {
+    updateAd();
     watcher.sync(now(), playsNow(attached));
     watcher.flush(now());
   }, FLUSH_EVERY_MS);

@@ -18,6 +18,10 @@ note on what to update.
 
 ### Fixed
 
+- Ads on YouTube no longer count: YouTube plays them in the same player as the video, so a pre-roll, a
+  mid-roll or a skippable ad counted as time in the language of the video. Now the count stops while an ad
+  plays and goes on with the video, and the popup says "Ad, not counted". Ads on other sites of the
+  immersion profile still count.
 - A YouTube video no longer goes on counting after its player fails ("Something went wrong"): the player
   empties the video without saying it paused, and the time kept adding up for as long as the tab stayed open.
   Now the count stops within two seconds.
