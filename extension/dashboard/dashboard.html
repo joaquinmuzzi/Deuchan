@@ -12,7 +12,7 @@
       <header>
         <h1>Deuchan</h1>
         <div class="icons">
-          <button class="icon-button" id="settings" type="button" aria-label="Daily goal settings">
+          <button class="icon-button" id="settings" type="button" aria-label="Settings">
             <svg
               width="16"
               height="16"
@@ -119,9 +119,11 @@
 
     <dialog id="goalDialog" aria-labelledby="goalTitle">
       <form id="goalForm" method="dialog" novalidate>
-        <h2 id="goalTitle">Daily goal</h2>
+        <h2 id="goalTitle">Settings</h2>
         <div class="dialog-body">
-          <label for="goalInput">Minutes per day</label>
+          <label for="targetSelect">Language you learn</label>
+          <select id="targetSelect"></select>
+          <label for="goalInput">Daily goal, in minutes</label>
           <input id="goalInput" type="text" inputmode="numeric" autocomplete="off" />
           <p class="error" id="goalError" role="alert"></p>
           <label class="switch-row"

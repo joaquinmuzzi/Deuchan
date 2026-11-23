@@ -36,7 +36,7 @@ The maintainer decides these; the coordinating session asks when a task needs th
 The person picks the language they learn; everything that says or assumes German follows it. Existing
 data stays German.
 
-- [ ] **1.1 Target language setting.** A stored setting (default `de`, so the current user notices
+- [x] **1.1 Target language setting.** A stored setting (default `de`, so the current user notices
       nothing), chosen in the dashboard settings and asked on first run. Migrate stored data if its shape
       changes (`STORAGE_VERSION`).
 - [ ] **1.2 Detection for any language.** Generalize `language.js`: the audio track and the automatic
@@ -96,3 +96,13 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
 
 - 2026-11-23: plan written. The repository already has a CLAUDE.md for sessions; the coordinating
   session splits each phase into task sessions.
+- 2026-11-23, task 1.1: the target language is kept in its own key, `targetLanguage` (a bare code such as
+  `"ja"`), missing means German; no stored shape changed, so `STORAGE_VERSION` stays 1. The pure logic is
+  `extension/src/target.js`: `TARGET_KEY`, `DEFAULT_TARGET` (`"de"`), `TARGET_LANGUAGES` (codes offered in
+  the picker), `normalizeLanguage(tag)` (any BCP 47 tag to a bare code, or `null`: `"de-AT"` → `"de"`,
+  `"iw"` → `"he"`), `targetOf(saved)` (the saved value, or `"de"`), `isTarget(tag, target)` (for
+  detection: does a track's `"de-DE"` match the target), `languageName(code, locale = "en")` (via
+  `Intl.DisplayNames`) and `targetOptions(saved)` (`{ code, name }` for the picker). A new install opens
+  `dashboard/dashboard.html#language` (`TARGET_HASH`). For 1.2: `content.js` imports modules through
+  `getURL`, so `src/target.js` has to be added to `web_accessible_resources` in the manifest when it is used
+  there (`tests/manifest.test.js` checks it).
