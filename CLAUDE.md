@@ -12,7 +12,7 @@ dashboard. Everything stays in the browser unless "Send to Mosaik" is turned on.
 also its main user.
 
 The goal now is to turn it into a small product: any language, published in the Chrome Web Store,
-real users, and later a paid tier. The phases are in [docs/plan.md](docs/plan.md).
+and real users. The phases are in [docs/plan.md](docs/plan.md).
 
 ## Talking to the maintainer
 
@@ -20,6 +20,11 @@ real users, and later a paid tier. The phases are in [docs/plan.md](docs/plan.md
   in English: code, comments, commits, pull requests and documentation (see
   [CONTRIBUTING.md](CONTRIBUTING.md)).
 - The repository is public. Keep personal details, money goals, server addresses and tokens out of it.
+- **The plan has a private part:** `docs/private/plan.md`, only on the maintainer's computer (`docs/private/` is
+  in `.gitignore`). It holds what is not meant to be public. Read it together with
+  `docs/plan.md` when it exists (a cloud session or a fresh clone has no copy: say so if a task needs it).
+  Update it there when a decision changes, and never copy its content into anything committed or published:
+  files, commits, pull requests, issues, store texts.
 
 ## Commands
 

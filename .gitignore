@@ -5,3 +5,6 @@ dist/
 .claude/
 .vscode/
 .idea/
+
+# The private part of the plan (see CLAUDE.md)
+docs/private/
