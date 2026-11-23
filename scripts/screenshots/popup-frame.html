@@ -57,7 +57,8 @@
   </head>
   <body>
     <iframe id="popup" title="Inputly popup"></iframe>
-    <div>
+    <!-- One text per `?status=` (see capture.mjs): the YouTube one by default -->
+    <div data-status="youtube">
       <h1>Counts only the videos in Japanese</h1>
       <p>
         Inputly works out the language of <strong>each video</strong> from its audio track, its captions and
@@ -66,7 +67,20 @@
       <p>Wrong guess? <strong>One click</strong> corrects it, and it is remembered.</p>
       <p>Your day ends at <strong>4:00</strong>, so a late night counts for the day before.</p>
     </div>
+    <div data-status="streaming" hidden>
+      <h1>Netflix and Crunchyroll count too</h1>
+      <p>
+        Turn them on in the settings, and Inputly reads which <strong>audio track</strong> the player plays:
+        an episode counts only while its audio is in the language you learn.
+      </p>
+      <p>Switch the audio to another language and the count <strong>stops</strong>.</p>
+      <p>YouTube counts as soon as you install it, video by video.</p>
+    </div>
     <script>
+      const status = new URLSearchParams(location.search).get("status") ?? "youtube";
+      for (const text of document.querySelectorAll("[data-status]")) {
+        text.hidden = text.dataset.status !== status;
+      }
       // The popup takes the same query (the theme), and the frame grows to the height of the popup
       const frame = document.getElementById("popup");
       frame.addEventListener("load", () => {

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Inputly – Track your language input",
+  "name": "Inputly – Language Immersion Tracker for YouTube & Netflix",
   "version": "0.2.0",
-  "description": "Counts your input in the language you learn: detects the language of each YouTube video. Daily goal, charts, private, no account.",
+  "description": "Counts your input hours in any language on YouTube, Netflix and Crunchyroll. Daily goal, streak, private, no account.",
   "homepage_url": "https://github.com/joaquinmuzzi/inputly",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "alarms", "idle", "activeTab"],

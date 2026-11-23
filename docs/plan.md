@@ -28,7 +28,8 @@ it on its own, even if the next one never happens.
 
 - **D1. The name: Inputly** (2026-11-23). "Deuchan" said German. The store name is "Inputly – Track your
   language input", and the GitHub repository is renamed to `Inputly` (GitHub redirects the old address).
-  Task 1.6 does the rename.
+  Task 1.6 does the rename. Task 3.4 changed the store name to "Inputly – Language Immersion Tracker for
+  YouTube & Netflix", for search.
 
 ## Phase 1: any language
 
@@ -111,8 +112,13 @@ users) and from what people write.
 - [ ] **3.2 Announce it** where people count their input: r/LearnJapanese, r/languagelearning,
       r/German, the Refold community. Draft the posts in a session; the maintainer posts them.
       **Drafted** in [announce.md](announce.md); stays open until the maintainer has posted them.
+      **Posted** on 2026-11-23 on the Refold forum (General) and in the Refold Discord; the r/dreamingspanish
+      moderators were sent a message asking for permission to post.
 - [ ] **3.3 Listen.** Turn feedback into issues; fix what blocks people first. Watch which features
       people ask for.
+- [x] **3.4 Store listing for search.** A name and a summary with the words people search for (immersion,
+      tracker, the sites), a description that leads with the sites and any language, a first screenshot of
+      the popup on a streaming episode, and the landing page's meta and hero to match. For 0.2.1.
 
 ## Later
 
@@ -347,3 +353,20 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   r/Korean skipped for now. The Discord rules were not read. Every Chrome link carries its own `utm_` campaign.
   The drafts are on purpose different from each other, and the maintainer rewrites each one before posting.
   Check that the Chrome listing shows 0.2.0 before posting.
+- 2026-11-23, task 3.2: the maintainer posted on the Refold forum (General) and in the Refold Discord, and sent
+  the r/dreamingspanish moderators a message asking for permission to post.
+- 2026-11-23, task 3.4: the name is "Inputly – Language Immersion Tracker for YouTube & Netflix" (58 of 75)
+  rather than "Inputly – Input Hours Tracker for YouTube, Netflix & Crunchyroll": "immersion tracker" is the
+  phrase learners and the competition use, and the shorter name stays whole in search results; Crunchyroll
+  is in the summary. The summary (and the manifest `description`) is "Counts your input hours in any language
+  on YouTube, Netflix and Crunchyroll. Daily goal, streak, private, no account." (117 of 132); it does not say
+  "automatically", since Netflix and Crunchyroll count only once turned on. Prime Video and Disney+ stay out of
+  the name, the summary and the description (named "two more streaming sites ... as experimental") while they
+  are experimental, which also keeps the description at three site names; each of them appears 4 times. The
+  description's privacy line says the history stays in the browser unless the Mosaik export is on. The
+  screenshots are now: the popup on a made-up streaming episode (`?status=streaming` in `capture.mjs`, a
+  second text in `popup-frame.html`), the day opened, the YouTube popup, the dark dashboard and the language
+  picker; the light dashboard is gone, from the landing page too (`site/img/streaming.jpg` took its place).
+  `capture.mjs` also writes PNG copies to `dist/subir-a-la-tienda/` for Edge. The new name and summary reach
+  the stores only with the next package (0.2.1); the description and images are pasted and uploaded by hand
+  with it, in both stores.

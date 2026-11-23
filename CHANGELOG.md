@@ -9,6 +9,12 @@ note on what to update.
 
 ## [Unreleased]
 
+### Changed
+
+- The store name is now "Inputly – Language Immersion Tracker for YouTube & Netflix" and the summary names
+  Netflix and Crunchyroll; the toolbar button still says "Inputly". New store screenshots lead with the
+  popup on a streaming episode.
+
 ## [0.2.0] - 2026-11-23
 
 Streaming sites: Netflix, Crunchyroll, Prime Video and Disney+ count in the language you learn.

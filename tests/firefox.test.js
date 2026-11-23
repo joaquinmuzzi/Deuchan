@@ -37,13 +37,10 @@ test("the Firefox manifest leaves out what only Chrome reads, and keeps everythi
   assert.equal(firefox.minimum_chrome_version, undefined);
   const without = (manifest, keys) =>
     Object.fromEntries(Object.entries(manifest).filter(([key]) => !keys.includes(key)));
-  const rest = without(firefox, ["background", "browser_specific_settings"]);
-  const chromeRest = without(chrome, ["background", "minimum_chrome_version"]);
-  assert.deepEqual(
-    rest,
-    chromeRest,
-    "permissions, content scripts, resources, name and version are the same",
-  );
+  // The name too may differ: it is shortened to what Firefox allows (see the test of the Firefox name)
+  const rest = without(firefox, ["background", "browser_specific_settings", "name"]);
+  const chromeRest = without(chrome, ["background", "minimum_chrome_version", "name"]);
+  assert.deepEqual(rest, chromeRest, "permissions, content scripts, resources and version are the same");
   assert.equal(firefox.background.scripts[0], chrome.background.service_worker);
 });
 
@@ -77,4 +74,13 @@ test("the Firefox package has the same files as the Chrome one, and only the man
 test("the Chrome package keeps the manifest byte for byte", () => {
   const manifest = packageEntries(EXTENSION, "chrome").find((entry) => entry.name === "manifest.json");
   assert.ok(manifest.data.equals(readFileSync(join(ROOT, "extension", "manifest.json"))));
+});
+
+test("the Firefox name fits the 45 characters Firefox allows, as the longer Chrome name does not", () => {
+  const chrome = chromeManifest();
+  const { name } = firefoxManifest(chrome);
+  assert.ok(name.length <= 45, `${name} has ${name.length} characters`);
+  assert.ok(name.startsWith("Inputly"));
+  // A short name is kept as it is
+  assert.equal(firefoxManifest({ ...chrome, name: "Inputly" }).name, "Inputly");
 });
