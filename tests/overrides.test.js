@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { MAX_OVERRIDES, isVideoId, verdict, withOverride } from "../extension/src/overrides.js";
+import { MAX_OVERRIDES, isVideoId, overridesKey, verdict, withOverride } from "../extension/src/overrides.js";
 
 test("the decision of the user wins over the guess, either way", () => {
   assert.equal(verdict({ abc12345: false }, "abc12345", true), false);
@@ -69,4 +69,13 @@ test("isVideoId accepts what YouTube uses and rejects the rest", () => {
   ]) {
     assert.equal(isVideoId(id), false, String(id));
   }
+});
+
+test("each target language keeps its decisions under its own key, and German keeps the old one", () => {
+  assert.equal(overridesKey("de"), "overrides");
+  assert.equal(overridesKey("de-AT"), "overrides");
+  // no target saved yet is German, as before there was a choice
+  assert.equal(overridesKey(undefined), "overrides");
+  assert.equal(overridesKey("ja"), "overrides:ja");
+  assert.equal(overridesKey("es-419"), "overrides:es");
 });

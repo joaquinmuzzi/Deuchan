@@ -16,9 +16,9 @@ import { addSeconds, dayKey, migrate, shownLog } from "./log.js";
 import { IDLE_SECONDS, MANUAL_ALARM, flushManual, manualItem, readManual, startManual } from "./manual.js";
 import { othersOn } from "./mosaik-days.js";
 import { createMosaikRunner, queueRemoval, queueWatched } from "./mosaik-runner.js";
-import { isVideoId, withOverride } from "./overrides.js";
+import { isVideoId, overridesKey, withOverride } from "./overrides.js";
 import { forgetTab, knowPage, pageTitle, splitByPage, trackPage } from "./pages.js";
-import { TARGET_HASH } from "./target.js";
+import { TARGET_HASH, TARGET_KEY } from "./target.js";
 import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
 
 let queue = Promise.resolve();
@@ -78,9 +78,11 @@ async function savePageTime(tabId, tab, intervals) {
   }
 }
 
+/** Remembers what the person said about a video, among the decisions of the target language they learn now. */
 async function saveOverride(videoId, german) {
-  const { overrides } = await chrome.storage.local.get("overrides");
-  await chrome.storage.local.set({ overrides: withOverride(overrides, videoId, german) });
+  const key = overridesKey((await chrome.storage.local.get(TARGET_KEY))[TARGET_KEY]);
+  const { [key]: overrides } = await chrome.storage.local.get(key);
+  await chrome.storage.local.set({ [key]: withOverride(overrides, videoId, german) });
 }
 
 /**

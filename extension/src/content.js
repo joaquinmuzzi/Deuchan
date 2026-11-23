@@ -1,15 +1,24 @@
-// Runs on YouTube pages. Listens to the player and tells the background script how many seconds of
-// German were watched. The logic is in watcher.js and language.js; this file only connects them to
-// the page. In the immersion profile (see immersion.js) every video is taken for German, unless the
-// person said it is not.
+// Runs on YouTube pages. Listens to the player and tells the background script how many seconds in the
+// target language (German unless the person chose another, see target.js) were watched. The logic is
+// in watcher.js and language.js; this file only connects them to the page. In the immersion profile
+// (see immersion.js) every video is taken for the target language, unless the person said it is not.
 (async () => {
-  const [{ Watcher }, { detectGerman }, { verdict }, { immersionOf }] = await Promise.all([
+  const [
+    { Watcher },
+    { detectTarget, needsTextLanguages, videoText },
+    { overridesKey, verdict },
+    { immersionOf },
+    { TARGET_KEY, targetOf },
+  ] = await Promise.all([
     import(chrome.runtime.getURL("src/watcher.js")),
     import(chrome.runtime.getURL("src/language.js")),
     import(chrome.runtime.getURL("src/overrides.js")),
     import(chrome.runtime.getURL("src/immersion.js")),
+    import(chrome.runtime.getURL("src/target.js")),
   ]);
-  let immersion = immersionOf((await chrome.storage.local.get("immersion")).immersion);
+  const saved = await chrome.storage.local.get(["immersion", TARGET_KEY]);
+  let immersion = immersionOf(saved.immersion);
+  let target = targetOf(saved[TARGET_KEY]);
 
   const FLUSH_EVERY_MS = 2_000;
   const LANGUAGE_RETRY_MS = 1_000;
@@ -48,6 +57,25 @@
     }
   }
 
+  // What Chrome's detector said about the last text it was asked about: the page is asked again every few
+  // seconds, and the title and description rarely change
+  let lastText = null;
+  let lastLanguages = null;
+
+  /** The languages Chrome detects in the text of a video, or null if it cannot tell. */
+  async function textLanguages(video) {
+    const text = videoText(video);
+    if (text !== lastText) {
+      try {
+        lastLanguages = await chrome.i18n.detectLanguage(text);
+      } catch {
+        lastLanguages = null;
+      }
+      lastText = text;
+    }
+    return lastLanguages;
+  }
+
   function setVerdict(german) {
     watcher.setGerman(now(), german);
     announce(german);
@@ -64,10 +92,17 @@
       decided = null;
     }
     currentVideo = { id: videoId, title: event.data.title };
-    // What the user decided about this video wins over the guess
-    const { overrides } = await chrome.storage.local.get("overrides");
-    if (videoId === currentVideoId) {
-      const german = verdict(overrides, videoId, immersion || detectGerman(event.data).german);
+    // What the user decided about this video, for this target language, wins over the guess
+    const asked = target;
+    const key = overridesKey(asked);
+    const { [key]: overrides } = await chrome.storage.local.get(key);
+    // The immersion profile takes every video for the target, so it needs no detector
+    const languages =
+      !immersion && needsTextLanguages(event.data, asked) ? await textLanguages(event.data) : null;
+    // The target may have changed while waiting: the answer of the next request will use the new one
+    if (videoId === currentVideoId && asked === target) {
+      const detected = detectTarget(event.data, { target: asked, textLanguages: languages }).inTarget;
+      const german = verdict(overrides, videoId, immersion || detected);
       if (german !== decided) {
         decided = german;
         setVerdict(german);
@@ -106,12 +141,20 @@
   });
   new MutationObserver(lookForVideo).observe(document.documentElement, { childList: true, subtree: true });
 
-  // A decision about a video made somewhere else (the dashboard) applies to the one that is playing now
+  // A decision about a video made somewhere else (the dashboard), or another target language, applies to
+  // the one that is playing now
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local" && changes.immersion) {
+    if (area !== "local") {
+      return;
+    }
+    if (changes.immersion) {
       immersion = immersionOf(changes.immersion.newValue);
     }
-    if (area === "local" && (changes.overrides || changes.immersion) && currentVideoId) {
+    if (changes[TARGET_KEY]) {
+      target = targetOf(changes[TARGET_KEY].newValue);
+    }
+    const relevant = changes[overridesKey(target)] || changes.immersion || changes[TARGET_KEY];
+    if (relevant && currentVideoId) {
       askForVideo();
     }
   });

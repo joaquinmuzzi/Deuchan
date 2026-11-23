@@ -1,5 +1,6 @@
 /**
- * Decides whether a YouTube video is in German.
+ * Decides whether a YouTube video is in the target language: the one the person learns (see
+ * `target.js`), German unless they chose another.
  *
  * YouTube does not say which language is spoken, so this combines three clues, from the most to the
  * least reliable:
@@ -10,11 +11,19 @@
  * 1. The automatic captions. YouTube makes them by recognising the speech, in the language it
  *    recognised, so a video with automatic German captions is German and one with automatic
  *    English captions is not. Uploaded captions say nothing: they are often translations.
- * 2. The words of the title and the description, when there are no automatic captions (a new
- *    video, music, or a channel that turned them off).
+ * 2. The text of the title and the description, when there are no automatic captions (a new
+ *    video, music, or a channel that turned them off). For German, a list of German function words;
+ *    for any other language, the language Chrome detects in the text (`chrome.i18n.detectLanguage`).
  *
- * Everything is a pure function of the data of the video, so the guesses can be tested.
+ * Everything is a pure function of the data of the video, so the guesses can be tested. Chrome's
+ * detector is a browser API and asynchronous, so the content script calls it, only when
+ * `needsTextLanguages` says the text will decide, and passes its answer in as `textLanguages`.
  */
+
+import { isTarget, targetOf } from "./target.js";
+
+/** The language whose text fallback is the word list below instead of Chrome's detector. */
+const WORD_LIST_LANGUAGE = "de";
 
 /** Words that are German and, as far as possible, nothing else: no "die", "war", "in" or "was", and none shared with French or Spanish such as "des", "es", "du" or "mal". */
 const GERMAN_WORDS = new Set(
@@ -24,6 +33,12 @@ const GERMAN_WORDS = new Set(
     "habe haben kann mehr sehr heute jetzt warum wieso diese dieser dieses"
   ).split(" "),
 );
+
+/*
+ * German keeps its word list rather than Chrome's detector: the list was tuned on real titles, which
+ * mix German with English words, names and tags, where a detector of the whole text tends to answer
+ * English; and the person who learns German has months of history counted with it.
+ */
 
 /** Fewer words than this are too little to tell. */
 const MIN_GERMAN_WORDS = 3;
@@ -52,10 +67,6 @@ export function audioLanguage(audioTrackId) {
   return /lang[^a-zA-Z]{1,3}([a-z]{2,3}(?:-[A-Za-z0-9]{2,4})?)/.exec(text)?.[1] ?? null;
 }
 
-export function isGermanCode(languageCode) {
-  return /^de($|[-_])/i.test(languageCode ?? "");
-}
-
 /**
  * The share of the words of a text that are German function words, and how many there are.
  * Letters with an umlaut or ß count as extra evidence, as few other languages that write like
@@ -71,29 +82,84 @@ export function germanScore(text) {
   return { hits: hits + marked, share: (hits + marked) / words.length };
 }
 
-/**
- * @param {{ audioTrackId?: string | null, captionTracks?: { languageCode: string, kind?: string }[], title?: string, description?: string }} video
- * @returns {{ german: boolean, reason: "audio" | "automatic-captions" | "text" | "none" }}
+/*
+ * Thresholds for Chrome's detector (CLD3), which answers `{ isReliable, languages: [{ language,
+ * percentage }] }`, the percentage being the share of the text in that language.
+ *
+ * - `isReliable` is required: on a few words (a short title and no description) the detector guesses,
+ *   and a wrong "yes" would count a whole video without the person noticing, while a wrong "no" shows
+ *   in the popup and is one click to correct there.
+ * - The target needs 40% of the text, not most of it: descriptions carry links, sponsor lines, credits
+ *   and tags in English, so a Japanese or Spanish video often has a fair share of English text. The
+ *   title is counted twice (see `videoText`), which already tilts the text toward the spoken language.
  */
-export function detectGerman({ audioTrackId = null, captionTracks = [], title = "", description = "" }) {
+export const MIN_TEXT_PERCENT = 40;
+
+/**
+ * The text of a video that the language is guessed from: the title twice, as it says more about the
+ * video than a description full of links, and the description without its links, which are not words
+ * of any language.
+ */
+export function videoText({ title = "", description = "" } = {}) {
+  return `${title} ${title} ${description}`.replace(/\bhttps?:\/\/\S+/gi, " ").trim();
+}
+
+/** Whether Chrome's answer about a text says it is in the target language. */
+export function textIsTarget(textLanguages, target) {
+  if (!textLanguages?.isReliable || !Array.isArray(textLanguages.languages)) {
+    return false;
+  }
+  return textLanguages.languages.some(
+    (entry) => isTarget(entry?.language, target) && entry.percentage >= MIN_TEXT_PERCENT,
+  );
+}
+
+/** The clue that decides before the text does, if any: the audio track, or a single automatic caption track. */
+function trackClue({ audioTrackId = null, captionTracks = [] }, target) {
   const spoken = audioLanguage(audioTrackId);
   if (spoken) {
-    return { german: isGermanCode(spoken), reason: "audio" };
+    return { inTarget: isTarget(spoken, target), reason: "audio" };
   }
-
   // One automatic track is the language that was recognised. Several are not: when a video is dubbed
-  // YouTube makes captions in every language of the dubbing, and one of them being German says nothing
-  const automatic = captionTracks.filter((track) => track.kind === "asr");
+  // YouTube makes captions in every language of the dubbing, and one of them being the target says nothing
+  const automatic = (captionTracks ?? []).filter((track) => track?.kind === "asr");
   if (automatic.length === 1) {
-    return {
-      german: automatic.some((track) => isGermanCode(track.languageCode)),
-      reason: "automatic-captions",
-    };
+    return { inTarget: isTarget(automatic[0].languageCode, target), reason: "automatic-captions" };
+  }
+  return null;
+}
+
+/**
+ * Whether the text of the video will decide, and Chrome's detector has to be asked about it: neither
+ * the audio nor the captions tell, and the target is not German, which has its word list.
+ */
+export function needsTextLanguages(video, target) {
+  return targetOf(target) !== WORD_LIST_LANGUAGE && trackClue(video ?? {}, targetOf(target)) === null;
+}
+
+/**
+ * @param {{ audioTrackId?: string | null, captionTracks?: { languageCode: string, kind?: string }[], title?: string, description?: string }} video
+ * @param {{ target?: string, textLanguages?: { isReliable: boolean, languages: { language: string, percentage: number }[] } | null }} [options]
+ *   `target` is the target language (German if missing); `textLanguages` is what
+ *   `chrome.i18n.detectLanguage` said about `videoText(video)`, needed only for a target other than German.
+ * @returns {{ inTarget: boolean, reason: "audio" | "automatic-captions" | "text" | "none" }}
+ */
+export function detectTarget(video, { target, textLanguages = null } = {}) {
+  const language = targetOf(target);
+  const clue = trackClue(video ?? {}, language);
+  if (clue) {
+    return clue;
   }
 
-  const { hits, share } = germanScore(`${title} ${title} ${description}`);
-  if (hits >= MIN_GERMAN_WORDS && share >= MIN_GERMAN_SHARE) {
-    return { german: true, reason: "text" };
+  if (language === WORD_LIST_LANGUAGE) {
+    // The raw text, links included, as German was always scored: its thresholds were tuned on it
+    const { title = "", description = "" } = video ?? {};
+    const { hits, share } = germanScore(`${title} ${title} ${description}`);
+    if (hits >= MIN_GERMAN_WORDS && share >= MIN_GERMAN_SHARE) {
+      return { inTarget: true, reason: "text" };
+    }
+  } else if (textIsTarget(textLanguages, language)) {
+    return { inTarget: true, reason: "text" };
   }
-  return { german: false, reason: "none" };
+  return { inTarget: false, reason: "none" };
 }

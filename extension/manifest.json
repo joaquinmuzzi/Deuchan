@@ -48,7 +48,8 @@
         "src/watcher.js",
         "src/language.js",
         "src/overrides.js",
-        "src/immersion.js"
+        "src/immersion.js",
+        "src/target.js"
       ],
       "matches": ["https://www.youtube.com/*"]
     },
