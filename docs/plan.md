@@ -110,6 +110,7 @@ users) and from what people write.
       (Pages is switched on). Its Chrome and Edge buttons work: both stores published 0.1.0.
 - [ ] **3.2 Announce it** where people count their input: r/LearnJapanese, r/languagelearning,
       r/German, the Refold community. Draft the posts in a session; the maintainer posts them.
+      **Drafted** in [announce.md](announce.md); stays open until the maintainer has posted them.
 - [ ] **3.3 Listen.** Turn feedback into issues; fix what blocks people first. Watch which features
       people ask for.
 
@@ -336,3 +337,13 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
 - 2026-11-23, after 2.7: the maintainer checked it by hand with his own accounts, in Chrome with the
   unpacked extension: Netflix and Crunchyroll counted in the target language with the title in the popup,
   and switching the audio to another language stopped the count. Released as 0.2.0.
+- 2026-11-23, task 3.2 (drafted, not posted): [announce.md](announce.md) has a checklist, the rules of each
+  place, moderator messages, one draft per place (r/LearnJapanese, r/dreamingspanish, the Refold forum and
+  Discord, r/languagelearning, r/German, r/Refold later), entries for two awesome-lists, ready replies and how
+  to measure it. The item stays unticked until the maintainer has posted; then tick it and note where and
+  when. Reddit refuses automated reading, so the rules come from Wayback Machine snapshots of each sidebar
+  (2025-07 to 2026-11, linked in the file): r/LearnJapanese only in its Wednesday self-promo thread;
+  r/dreamingspanish, r/languagelearning and r/German need the moderators' permission first; never r/French;
+  r/Korean skipped for now. The Discord rules were not read. Every Chrome link carries its own `utm_` campaign.
+  The drafts are on purpose different from each other, and the maintainer rewrites each one before posting.
+  Check that the Chrome listing shows 0.2.0 before posting.
