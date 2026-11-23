@@ -18,46 +18,14 @@ request that finishes it.
 
 ## Goal
 
-A small product that some people pay for: first any language, then published, then real users, and
-only then a paid tier. Each phase should be worth it on its own, even if the next one never happens.
-
-## Competition
-
-Checked in the Chrome Web Store on 2026-11-23. The niche is small and young: no tracker has many users.
-
-- **jp343 "Track Your Japanese Immersion"**, the strongest: about 120 users, updated often, free with no
-  paid tier (Ko-fi), open source. Tracks YouTube, Netflix, Crunchyroll, Prime Video, Disney+ and Spotify
-  on its own, any other site with one click; leaves out ads; recovers a session after a crash; heatmap
-  and streaks; a free optional account syncs to its site; also on Firefox. Made for Japanese, says it
-  works for any language, but does not detect the language: it counts what plays.
-- **Arthur · Immersion Tracker**: about 10 users. Counts all YouTube time of one YouTube account set apart
-  for the language.
-- Smaller or abandoned: Tracking Languages, Mikan (Firefox, Japanese), Lingo Immersion, LangMetrics, Ears
-  Time. On phones, manual loggers: Lingua Logger (freemium), Vervu, TrackMyLang, Input Logger.
-
-**What only Inputly does**, to lead the listing with: it decides the language of each video (the others
-count everything, or need an account or profile used only for the language); the day ends at 4:00; each
-day and each video can be corrected; the immersion profile counts any site and any sound; reading is
-counted by hand; Anki statistics through Mosaik.
+Real users for a tool that counts input in any language, published in the stores. Each phase should be worth
+it on its own, even if the next one never happens.
 
 ## Decisions taken
 
 - **D1. The name: Inputly** (2026-11-23). "Deuchan" said German. The store name is "Inputly – Track your
   language input", and the GitHub repository is renamed to `Inputly` (GitHub redirects the old address).
   Task 1.6 does the rename.
-
-## Open decisions
-
-The maintainer decides these; the coordinating session asks when a task needs them.
-
-- **D2. What is paid, and how it stays paid in open source code (MIT).** A check inside the extension
-  can be removed by anyone. A feature that needs a server (sync between devices and browsers, history
-  kept online) stays paid naturally, but costs hosting every month. The main competitor gives sync for
-  free, so sync alone is a weak reason to pay; the paid tier needs something nobody else has, and
-  statistics crossed with Anki (through Mosaik) are the best candidate. Needed before phase 4.
-- **D3. How money reaches the maintainer.** Stripe does not open accounts in Argentina, so ExtensionPay
-  (built on Stripe) is out. Candidates with license keys: Gumroad, Lemon Squeezy, Paddle. Task 4.1
-  checks which of them pay out to Argentina today.
 
 ## Phase 1: any language
 
@@ -104,13 +72,13 @@ data stays German.
 - [x] **2.5 Edge Add-ons.** Same package, free to publish. After 2.4. Version 0.1.0 was submitted for
       review on 2026-11-23.
 - [x] **2.6 Firefox.** Needs work: Firefox uses background scripts instead of a service worker, and
-      some APIs differ. Investigate the gap first. It matters more than first thought: the main competitor
+      some APIs differ. Investigate the gap first. It matters more than first thought: much of the audience
       is on Firefox. Done as a second build of the same code (`npm run package:firefox`), see
       [firefox.md](firefox.md); not on Firefox Add-ons yet: the maintainer tries it in Firefox and submits it.
 
-## Phase 2b: close the gap with the competition
+## Phase 2b: more ways to count
 
-What jp343 does and Inputly does not (see [Competition](#competition)). Worth doing before or soon after
+Worth doing before or soon after
 the first release; each is its own task.
 
 - [ ] **2.7 Streaming sites without the immersion profile.** Count Netflix, Prime Video, Crunchyroll and
@@ -137,18 +105,11 @@ users) and from what people write.
 - [ ] **3.2 Announce it** where people count their input: r/LearnJapanese, r/languagelearning,
       r/German, the Refold community. Draft the posts in a session; the maintainer posts them.
 - [ ] **3.3 Listen.** Turn feedback into issues; fix what blocks people first. Watch which features
-      people ask for: that is what can be paid (D2).
+      people ask for.
 
-## Phase 4: paid tier
+## Later
 
-Start only when the extension has about 100 weekly users, and after D2 and D3.
-
-- [ ] **4.1 Research payments from Argentina** (D3): payout methods, fees, license key APIs. A
-      research task: it ends in a short comparison added to this plan, not in code.
-- [ ] **4.2 Choose the paid features and the price.** A one-time payment of about 5 to 8 USD fits a
-      niche tool better than a subscription, unless the paid feature has a monthly hosting cost.
-- [ ] **4.3 Build it**, with the license check, and update the privacy policy if anything new leaves
-      the browser. Review the trader declaration of the store account first (see 2.1).
+What comes after phase 3 is planned in the private part of the plan (see [CLAUDE.md](../CLAUDE.md)).
 
 ## Notes
 
