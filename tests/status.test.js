@@ -100,3 +100,12 @@ test("marking a video as not German stops what is counted, and marking it back r
   watcher.pause(8);
   assert.deepEqual(sent.at(-1), [{ from: 6, to: 8 }]);
 });
+
+test("the title of what plays goes under the status, but not during an ad", () => {
+  const reply = { inTarget: true, playing: true, title: " One Piece E1 - ¡Soy Luffy! " };
+  assert.equal(describeStatus(reply, null, "Japanese").title, "One Piece E1 - ¡Soy Luffy!");
+  assert.equal(describeStatus(reply, null, "Japanese").text, "Counting Japanese");
+  assert.equal(describeStatus({ ...reply, ad: true }).title, undefined);
+  assert.equal(describeStatus({ ...reply, title: "" }).title, undefined);
+  assert.equal(describeStatus(undefined).title, undefined);
+});

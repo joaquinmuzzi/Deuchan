@@ -84,9 +84,12 @@ data stays German.
 Worth doing before or soon after
 the first release; each is its own task.
 
-- [ ] **2.7 Streaming sites without the immersion profile.** Count Netflix, Prime Video, Crunchyroll and
+- [x] **2.7 Streaming sites without the immersion profile.** Count Netflix, Prime Video, Crunchyroll and
       Disney+ in the target language, from the audio or subtitle track the player says is playing.
       Investigate each player first; the store review needs a reason for each new host permission.
+      Done in [streaming.md](streaming.md): all four ship, off by default, each asked for from the settings
+      as an optional host inside `<all_urls>`; Prime Video and Disney+ marked experimental. What is left is a
+      check by hand with real accounts (see the note of 2.7).
 - [x] **2.8 Leave out ads** on YouTube (and on the sites of 2.7): time an ad plays is not input.
 - [x] **2.9 Recover after a crash.** Time counted while the browser or the service worker dies is not
       lost.
@@ -311,3 +314,21 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   instead) and the sleep path of the sound, both covered by unit tests. Follow-up: after an extension update
   or reload, a tab opened before it keeps a content script that cannot reach the extension any more and
   counts nothing until the page is reloaded; re-injecting the scripts on update needs `scripting` for YouTube.
+- 2026-11-23, task 2.7: the streaming sites are registered at runtime (`scheduleStreaming` in `background.js`)
+  from a per-site switch in the settings, which asks for `scripting` and that site's origins only
+  (`sites.js`). Both are inside the optional `scripting` and `<all_urls>` the manifest already had, so the
+  manifest only gained a `web_accessible_resources` entry and 0.2.0 shows no new warning at install; static
+  content scripts would have warned every user and disabled the extension until accepted. A page script
+  (`streaming-bridge.js`, world `MAIN`) copies plain values from each player and `streaming.js` reads them;
+  the audio track decides, subtitles never do, and a site whose player cannot be read counts nothing (fails
+  closed). Stored: a new key `streamingSites` (`{ netflix: true }`) and web items `web:<hash>` of
+  `https://www.netflix.com/watch/<id>` and the like, so no stored shape changed and `STORAGE_VERSION` stays;
+  `override` messages and "take out of the day" now accept web item ids too. What was seen: Crunchyroll's
+  store (`content.media.byId[watch.id].audioLocale`) on the real site, logged out (every episode was premium
+  only, so nothing played; no free tier with ads seen); counting was then checked in Chrome 157 with that
+  store shape served at a Crunchyroll address, in the page and in a `static.crunchyroll.com` frame, because
+  the real site shows a bot check to a browser driven through CDP. Netflix comes from published probe output
+  (LingoFlix); Prime Video and Disney+ from one open-source tool each, hence "experimental". Not checked: any
+  real playback, ads on any of the four, Firefox. Follow-ups: the maintainer's check by hand
+  ([streaming.md](streaming.md#checking-by-hand)); a Crunchyroll ad rule if a free tier with ads shows up; more
+  Amazon stores for Prime Video if someone asks.

@@ -35,7 +35,7 @@ It stores on your computer (in `chrome.storage.local`):
   Mosaik" on, it goes to your Mosaik: [see below](#what-happens-when-you-turn-on-send-to-mosaik));
 - the **corrections** you make to a day (a number of seconds, and when you made it);
 - your **daily goal** and your settings (the language you learn, light or dark, the range of the chart, the
-  immersion profile);
+  immersion profile, the streaming sites you turned on);
 - the **ids of the videos you marked** as in the language you learn or not, for each language, so the
   decision is remembered;
 - only if you turn on "Send to Mosaik": its settings (with the device token, if your Mosaik is on a
@@ -68,6 +68,24 @@ its language. When you turn it on in the dashboard settings, your browser asks y
   the day above. Pages where nothing played are not recorded.
 
 Turning it off stops the script. The permissions stay granted until you remove them in `chrome://extensions`.
+
+## Streaming sites
+
+Counting Netflix, Crunchyroll, Prime Video and Disney+ is **optional and off by default**, for each site apart.
+When you turn a site on in the dashboard settings ("Count streaming sites"), your browser asks you for
+`scripting` and access to that site's pages only (for Crunchyroll also `static.crunchyroll.com`, where its
+player is; for Prime Video also the Amazon stores where it plays: amazon.com, .co.uk, .de and .co.jp). Then,
+in the pages of that site, Inputly reads **in your browser**:
+
+- whether the video is playing, and whether the player shows an ad (ads are not counted);
+- from the player, the id and the title of the episode or film, the language of the audio track it plays and
+  of the subtitles shown, only to decide whether it is in the language you learn.
+
+It keeps the address, the title and the seconds of each episode or film in your language in the list of the
+day above, and your decisions about which ones are in your language. It does not read your account, your
+profile, your watch history, your lists or your recommendations, and makes no request to those sites or to
+anyone else. Turning a site off stops its scripts; the access stays granted until you remove it in
+`chrome://extensions`.
 
 ## Reading counted by hand
 
@@ -118,6 +136,7 @@ dashboard (the squares button). Then:
 ## Your choices
 
 - **Turn off the immersion profile** in the dashboard settings: no more pages are looked at.
+- **Turn off a streaming site** in the dashboard settings: its pages are no longer looked at.
 - **Turn off "Send to Mosaik"** in the dashboard: nothing more is sent, and what was waiting is deleted.
 - **Uninstall** the extension to delete everything it kept on that computer.
 
