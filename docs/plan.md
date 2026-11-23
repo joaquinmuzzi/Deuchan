@@ -337,12 +337,13 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
 - 2026-11-23, after 2.7: the maintainer checked it by hand with his own accounts, in Chrome with the
   unpacked extension: Netflix and Crunchyroll counted in the target language with the title in the popup,
   and switching the audio to another language stopped the count. Released as 0.2.0.
-- 2026-11-23, task 3.2 (drafted, not posted): [announce.md](announce.md) has a checklist, a summary of each
-  place's rules, one draft per place and replies to have ready. The item stays unticked until the maintainer
-  has posted; then tick it and note where and when. Reddit could not be read from the session (the fetch tool
-  refuses reddit.com, and opening it in the browser was blocked), so the rules come from search results and
-  third-party mirrors and must be checked on the live sidebars: r/LearnJapanese takes self-promotion only in
-  its Wednesday "Material Recs and Self-Promo" thread; r/languagelearning allows limited self-promotion when
-  the author says so; r/German seemed to prohibit all promotion, so the draft asks its moderators first. Refold
-  gathers at refold.la/join (Discord servers and a Discourse forum); the forum has no rule on promotion, the
-  Discord rules were not read. Check that the Chrome listing shows 0.2.0 before posting.
+- 2026-11-23, task 3.2 (drafted, not posted): [announce.md](announce.md) has a checklist, the rules of each
+  place, moderator messages, one draft per place (r/LearnJapanese, r/dreamingspanish, the Refold forum and
+  Discord, r/languagelearning, r/German, r/Refold later), entries for two awesome-lists, ready replies and how
+  to measure it. The item stays unticked until the maintainer has posted; then tick it and note where and
+  when. Reddit refuses automated reading, so the rules come from Wayback Machine snapshots of each sidebar
+  (2025-07 to 2026-11, linked in the file): r/LearnJapanese only in its Wednesday self-promo thread;
+  r/dreamingspanish, r/languagelearning and r/German need the moderators' permission first; never r/French;
+  r/Korean skipped for now. The Discord rules were not read. Every Chrome link carries its own `utm_` campaign.
+  The drafts are on purpose different from each other, and the maintainer rewrites each one before posting.
+  Check that the Chrome listing shows 0.2.0 before posting.
