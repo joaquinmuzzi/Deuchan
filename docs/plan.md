@@ -18,15 +18,40 @@ request that finishes it.
 A small product that some people pay for: first any language, then published, then real users, and
 only then a paid tier. Each phase should be worth it on its own, even if the next one never happens.
 
+## Competition
+
+Checked in the Chrome Web Store on 2026-11-23. The niche is small and young: no tracker has many users.
+
+- **jp343 "Track Your Japanese Immersion"**, the strongest: about 120 users, updated often, free with no
+  paid tier (Ko-fi), open source. Tracks YouTube, Netflix, Crunchyroll, Prime Video, Disney+ and Spotify
+  on its own, any other site with one click; leaves out ads; recovers a session after a crash; heatmap
+  and streaks; a free optional account syncs to its site; also on Firefox. Made for Japanese, says it
+  works for any language, but does not detect the language: it counts what plays.
+- **Arthur · Immersion Tracker**: about 10 users. Counts all YouTube time of one YouTube account set apart
+  for the language.
+- Smaller or abandoned: Tracking Languages, Mikan (Firefox, Japanese), Lingo Immersion, LangMetrics, Ears
+  Time. On phones, manual loggers: Lingua Logger (freemium), Vervu, TrackMyLang, Input Logger.
+
+**What only Deuchan does**, to lead the listing with: it decides the language of each video (the others
+count everything, or need an account or profile used only for the language); the day ends at 4:00; each
+day and each video can be corrected; the immersion profile counts any site and any sound; reading is
+counted by hand; Anki statistics through Mosaik.
+
+## Decisions taken
+
+- **D1. The name: Inputly** (2026-11-23). "Deuchan" said German. The store name is "Inputly – Track your
+  language input", and the GitHub repository is renamed to `Inputly` (GitHub redirects the old address).
+  Task 1.6 does the rename.
+
 ## Open decisions
 
 The maintainer decides these; the coordinating session asks when a task needs them.
 
-- **D1. The name.** "Deuchan" says German. Keep it (a brand that started with German), or rename before
-  publishing (renaming after people install it is harder). Needed before task 2.3.
 - **D2. What is paid, and how it stays paid in open source code (MIT).** A check inside the extension
   can be removed by anyone. A feature that needs a server (sync between devices and browsers, history
-  kept online) stays paid naturally, but costs hosting every month. Needed before phase 4.
+  kept online) stays paid naturally, but costs hosting every month. The main competitor gives sync for
+  free, so sync alone is a weak reason to pay; the paid tier needs something nobody else has, and
+  statistics crossed with Anki (through Mosaik) are the best candidate. Needed before phase 4.
 - **D3. How money reaches the maintainer.** Stripe does not open accounts in Argentina, so ExtensionPay
   (built on Stripe) is out. Candidates with license keys: Gumroad, Lemon Squeezy, Paddle. Task 4.1
   checks which of them pay out to Argentina today.
@@ -52,11 +77,19 @@ data stays German.
       Mosaik cannot take other languages yet (check its ingest contract). Depends on 1.1.
 - [x] **1.5 Docs.** README, CONTRIBUTING (the wrong detection issue template too) and the store listing
       speak of any language. Depends on 1.2 and 1.3.
+- [ ] **1.6 Rename to Inputly** (D1). Everything a person sees: the manifest `name` and `default_title`,
+      the popup and dashboard headings, page titles, README, CONTRIBUTING, PRIVACY, SECURITY, the store
+      listing (name "Inputly – Track your language input"), the package name and the zip
+      (`dist/inputly-<version>.zip`), and links to the repository (`joaquinmuzzi/Inputly`). Not what is
+      stored or sent: storage keys stay, and the source name Mosaik knows Deuchan by stays, so history and
+      Mosaik keep working. The maintainer's coordinating session renames the GitHub repository after the
+      pull request is merged.
 
 ## Phase 2: publish
 
-- [ ] **2.1 Chrome Web Store developer account.** The maintainer creates it and pays the one-time fee
-      (5 USD). Not a task for a session.
+- [x] **2.1 Chrome Web Store developer account.** Created and paid (2026-11-23). Declared as a
+      non-trader under the EEA consumer rules: the extension is free and not a business. Revisit before
+      charging (phase 4), since a trader account shows a name, address, phone and email to EEA users.
 - [ ] **2.2 New screenshots** with demo data in a language other than German, plus the German ones.
       Depends on phase 1.
 - [ ] **2.3 Listing and privacy review.** Update [store-listing.md](store-listing.md) and
@@ -66,7 +99,20 @@ data stays German.
       from `npm run package`, which the maintainer uploads and submits for review.
 - [ ] **2.5 Edge Add-ons.** Same package, free to publish. After 2.4.
 - [ ] **2.6 Firefox.** Needs work: Firefox uses background scripts instead of a service worker, and
-      some APIs differ. Investigate the gap first; only do it if users ask.
+      some APIs differ. Investigate the gap first. It matters more than first thought: the main competitor
+      is on Firefox.
+
+## Phase 2b: close the gap with the competition
+
+What jp343 does and Deuchan does not (see [Competition](#competition)). Worth doing before or soon after
+the first release; each is its own task.
+
+- [ ] **2.7 Streaming sites without the immersion profile.** Count Netflix, Prime Video, Crunchyroll and
+      Disney+ in the target language, from the audio or subtitle track the player says is playing.
+      Investigate each player first; the store review needs a reason for each new host permission.
+- [ ] **2.8 Leave out ads** on YouTube (and on the sites of 2.7): time an ad plays is not input.
+- [ ] **2.9 Recover after a crash.** Time counted while the browser or the service worker dies is not
+      lost.
 
 ## Phase 3: users
 
@@ -88,7 +134,7 @@ Start only when the extension has about 100 weekly users, and after D2 and D3.
 - [ ] **4.2 Choose the paid features and the price.** A one-time payment of about 5 to 8 USD fits a
       niche tool better than a subscription, unless the paid feature has a monthly hosting cost.
 - [ ] **4.3 Build it**, with the license check, and update the privacy policy if anything new leaves
-      the browser.
+      the browser. Review the trader declaration of the store account first (see 2.1).
 
 ## Notes
 
