@@ -131,7 +131,9 @@ the first release; each is its own task.
 There are no analytics by design, so the numbers come from the store dashboards (installs, weekly
 users) and from what people write.
 
-- [ ] **3.1 A simple landing page** (GitHub Pages) with what it does, the screenshots and the store link.
+- [x] **3.1 A simple landing page** (GitHub Pages) with what it does, the screenshots and the store link.
+      Done in `site/`, published by `.github/workflows/pages.yml` at <https://joaquinmuzzi.github.io/Inputly/>
+      once Pages is switched on (see the note of task 3.1). The store buttons work only once each review passes.
 - [ ] **3.2 Announce it** where people count their input: r/LearnJapanese, r/languagelearning,
       r/German, the Refold community. Draft the posts in a session; the maintainer posts them.
 - [ ] **3.3 Listen.** Turn feedback into issues; fix what blocks people first. Watch which features
@@ -298,3 +300,13 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   too); (2) the settings say "For a Chrome profile" in Firefox; (3) a 2-second sound clip in a loop counted
   only 8 of about 80 seconds, to check again with a real podcast. Not tried: "Mark as …", the day details,
   Mosaik.
+- 2026-11-23, task 3.1: the landing page is `site/index.html` and `site/style.css`, plain HTML and CSS with no
+  script, no web font and no request to another host (`tests/site.test.js` checks it, with the local links,
+  alt text, headings, size and contrast). The images in `site/img/` are the store screenshots scaled to
+  960 × 600 (`ffmpeg -vf scale=960:600 -q:v 5`), the promo tile and two icons: copy them again when
+  `docs/store/` changes. The orange of the extension is too light for small text on cream, so the page uses
+  a deeper orange (`#b8460a`) for links and buttons in light mode. **By hand (the maintainer):** Settings →
+  Pages → Source "GitHub Actions"; until then the Pages workflow fails on `main`. Then run it once (Actions →
+  Pages → Run workflow) or push a change to `site/`. The "Add to Chrome" and "Add to Edge" buttons lead to
+  pages that exist only once each review passes; Firefox points to the README's install from source, to
+  change to the AMO link once the add-on is listed. `homepage_url` in the manifest stays the repository.
