@@ -289,7 +289,8 @@ dialog h2 {
   font-size: 12px;
 }
 
-.dialog-body input {
+.dialog-body input,
+.dialog-body select {
   border-radius: var(--radius);
   width: 100%;
   height: 38px;
@@ -299,6 +300,11 @@ dialog h2 {
   color: var(--text);
   font: inherit;
   font-size: 16px;
+}
+
+/* The goal is right under the language, with the room the error line gives the other fields */
+.dialog-body select {
+  margin-bottom: 14px;
 }
 
 .error {

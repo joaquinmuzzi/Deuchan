@@ -18,6 +18,7 @@ import { othersOn } from "./mosaik-days.js";
 import { createMosaikRunner, queueRemoval, queueWatched } from "./mosaik-runner.js";
 import { isVideoId, withOverride } from "./overrides.js";
 import { forgetTab, knowPage, pageTitle, splitByPage, trackPage } from "./pages.js";
+import { TARGET_HASH } from "./target.js";
 import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
 
 let queue = Promise.resolve();
@@ -328,8 +329,15 @@ async function leaveLegacySync() {
   await mosaik.backfill().catch(() => {});
 }
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(({ reason }) => {
   leaveLegacySync().catch(() => {});
+  // Only a new install asks for the language: an update keeps counting what it counted (German, if it
+  // was never set), so whoever has the extension already notices nothing
+  if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    chrome.tabs
+      .create({ url: chrome.runtime.getURL(`dashboard/dashboard.html${TARGET_HASH}`) })
+      .catch(() => {});
+  }
 });
 
 // The alarms that start the sending to Mosaik are kept by the browser, but this makes sure they are

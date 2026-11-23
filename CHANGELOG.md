@@ -24,6 +24,10 @@ note on what to update.
 
 ### Added
 
+- The language you learn, in the settings of the dashboard (the gear button), from a list of the languages
+  most learned. A new install opens the dashboard there to ask for it. It is German until you change it, so
+  an update changes nothing, and for now only German is counted whatever it says: detection and labels
+  follow it in the next changes.
 - The immersion profile: in a Chrome profile used only for German, every video that plays with sound
   counts, on any site, with no guessing of the language. It is in the settings of the dashboard, off by
   default, and asks for the optional `scripting` permission and access to the sites.

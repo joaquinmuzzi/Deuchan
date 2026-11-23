@@ -5,6 +5,7 @@ import { itemUrl } from "../src/items.js";
 import { formatClock, migrate, shownLog } from "../src/log.js";
 import { dayItems, hasOthers, withOtherDevices } from "../src/mosaik-days.js";
 import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js";
+import { TARGET_HASH, TARGET_KEY, targetOf, targetOptions } from "../src/target.js";
 import { setUpTheme } from "../src/theme.js";
 import { dayVideos } from "../src/videos.js";
 import { setUpMosaikPanel } from "./mosaik-panel.js";
@@ -19,6 +20,7 @@ let log;
 let mosaikDays;
 let mosaikOn = false;
 let goalMinutes;
+let target;
 let videos;
 // The day that is open in the detail dialog, if any
 let openDay = null;
@@ -250,13 +252,27 @@ dayDialog.addEventListener("close", () => {
 const dialog = byId("goalDialog");
 const input = byId("goalInput");
 const error = byId("goalError");
+const targetSelect = byId("targetSelect");
 
-byId("settings").addEventListener("click", () => {
+/** The picker, on the saved language (kept in the list even if it is not one of the offered ones). */
+function renderTargets() {
+  targetSelect.replaceChildren(...targetOptions(target).map(({ code, name }) => new Option(name, code)));
+  targetSelect.value = target;
+}
+
+function openSettings(focus) {
+  renderTargets();
   input.value = String(goalMinutes);
   error.textContent = "";
   dialog.showModal();
-  input.select();
-});
+  if (focus === targetSelect) {
+    targetSelect.focus();
+  } else {
+    input.select();
+  }
+}
+
+byId("settings").addEventListener("click", () => openSettings(input));
 byId("goalCancel").addEventListener("click", () => dialog.close());
 input.addEventListener("input", () => {
   error.textContent = "";
@@ -269,7 +285,7 @@ byId("goalForm").addEventListener("submit", (event) => {
     error.textContent = "Enter a whole number of minutes, from 1 to 600";
     return;
   }
-  chrome.storage.local.set({ goalMinutes: minutes });
+  chrome.storage.local.set({ goalMinutes: minutes, [TARGET_KEY]: targetOf(targetSelect.value) });
 });
 
 // The immersion profile: every video of this Chrome profile counts, on any site
@@ -312,6 +328,7 @@ const stored = await chrome.storage.local.get([
   "range",
   "videos",
   "immersion",
+  TARGET_KEY,
 ]);
 log = stored.log;
 mosaikDays = stored.mosaikDays;
@@ -319,9 +336,15 @@ mosaikOn = stored.mosaikSettings?.enabled === true;
 videos = stored.videos;
 immersionBox.checked = immersionOf(stored.immersion);
 goalMinutes = goalMinutesOf(stored.goalMinutes);
+target = targetOf(stored[TARGET_KEY]);
 range = RANGES.some(({ days }) => days === stored.range) ? stored.range : DEFAULT_RANGE;
 renderRanges();
 render();
+// A new install opens the dashboard here, to ask for the language (see background.js)
+if (location.hash === TARGET_HASH) {
+  history.replaceState(null, "", location.pathname);
+  openSettings(targetSelect);
+}
 // The time of the other computers as Mosaik has it now
 chrome.runtime.sendMessage({ type: "mosaik:refresh-days", force: true }).catch(() => {});
 
@@ -344,6 +367,9 @@ chrome.storage.onChanged.addListener((changes) => {
   }
   if (changes.goalMinutes) {
     goalMinutes = goalMinutesOf(changes.goalMinutes.newValue);
+  }
+  if (changes[TARGET_KEY]) {
+    target = targetOf(changes[TARGET_KEY].newValue);
   }
   render();
 });
