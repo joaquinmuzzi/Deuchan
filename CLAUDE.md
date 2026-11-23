@@ -20,11 +20,14 @@ and real users. The phases are in [docs/plan.md](docs/plan.md).
   in English: code, comments, commits, pull requests and documentation (see
   [CONTRIBUTING.md](CONTRIBUTING.md)).
 - The repository is public. Keep personal details, money goals, server addresses and tokens out of it.
-- **The plan has a private part:** `docs/private/plan.md`, only on the maintainer's computer (`docs/private/` is
-  in `.gitignore`). It holds what is not meant to be public. Read it together with
-  `docs/plan.md` when it exists (a cloud session or a fresh clone has no copy: say so if a task needs it).
-  Update it there when a decision changes, and never copy its content into anything committed or published:
-  files, commits, pull requests, issues, store texts.
+- **The plan has a private part:** `docs/private/plan.md`, a clone of the private repository
+  `joaquinmuzzi/inputly-private` (`docs/private/` is in `.gitignore`). It holds what is not meant to be public.
+  Read it together with `docs/plan.md` before planning or starting a task. If `docs/private/` is missing (a
+  cloud session or a fresh clone), clone it first: `gh repo clone joaquinmuzzi/inputly-private docs/private`
+  (or `git clone https://github.com/joaquinmuzzi/inputly-private.git docs/private`); if that fails for lack of
+  access, say so to the maintainer instead of guessing what it says. Update it there when a decision changes,
+  and commit and push in that repository, not in this one. Never copy its content into anything committed or
+  published here: files, commits, pull requests, issues, store texts.
 
 ## Commands
 
