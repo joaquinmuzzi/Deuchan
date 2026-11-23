@@ -2,9 +2,10 @@
 
 _Last updated: 23 November 2026._
 
-**In short:** Inputly keeps what it counts on your own computer, and sends nothing to the internet. If you turn
-on "Send to Mosaik", it sends what you watched and read to Mosaik, an app of yours (on your own computer, or on
-a server you run), and to nowhere else. There are no accounts, no ads, no analytics and no trackers, and nothing
+**In short:** Inputly keeps what it counts, and the language you learn, on your own computer, and sends nothing
+to the internet. If you turn on "Send to Mosaik", it sends what you watched and read (the times, and the id,
+title and address of each video or reading) to Mosaik, an app of yours (on your own computer, or on a server
+you run), and to nowhere else. There are no accounts, no ads, no analytics and no trackers, and nothing
 is sold or shared.
 
 ## Who is behind Inputly
@@ -43,6 +44,13 @@ It stores on your computer (in `chrome.storage.local`):
 All of this stays in your browser. It is deleted when you uninstall the extension, and you can look at it
 in the dashboard. Inputly does not read your YouTube account, your history, your searches or your
 recommendations.
+
+## The language you learn
+
+When Inputly is installed, it asks which language you learn (the target language setting), and you can change
+it any time in the dashboard settings. It is kept on your computer as a language code (such as `ja`), with
+your other settings, and decides which videos count. It is not sent anywhere, except that every item sent to
+your Mosaik, if you turn that on, says the language it was counted in (see below).
 
 ## The immersion profile
 
