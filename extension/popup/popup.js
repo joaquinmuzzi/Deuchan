@@ -28,9 +28,13 @@ function render() {
   byId("streak").textContent = summary.streak;
   byId("dailyAverage").textContent = summary.dailyAverage;
   byId("week").textContent = summary.week;
-  const scope = byId("scope");
-  scope.hidden = !mosaikOn;
-  scope.textContent = hasOthers(mosaikDays) ? "All your computers, with Mosaik" : "This computer only";
+  // Whether the totals include other computers is said on hover: a line under the cards took room from
+  // what matters and, for most people, who do not use Mosaik, said nothing
+  byId("stats").title = !mosaikOn
+    ? ""
+    : hasOthers(mosaikDays)
+      ? "All your computers, with Mosaik"
+      : "This computer only";
   renderManual();
 }
 
