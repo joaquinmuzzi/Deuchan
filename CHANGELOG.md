@@ -21,6 +21,9 @@ note on what to update.
   its German totals, so time in another language would end up counted as German. While the target is another
   language, nothing new is sent and the time of your other computers is not asked for; what was counted in
   German before still goes, and the Mosaik panel says it is paused. In German nothing changes.
+- **The README, the store listing and the privacy policy speak of any language,** not only German. The
+  privacy policy now lists the language you learn among the settings kept in your browser, and says that
+  Chrome's built-in language detector may read titles and descriptions, on your computer.
 
 - **A day ends at 4:00, not at midnight,** as in Anki and Mosaik: what is watched at 01:00 counts for the
   evening before, in the totals, the goal, the streak and the charts. The days that were already counted stay

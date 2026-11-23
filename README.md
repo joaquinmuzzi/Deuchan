@@ -1,28 +1,33 @@
 # Deuchan
 
-**Counts the time you spend watching German, on its own and on your computer.**
+**Counts the time you spend watching the language you learn, on its own and on your computer.**
 
 [![Tests](https://github.com/joaquinmuzzi/deuchan/actions/workflows/tests.yml/badge.svg)](https://github.com/joaquinmuzzi/deuchan/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Deuchan is a browser extension for people who learn German by immersion. It adds up the time you
-watch German videos on YouTube, without timers to start or stop, and shows it against a daily goal
-that you set, with a dashboard of your days, weeks and months, so you can see how much input you
-really get.
+Deuchan is a browser extension for people who learn a language by immersion: Japanese, Spanish,
+Korean, German or any other. It adds up the time you watch YouTube videos in that language, without
+timers to start or stop, and shows it against a daily goal that you set, with a dashboard of your
+days, weeks and months, so you can see how much input you really get.
 
 ## Why Deuchan?
 
 - **Automatic, in real time.** It counts the seconds of the clock while a video plays: pausing,
   rewinding and looping are handled, and at 2x a minute is still a minute. Two tabs playing at the
   same time count once.
-- **Only German.** It works out the language of each video and ignores the rest. When it gets
-  one wrong, a button in the popup marks that video as German, or as not German, and it is
-  remembered.
+- **The language you learn.** You pick it when you install Deuchan, and can change it any time in the
+  settings of the dashboard. The popup and the dashboard then speak of that language ("Counting
+  Japanese", "Not Japanese").
+- **Only that language.** It works out the language of each video and ignores the rest: from the audio
+  track that plays, then the automatic captions YouTube makes from the speech, and, when there are
+  none, the title and description (Chrome's built-in language detector, on your computer; German uses
+  a word list of its own). When it gets one wrong, a button in the popup marks that video as in your
+  language, or as not, and it is remembered, for each language apart.
 - **A day that ends at 4:00.** As in Anki: what you watch after midnight counts for the evening before.
 - **A day you can explain and correct.** Click a day in the dashboard to see which videos made it up
-  (for the last 60 days), take out the ones that were not German, or say how many minutes you really
+  (for the last 60 days), take out the ones that were not in your language, or say how many minutes you really
   watched.
-- **An immersion profile.** In a Chrome profile you use only for German, turn it on in the settings of the
+- **An immersion profile.** In a Chrome profile you use only for the language you learn, turn it on in the settings of the
   dashboard and every video that plays with sound counts, on any site, with no guessing. So does any tab
   that plays sound for 30 seconds or more, like a podcast; a word a dictionary says does not.
 - **Reading by hand.** "Count reading" in the popup counts reading with no video, like a comic, until you
@@ -34,7 +39,9 @@ really get.
   time per day and what you watched and read. It talks only to the address you set: your computer
   (`127.0.0.1` or `localhost`) or your Mosaik server over https, with the device token you make in it.
   Every computer and Chrome profile sends its own time with its own token, and the dashboard and the popup
-  show the total of all of them. It is off unless you turn it on.
+  show the total of all of them. It is off unless you turn it on. Mosaik only keeps German apart for
+  now, so while the language you learn is another one, sending pauses: nothing new is sent, and the
+  Mosaik panel says it is paused.
 
 ## Status
 

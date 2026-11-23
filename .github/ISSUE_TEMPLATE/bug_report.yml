@@ -14,7 +14,7 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
-        1. Open a German video on YouTube
+        1. Open a video in the language you learn on YouTube
         2. Watch it for two minutes
         3. Open the Deuchan popup
     validations:
