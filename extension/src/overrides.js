@@ -1,9 +1,23 @@
 /**
  * What the user decided about a video, when the guess about its language is wrong: `true` for "this
- * is German" and `false` for "this is not". Kept as `overrides`, an object from the id of the video
+ * is in the target language" and `false` for "this is not". Kept as an object from the id of the video
  * to the decision. The decision of the user wins over the guess, and is remembered for the next time
  * the video is opened.
+ *
+ * Each target language has its own set of decisions, under its own key (see `overridesKey`): "this is
+ * not Japanese" says nothing about German. German keeps the key it always had, `overrides`, so the
+ * decisions made before there was a choice of language keep working, and the stored shape is the same
+ * for every language.
  */
+
+import { targetOf } from "./target.js";
+
+/** The storage key of the decisions about one target language: `overrides` for German, `overrides:ja` for Japanese. */
+export function overridesKey(target) {
+  const language = targetOf(target);
+  // German by name, not as the default target: its key stays the one the old decisions are under
+  return language === "de" ? "overrides" : `overrides:${language}`;
+}
 
 /** The number of decisions kept: the oldest are forgotten, so the storage does not grow forever. */
 export const MAX_OVERRIDES = 500;

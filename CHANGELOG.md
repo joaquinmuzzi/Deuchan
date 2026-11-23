@@ -11,6 +11,11 @@ note on what to update.
 
 ### Changed
 
+- **YouTube videos are detected in the language you learn,** not only German: the audio track and the
+  automatic captions are compared with it, and for languages other than German the title and description go
+  to Chrome's built-in language detector, on your computer. German keeps its word list, and "this video is /
+  is not German" decisions keep working; decisions about a video are kept for each language separately.
+
 - **A day ends at 4:00, not at midnight,** as in Anki and Mosaik: what is watched at 01:00 counts for the
   evening before, in the totals, the goal, the streak and the charts. The days that were already counted stay
   as they are. Update every computer, so that they all agree on the day.

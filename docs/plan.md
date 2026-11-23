@@ -39,7 +39,7 @@ data stays German.
 - [x] **1.1 Target language setting.** A stored setting (default `de`, so the current user notices
       nothing), chosen in the dashboard settings and asked on first run. Migrate stored data if its shape
       changes (`STORAGE_VERSION`).
-- [ ] **1.2 Detection for any language.** Generalize `language.js`: the audio track and the automatic
+- [x] **1.2 Detection for any language.** Generalize `language.js`: the audio track and the automatic
       captions already carry a language code, so they only need the target instead of `de`. The text
       fallback (title and description) uses German function words; for other languages, try
       `chrome.i18n.detectLanguage` (built into Chrome) passed in as a function so the module stays pure
@@ -106,3 +106,16 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   `dashboard/dashboard.html#language` (`TARGET_HASH`). For 1.2: `content.js` imports modules through
   `getURL`, so `src/target.js` has to be added to `web_accessible_resources` in the manifest when it is used
   there (`tests/manifest.test.js` checks it).
+- 2026-11-23, task 1.2: `language.js` exports `detectTarget(video, { target, textLanguages })`, which returns
+  `{ inTarget, reason }` (it was `detectGerman` → `{ german, reason }`; `isGermanCode` is gone, tracks are
+  compared with `isTarget`). German keeps its function-word list for the text; any other target uses
+  `chrome.i18n.detectLanguage`, called in `content.js` only when `needsTextLanguages(video, target)` says the
+  text decides, on `videoText(video)`, and accepted when reliable with at least `MIN_TEXT_PERCENT` (40). Per-video
+  overrides are kept per target under `overridesKey(target)`: `overrides` for German (unchanged, so the old
+  decisions keep working), `overrides:<code>` for any other; same shape, so `STORAGE_VERSION` stays 1.
+  `background.js` saves an override under the key of the target saved at that moment. For 1.3, still
+  German-specific: the `setGerman` message and its `german` field (popup.js → content.js), the `override`
+  and `language` messages' `german` field (content.js → background.js), `watcher.setGerman` and the `german`
+  in its status (watcher.js, status shown by popup.js), `notGerman` in background.js `stepAudio`, the
+  `german` state of generic.js, `germanScore`/`GERMAN_WORDS` in language.js (meant to stay: they are the
+  German word list), and every label in popup.js and the dashboard.
