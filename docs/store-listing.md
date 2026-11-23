@@ -2,7 +2,8 @@
 
 Everything to paste into the [developer dashboard](https://chrome.google.com/webstore/devconsole), and the
 files to upload. The package is made with `npm run package` (`dist/inputly-<version>.zip`, only what is in
-`extension/`). The privacy policy is [PRIVACY.md](../PRIVACY.md).
+`extension/`). The privacy policy is [PRIVACY.md](../PRIVACY.md). What Firefox Add-ons asks is at the end,
+in [Firefox Add-ons (AMO)](#firefox-add-ons-amo).
 
 ## Store listing tab
 
@@ -200,3 +201,66 @@ Ways to narrow them, and what each costs (task 2.10 of the [plan](plan.md)):
   one origin) instead of `<all_urls>`. It removes the broad pattern, but the profile would no longer count
   any site with no setup, which is what sets it apart; and the Mosaik server would then need its own broad
   pattern back. Worth it only if the review asks for it.
+
+## Firefox Add-ons (AMO)
+
+Task 2.6 of the [plan](plan.md) made the Firefox build; [firefox.md](firefox.md) says what differs in Firefox
+and what to try by hand first. Nothing is submitted yet. What the
+[Developer Hub](https://addons.mozilla.org/developers/) asks, and what to answer:
+
+**Package:** `npm run package:firefox` makes `dist/inputly-firefox-<version>.zip` (and `npm run lint:firefox`
+runs the same linter AMO runs on upload). The version is the one of `extension/manifest.json`, shared with
+Chrome.
+
+**Where to distribute:** "On this site" (listed on addons.mozilla.org).
+
+**Platforms:** Firefox only, not Firefox for Android (see [firefox.md](firefox.md#how-it-degrades-or-may-differ)).
+
+**Source code:** "No". AMO asks for it only when the package has minified, concatenated or machine-generated
+code. The zip is the files of `extension/` as they are in the repository; only `manifest.json` is rewritten,
+by `scripts/firefox.mjs`, and stays readable. The linter's metadata lists a few files as "possibly minified":
+a false positive of its heuristic (they start with long comments), explained in
+[firefox.md](firefox.md#source-code-for-the-review) if a reviewer asks.
+
+**Name and summary:** they come from the manifest, as in Chrome. AMO's summary allows 250 characters, so the
+132 of the manifest fit.
+
+**Description:** the [Chrome description](#store-listing-tab), with two words changed, since it is read in
+Firefox: "Chrome's built-in language detector" becomes "the browser's built-in language detector", and "a
+Chrome profile" becomes "a Firefox profile". AMO accepts a few HTML tags but no Markdown; the plain text with
+its bullets works.
+
+**Categories** (two at most): Language Support, and Photos, Music & Videos.
+
+**Tags:** language learning, immersion, youtube, productivity.
+
+**Support email:** none needed (optional). **Support site:** <https://github.com/joaquinmuzzi/inputly/issues>.
+**Homepage:** <https://github.com/joaquinmuzzi/inputly>.
+
+**License:** MIT License (the one of the repository).
+
+**Privacy policy:** AMO wants the text itself, not a link. Paste [PRIVACY.md](../PRIVACY.md) (it has a Firefox
+section).
+
+**Data collection:** the manifest declares `required: ["none"]`, so Firefox's install prompt says the
+extension collects no data, and AMO shows the same. Why, and what to change if the review disagrees:
+[firefox.md](firefox.md#data-collection).
+
+**Images:** the five screenshots of `docs/store/` (1280 × 800, JPEG is accepted). There is no promo tile on
+AMO. The screenshots are captures of the pages alone, with no browser frame, so they serve for Firefox as they
+are.
+
+**Notes to reviewer:** the [test instructions](#notes-for-the-reviewers-test-instructions) of Chrome, and one
+more line: "The background script is an ES module (`background.type: module`); the same code is published for
+Chrome, where it runs as a service worker. No build step, no minification, no remote code."
+
+**What has to be done by hand** (the maintainer; no session creates accounts or submits):
+
+1. Try the build in a real Firefox, as [firefox.md](firefox.md#trying-it-by-hand) says.
+2. Create a Mozilla account at <https://addons.mozilla.org/developers/> (free), turn on two-step
+   authentication (the Developer Hub requires it to submit), and accept the developer agreement.
+3. **Submit a New Add-on** → On this site → upload the zip → Firefox only → source code "No".
+4. Fill in the listing as above and submit. Automated checks run at once and a listed add-on is usually
+   public within minutes to days; a human review can come after publication.
+5. The add-on id (`inputly@joaquinmuzzi.github.io`) is fixed with the first upload. Each later version must
+   have a higher `version` than the one before, as in Chrome.

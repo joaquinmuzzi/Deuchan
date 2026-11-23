@@ -29,13 +29,18 @@ npm test               # node --test, every test in tests/
 npm run lint           # ESLint
 npm run format:check   # Prettier, as CI runs it (npm run format fixes it)
 npm run package        # dist/inputly-<version>.zip for the Chrome Web Store
+npm run package:firefox # dist/inputly-firefox-<version>.zip for Firefox Add-ons (and dist/firefox/)
+npm run lint:firefox   # the Firefox build through Mozilla's linter (web-ext lint)
 ```
 
 Run all three checks (test, lint, format:check) before saying a change is done. `tests/docs.test.js`
 checks every Markdown file too: relative links must lead to a file and heading that exist, and no
 literal `\n` may appear in the text.
 
-To try it by hand: `chrome://extensions`, Developer mode, Load unpacked, the `extension` folder.
+To try it by hand: `chrome://extensions`, Developer mode, Load unpacked, the `extension` folder. In
+Firefox: `about:debugging`, Load Temporary Add-on, `dist/firefox/manifest.json` (see
+[docs/firefox.md](docs/firefox.md)). Both builds share every file but the manifest, made by
+`scripts/firefox.mjs`: code that works in Chrome must keep working in Firefox 140.
 
 ## Layout
 

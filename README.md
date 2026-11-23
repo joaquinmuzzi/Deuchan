@@ -45,7 +45,16 @@ days, weeks and months, so you can see how much input you really get.
 
 ## Status
 
-Inputly is under development and is not published yet. See the [changelog](CHANGELOG.md).
+Version 0.1.0 is in review in the Chrome Web Store and in Edge Add-ons. See the [changelog](CHANGELOG.md).
+
+## Install from the source
+
+- **Chrome or Edge:** open `chrome://extensions` (or `edge://extensions`), turn on Developer mode, press
+  **Load unpacked** and pick the `extension` folder.
+- **Firefox (140 or later):** run `npm ci` and `npm run package:firefox`, open
+  `about:debugging#/runtime/this-firefox`, press **Load Temporary Add-on** and pick
+  `dist/firefox/manifest.json`. It stays until Firefox closes. See [docs/firefox.md](docs/firefox.md) for what
+  differs in Firefox.
 
 ## Support
 

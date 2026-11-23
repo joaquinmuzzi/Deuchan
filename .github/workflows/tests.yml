@@ -37,6 +37,10 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      # The Firefox build, through the linter Firefox Add-ons runs on every upload
+      - name: Lint the Firefox build
+        run: npm run lint:firefox
+
   tests:
     name: tests
     runs-on: ubuntu-latest

@@ -14,12 +14,15 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "icons": "node scripts/make-icons.mjs",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "package:firefox": "node scripts/package.mjs --firefox",
+    "lint:firefox": "npm run package:firefox && node scripts/lint-firefox.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",
     "eslint": "^10.0.0",
     "globals": "^17.0.0",
-    "prettier": "^3.6.0"
+    "prettier": "^3.6.0",
+    "web-ext": "^10.8.0"
   }
 }

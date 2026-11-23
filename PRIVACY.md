@@ -24,7 +24,7 @@ browser**:
 - whether the video is playing or paused;
 - the language of the audio and of the captions of the video, and its title and description, only to decide
   whether it is in the language you learn. For a language other than German, the title and description may
-  go to Chrome's built-in language detector, which works on your computer. The description is not stored. The title is kept only in the list of videos
+  go to the browser's built-in language detector (Chrome's, or Firefox's in Firefox), which works on your computer. The description is not stored. The title is kept only in the list of videos
   described below. Nothing is sent anywhere.
 
 It stores on your computer (in `chrome.storage.local`):
@@ -131,6 +131,13 @@ for it.
 The use of information received from Chrome APIs adheres to the
 [Chrome Web Store User Data Policy](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq),
 including the Limited Use requirements.
+
+## Firefox
+
+The Firefox version is the same code and does the same: everything in this policy applies to it, with
+`browser.storage.local` in place of `chrome.storage.local` and a Firefox profile in place of a Chrome profile.
+It declares to Firefox that it collects no data, since nothing goes to the developer or to anyone else; "Send
+to Mosaik" only sends to the Mosaik you run, as described above.
 
 ## Security
 

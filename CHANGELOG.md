@@ -9,6 +9,13 @@ note on what to update.
 
 ## [Unreleased]
 
+### Added
+
+- **A Firefox build** (Firefox 140 or later, desktop): `npm run package:firefox` makes
+  `dist/inputly-firefox-<version>.zip` for Firefox Add-ons from the same code, with a Firefox manifest, and
+  `npm run lint:firefox` checks it with Mozilla's linter. Not on Firefox Add-ons yet. See
+  [docs/firefox.md](docs/firefox.md).
+
 ## [0.1.0] - 2026-11-23
 
 The first version submitted to the Chrome Web Store, as Inputly.

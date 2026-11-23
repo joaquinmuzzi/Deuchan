@@ -7,7 +7,8 @@ request that finishes it.
 ## Where it stands
 
 - Works well for one user, loaded unpacked. Version 0.1.0 is in review in the Chrome Web Store and in Edge
-  Add-ons. Since phase 1 it counts any language.
+  Add-ons. Since phase 1 it counts any language. A Firefox build exists (task 2.6), not yet tried in a real
+  Firefox nor submitted to Firefox Add-ons.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
   any language, the screenshots show a Japanese learner (task 2.2), and the listing is ready to paste
@@ -102,9 +103,10 @@ data stays German.
       submitted for review on 2026-11-23, set to publish automatically once approved.
 - [x] **2.5 Edge Add-ons.** Same package, free to publish. After 2.4. Version 0.1.0 was submitted for
       review on 2026-11-23.
-- [ ] **2.6 Firefox.** Needs work: Firefox uses background scripts instead of a service worker, and
+- [x] **2.6 Firefox.** Needs work: Firefox uses background scripts instead of a service worker, and
       some APIs differ. Investigate the gap first. It matters more than first thought: the main competitor
-      is on Firefox.
+      is on Firefox. Done as a second build of the same code (`npm run package:firefox`), see
+      [firefox.md](firefox.md); not on Firefox Add-ons yet: the maintainer tries it in Firefox and submits it.
 
 ## Phase 2b: close the gap with the competition
 
@@ -265,3 +267,23 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   converted for the upload); the description says "the browser's built-in language detector" and "a
   browser profile" instead of naming Chrome. The test instructions went in "Notes for certification",
   which Edge asks for with every submission, so the next update needs them again.
+- 2026-11-23, task 2.6: Firefox is a second build of the same files: only the manifest differs, made from the
+  Chrome one by `scripts/firefox.mjs` (`background.scripts` instead of `service_worker`, `minimum_chrome_version`
+  dropped, `browser_specific_settings.gecko` with the id `inputly@joaquinmuzzi.github.io`, `strict_min_version`
+  140.0 and `data_collection_permissions: { required: ["none"] }`). `npm run package:firefox` writes
+  `dist/inputly-firefox-<version>.zip` and `dist/firefox/`; `npm run lint:firefox` runs `web-ext lint` (a new
+  devDependency) and CI runs it too, failing on any warning not allowed in `scripts/lint-firefox.mjs` (only the
+  Firefox for Android one is). No line of the extension changed: every API it uses exists in Firefox 140 (MDN
+  compat data; table in [firefox.md](firefox.md#why-firefox-140)), `chrome.*` returns promises in Firefox MV3,
+  and the permission requests are already made straight from a click. 140 is set by
+  `data_collection_permissions`, which AMO asks of new extensions since November 2025; the code alone needs 128.
+  **Not loaded in a real Firefox** (none was installed); the first thing to do is the hand check of
+  [firefox.md](firefox.md#trying-it-by-hand). Open points: (1) whether `chrome.scripting` appears in the running
+  event page right after the immersion profile is granted, or only after it restarts; (2) a decision for the
+  maintainer: "Send to Mosaik" goes to a server the person runs, read as no collection, so `required: ["none"]`;
+  if the AMO review disagrees, declare optional `browsingActivity`, `websiteActivity`, `websiteContent` and
+  request them in the Firefox build when Mosaik is turned on (see [firefox.md](firefox.md#data-collection));
+  (3) Firefox for Android is not offered (YouTube there is `m.youtube.com`). AMO needs no source upload (no
+  minified or generated code), although the linter's metadata flags six files as possibly minified, a false
+  positive of its indentation heuristic. By hand: a Mozilla account with two-step authentication, then the
+  submission ([store-listing.md](store-listing.md#firefox-add-ons-amo)). The id is fixed with the first upload.
