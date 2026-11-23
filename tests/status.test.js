@@ -64,14 +64,25 @@ test("the texts say the name of the target language", () => {
   assert.deepEqual(describeStatus(undefined, null, "Japanese"), { kind: "idle", text: "No video here" });
 });
 
+test("an ad is not counted, whatever the language of the video or whether it is known", () => {
+  for (const inTarget of [true, false, null]) {
+    assert.deepEqual(describeStatus({ inTarget, playing: false, ad: true }, null, "Japanese"), {
+      kind: "idle",
+      text: "Ad, not counted",
+    });
+  }
+});
+
 test("the watcher reports what the status needs", () => {
   const watcher = new Watcher({ send: () => {} });
-  assert.deepEqual(watcher.status, { inTarget: null, playing: false });
+  assert.deepEqual(watcher.status, { inTarget: null, playing: false, ad: false });
   watcher.play(0);
   watcher.setInTarget(1, true);
-  assert.deepEqual(watcher.status, { inTarget: true, playing: true });
+  assert.deepEqual(watcher.status, { inTarget: true, playing: true, ad: false });
   watcher.pause(2);
-  assert.deepEqual(watcher.status, { inTarget: true, playing: false });
+  assert.deepEqual(watcher.status, { inTarget: true, playing: false, ad: false });
+  watcher.setAd(2, true, true);
+  assert.deepEqual(watcher.status, { inTarget: true, playing: false, ad: true });
   watcher.newVideo(3);
   assert.equal(watcher.status.inTarget, null);
 });

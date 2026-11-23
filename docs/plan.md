@@ -84,7 +84,7 @@ the first release; each is its own task.
 - [ ] **2.7 Streaming sites without the immersion profile.** Count Netflix, Prime Video, Crunchyroll and
       Disney+ in the target language, from the audio or subtitle track the player says is playing.
       Investigate each player first; the store review needs a reason for each new host permission.
-- [ ] **2.8 Leave out ads** on YouTube (and on the sites of 2.7): time an ad plays is not input.
+- [x] **2.8 Leave out ads** on YouTube (and on the sites of 2.7): time an ad plays is not input.
 - [ ] **2.9 Recover after a crash.** Time counted while the browser or the service worker dies is not
       lost.
 - [x] **2.10 Narrow the optional host permissions.** Drop `https://*/*` from `optional_host_permissions`:
@@ -271,3 +271,18 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   Pages → Run workflow) or push a change to `site/`. The "Add to Chrome" and "Add to Edge" buttons lead to
   pages that exist only once each review passes; Firefox points to the README's install from source, to
   change to the AMO link once the add-on is listed. `homepage_url` in the manifest stays the repository.
+- 2026-11-23, task 2.8: the signal is the `ad-showing` class on `#movie_player`, watched by a `MutationObserver`
+  in `content.js` (and read again every two seconds), and fed to `Watcher#setAd(now, showing, playing)`: an
+  ad stops the count and saves the time before it, `play` is ignored while it lasts, and when it ends the
+  count goes on if the element plays. The player data was tried first and tells nothing: during a real
+  pre-roll `getAdState()` said -1, and `getVideoData()` and `getPlayerResponse()` gave the video's own id
+  (so the language verdict, made from that data, stays the video's, and `page-bridge.js` did not change). The
+  popup says "Ad, not counted" (`reply.ad` in `describeStatus`). Checked in Chrome 157 with the unpacked
+  extension loaded through CDP (`Extensions.loadUnpacked` with `--remote-debugging-pipe
+--enable-unsafe-extension-debugging`, since branded Chrome ignores `--load-extension`) and English as the
+  target: two pre-roll ads (15 s and 10 s) stored nothing and the video after them counted second by second;
+  the same run on `main` counted a 46 s ad. A skippable ad was skipped by hand in the in-app browser: the
+  class went away just before the video's `playing`. Not seen: a mid-roll (unit tests cover it, the class is
+  the same) and the popup text live. Left out on purpose: the immersion profile on other sites
+  (`generic.js`) has no ad detection, since no generic rule tells an ad from a video; the sites of 2.7 need
+  their own rule each (their players mark ads differently), to add with each site.
