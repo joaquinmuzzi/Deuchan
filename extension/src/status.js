@@ -13,10 +13,19 @@ import { DEFAULT_TARGET, languageName } from "./target.js";
  *
  * `reply.ad` is true while an ad plays in the player: it is not counted, whatever the video's language.
  *
+ * `reply.title` is the title of what plays (a YouTube video, an episode on a streaming site): `title` says
+ * it under the status, so that the person sees what the verdict is about.
+ *
  * `action` is the link to correct a wrong guess about the language: `inTarget` is what pressing it
  * decides. There is none while the language is not known, or when there is no video.
  */
 export function describeStatus(reply, sound = null, language = languageName(DEFAULT_TARGET)) {
+  const status = statusOf(reply, sound, language);
+  const title = typeof reply?.title === "string" ? reply.title.trim() : "";
+  return title && !reply.ad ? { ...status, title } : status;
+}
+
+function statusOf(reply, sound, language) {
   if (!reply) {
     if (sound === "counting") {
       return { kind: "counting", text: "Counting sound (immersion profile)" };

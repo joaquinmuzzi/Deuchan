@@ -199,7 +199,7 @@
       return;
     }
     if (message?.type === "status") {
-      sendResponse({ ...watcher.status, immersion });
+      sendResponse({ ...watcher.status, immersion, title: currentVideo?.title ?? "" });
     } else if (message?.type === "setInTarget" && typeof message.inTarget === "boolean" && currentVideoId) {
       decided = message.inTarget;
       setVerdict(message.inTarget);

@@ -530,3 +530,26 @@ dialog h2 {
   margin-bottom: 12px;
   justify-content: flex-start;
 }
+
+/* The streaming sites, one switch each */
+.dialog-body .sites {
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+}
+
+.dialog-body .sites legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#goalForm .sites .note {
+  margin: 0 0 10px;
+}
+
+.dialog-body .sites .switch-row {
+  margin-bottom: 8px;
+  font-weight: 500;
+}

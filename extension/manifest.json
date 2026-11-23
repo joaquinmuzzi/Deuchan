@@ -57,6 +57,30 @@
     {
       "resources": ["src/tracker.js", "src/watcher.js", "src/delivery.js"],
       "matches": ["<all_urls>"]
+    },
+    {
+      "resources": [
+        "src/sites.js",
+        "src/streaming.js",
+        "src/items.js",
+        "src/overrides.js",
+        "src/target.js",
+        "src/immersion.js",
+        "src/watcher.js",
+        "src/tracker.js",
+        "src/delivery.js"
+      ],
+      "matches": [
+        "https://www.netflix.com/*",
+        "https://www.crunchyroll.com/*",
+        "https://static.crunchyroll.com/*",
+        "https://www.primevideo.com/*",
+        "https://www.amazon.com/*",
+        "https://www.amazon.co.uk/*",
+        "https://www.amazon.de/*",
+        "https://www.amazon.co.jp/*",
+        "https://www.disneyplus.com/*"
+      ]
     }
   ]
 }

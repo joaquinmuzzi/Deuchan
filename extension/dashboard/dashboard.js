@@ -4,6 +4,7 @@ import { IMMERSION_PERMISSIONS, immersionOf } from "../src/immersion.js";
 import { itemUrl } from "../src/items.js";
 import { formatClock, migrate, shownLog } from "../src/log.js";
 import { dayItems, hasOthers, withOtherDevices } from "../src/mosaik-days.js";
+import { SITES_KEY, STREAMING_SITES, enabledSites, sitePermissions } from "../src/sites.js";
 import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js";
 import { TARGET_HASH, TARGET_KEY, targetName, targetOf, targetOptions } from "../src/target.js";
 import { setUpTheme } from "../src/theme.js";
@@ -263,6 +264,7 @@ function renderTargets() {
 /** The immersion note names the language picked, even before it is saved. */
 const renderImmersionLanguage = () => {
   byId("immersionLanguage").textContent = targetName(targetSelect.value);
+  byId("streamingLanguage").textContent = targetName(targetSelect.value);
 };
 targetSelect.addEventListener("change", renderImmersionLanguage);
 
@@ -319,6 +321,45 @@ immersionBox.addEventListener("change", () => {
     });
 });
 
+// The streaming sites: each one asks for access to its own pages, from the click that turns it on
+const streamingError = byId("streamingError");
+const siteBoxes = new Map(
+  STREAMING_SITES.map((site) => {
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.id = `site-${site.id}`;
+    const label = document.createElement("label");
+    label.className = "switch-row";
+    label.append(box, ` ${site.name}${site.experimental ? " (experimental)" : ""}`);
+    byId("streamingSites").append(label);
+    box.addEventListener("change", () => setSite(site, box));
+    return [site.id, box];
+  }),
+);
+
+/** Turns a site on (if the person grants its access) or off, and keeps what the boxes say. */
+async function setSite(site, box) {
+  streamingError.textContent = "";
+  const want = box.checked;
+  // Asked for first, from the click itself, as the browser wants
+  const granted = want ? await chrome.permissions.request(sitePermissions(site)).catch(() => false) : true;
+  if (!granted) {
+    box.checked = false;
+    streamingError.textContent = `Without access to ${site.name}, Inputly cannot see what its player plays.`;
+    return;
+  }
+  const saved = (await chrome.storage.local.get(SITES_KEY))[SITES_KEY];
+  await chrome.storage.local.set({ [SITES_KEY]: { ...saved, [site.id]: want } });
+  await chrome.runtime.sendMessage({ type: "streaming:refresh" }).catch(() => {});
+}
+
+const renderSites = (saved) => {
+  const on = enabledSites(saved);
+  for (const [id, box] of siteBoxes) {
+    box.checked = on.includes(id);
+  }
+};
+
 byId("ranges").addEventListener("change", (event) => {
   range = Number(event.target.value);
   chrome.storage.local.set({ range });
@@ -335,6 +376,7 @@ const stored = await chrome.storage.local.get([
   "range",
   "videos",
   "immersion",
+  SITES_KEY,
   TARGET_KEY,
 ]);
 log = stored.log;
@@ -342,6 +384,7 @@ mosaikDays = stored.mosaikDays;
 mosaikOn = stored.mosaikSettings?.enabled === true;
 videos = stored.videos;
 immersionBox.checked = immersionOf(stored.immersion);
+renderSites(stored[SITES_KEY]);
 goalMinutes = goalMinutesOf(stored.goalMinutes);
 target = targetOf(stored[TARGET_KEY]);
 renderTargets();
@@ -370,6 +413,9 @@ chrome.storage.onChanged.addListener((changes) => {
   }
   if (changes.immersion) {
     immersionBox.checked = immersionOf(changes.immersion.newValue);
+  }
+  if (changes[SITES_KEY]) {
+    renderSites(changes[SITES_KEY].newValue);
   }
   if (changes.videos) {
     videos = changes.videos.newValue;

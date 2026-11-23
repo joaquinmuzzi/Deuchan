@@ -25,8 +25,16 @@ import { addSeconds, dayKey, migrate, shownLog } from "./log.js";
 import { IDLE_SECONDS, MANUAL_ALARM, flushManual, manualItem, readManual, startManual } from "./manual.js";
 import { othersOn } from "./mosaik-days.js";
 import { createMosaikRunner, queueRemoval, queueWatched } from "./mosaik-runner.js";
-import { isVideoId, overridesKey, withOverride } from "./overrides.js";
+import { overridesKey, withOverride } from "./overrides.js";
 import { forgetTab, knowPage, pageTitle, splitByPage, trackPage } from "./pages.js";
+import {
+  SITES_KEY,
+  STREAMING_SITES,
+  enabledSites,
+  sitePermissions,
+  siteScriptIds,
+  siteScripts,
+} from "./sites.js";
 import { TARGET_HASH, TARGET_KEY } from "./target.js";
 import { addVideoSeconds, cleanVideo, removeVideo } from "./videos.js";
 
@@ -123,7 +131,8 @@ async function removeFromDay(day, id) {
     videos: removeVideo(stored.videos, day, id),
     ...(mosaikOutbox ? { mosaikOutbox } : {}),
   });
-  if (isVideoId(id)) {
+  // A YouTube video or a streaming title will not count again; for other pages the decision is harmless
+  if (isItemId(id)) {
     await saveOverride(id, false);
   }
   await correct(day, Math.max(0, Math.round(total - seconds)));
@@ -238,6 +247,35 @@ async function scheduleImmersion() {
     await chrome.scripting.registerContentScripts([immersionScript()]);
   } else if (!on && registered.length > 0) {
     await chrome.scripting.unregisterContentScripts({ ids: [IMMERSION_SCRIPT_ID] });
+  }
+}
+
+// The streaming sites (see sites.js)
+
+/**
+ * Makes the scripts of each streaming site match the setting: there while the site is on and its access is
+ * granted, gone otherwise (the person can take the access back from the browser's own pages).
+ */
+async function scheduleStreaming() {
+  if (!chrome.scripting) {
+    return;
+  }
+  const on = new Set(enabledSites((await chrome.storage.local.get(SITES_KEY))[SITES_KEY]));
+  const registered = new Set(
+    (await chrome.scripting.getRegisteredContentScripts()).map((script) => script.id),
+  );
+  for (const site of STREAMING_SITES) {
+    const wanted = on.has(site.id) && (await chrome.permissions.contains(sitePermissions(site)));
+    const ids = siteScriptIds(site);
+    const there = ids.filter((id) => registered.has(id));
+    if (wanted && there.length < ids.length) {
+      if (there.length > 0) {
+        await chrome.scripting.unregisterContentScripts({ ids: there });
+      }
+      await chrome.scripting.registerContentScripts(siteScripts(site));
+    } else if (!wanted && there.length > 0) {
+      await chrome.scripting.unregisterContentScripts({ ids: there });
+    }
   }
 }
 
@@ -363,6 +401,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 // there (and that there is none while it is off); the same for the script of the immersion profile
 mosaik.schedule().catch(() => {});
 scheduleImmersion().catch(() => {});
+scheduleStreaming().catch(() => {});
 stepAudio().catch(() => {});
 // In the single writer, so that a session the browser start ends (below) is not shown again after it
 enqueue(async () => {
@@ -397,9 +436,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
     scheduleImmersion().catch(() => {});
     stepAudio().catch(() => {});
   }
+  if (area === "local" && changes[SITES_KEY]) {
+    scheduleStreaming().catch(() => {});
+  }
 });
 chrome.permissions.onRemoved.addListener(() => {
   scheduleImmersion().catch(() => {});
+  scheduleStreaming().catch(() => {});
   stepAudio().catch(() => {});
 });
 
@@ -415,6 +458,7 @@ const CONTROLS = {
       ? enqueue(() => removeFromDay(message.day, message.videoId)).then(() => ({}))
       : Promise.resolve({ error: "invalid" }),
   "immersion:refresh": () => scheduleImmersion().then(() => ({})),
+  "streaming:refresh": () => scheduleStreaming().then(() => ({})),
   "audio:status": async (message) => {
     const sound = readSound((await chrome.storage.session.get("sound")).sound);
     if (!Object.hasOwn(sound.open, String(message.tabId))) {
@@ -468,7 +512,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   } else if (
     message?.type === "override" &&
-    isVideoId(message.videoId) &&
+    isItemId(message.videoId) &&
     typeof message.inTarget === "boolean"
   ) {
     queue = queue.then(() => saveOverride(message.videoId, message.inTarget)).catch(() => {});

@@ -27,6 +27,10 @@ days, weeks and months, so you can see how much input you really get.
 - **A day you can explain and correct.** Click a day in the dashboard to see which videos made it up
   (for the last 60 days), take out the ones that were not in your language, or say how many minutes you really
   watched.
+- **Netflix and Crunchyroll, if you want.** Turn a site on in the settings of the dashboard ("Count
+  streaming sites") and Inputly counts what plays there in your language, from the audio track the player
+  says it plays; ads are left out. Prime Video and Disney+ are there too, as experimental. Each site asks
+  for access to its own pages only. See [docs/streaming.md](docs/streaming.md).
 - **An immersion profile.** In a Chrome profile you use only for the language you learn, turn it on in the settings of the
   dashboard and every video that plays with sound counts, on any site, with no guessing. So does any tab
   that plays sound for 30 seconds or more, like a podcast; a word a dictionary says does not.

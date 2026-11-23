@@ -9,6 +9,16 @@ note on what to update.
 
 ## [Unreleased]
 
+### Added
+
+- **Streaming sites without the immersion profile.** "Count streaming sites" in the dashboard settings turns on
+  Netflix, Crunchyroll, Prime Video and Disney+ (the last two experimental), each one apart, asking for access
+  to that site's pages only. Inputly reads which audio track the player plays and counts the episode or film
+  only when it is in your language; ads are left out where the player shows them. The popup and the day's list
+  name the episode. In the immersion profile every title of a site turned on counts. See
+  [docs/streaming.md](docs/streaming.md).
+- The popup shows the title of the video it is counting, on YouTube too.
+
 ## [0.1.1] - 2026-11-23
 
 Fixes that make the count more honest: ads, a failed player and crashes no longer add or lose time.

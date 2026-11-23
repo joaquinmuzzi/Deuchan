@@ -58,6 +58,15 @@ header {
   background: var(--strong);
 }
 
+.live-title {
+  overflow: hidden;
+  margin: -8px 0 12px 16px;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .quiet {
   margin-left: auto;
   padding: 4px 0;

@@ -12,6 +12,11 @@
   if (location.hostname === "www.youtube.com" && window === window.top) {
     return;
   }
+  // Nor do the streaming sites the person turned on (streaming-content.js, which starts before this script
+  // and says so): there the time goes to the episode, under its own name
+  if (globalThis.inputlyStreaming) {
+    return;
+  }
 
   const [{ Watcher }, { createSender }] = await Promise.all([
     import(chrome.runtime.getURL("src/watcher.js")),

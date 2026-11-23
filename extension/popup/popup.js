@@ -71,9 +71,12 @@ async function renderStatus() {
     !reply && tab
       ? (await chrome.runtime.sendMessage({ type: "audio:status", tabId: tab.id }).catch(() => null))?.sound
       : null;
-  const { kind, text, action } = describeStatus(reply, sound, language);
+  const { kind, text, action, title } = describeStatus(reply, sound, language);
   byId("status").dataset.kind = kind;
   byId("statusText").textContent = text;
+  byId("statusTitle").hidden = !title;
+  byId("statusTitle").textContent = title ?? "";
+  byId("statusTitle").title = title ?? "";
   const button = byId("override");
   button.hidden = !action;
   if (action) {
