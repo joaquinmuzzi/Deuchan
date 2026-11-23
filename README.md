@@ -45,7 +45,13 @@ days, weeks and months, so you can see how much input you really get.
 
 ## Status
 
-Version 0.1.0 is in review in the Chrome Web Store and in Edge Add-ons. See the [changelog](CHANGELOG.md).
+Version 0.1.0 is published:
+
+- [Chrome Web Store](https://chromewebstore.google.com/detail/imadljjebohcpkeopadcifnodmfbndel)
+- [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ofophfcnojdmdffnfljneagppnnjelpp)
+- Firefox: not on Firefox Add-ons yet; [install from the source](#install-from-the-source).
+
+See the [changelog](CHANGELOG.md).
 
 The site is at <https://joaquinmuzzi.github.io/Inputly/>.
 
