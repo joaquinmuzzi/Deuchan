@@ -10,7 +10,7 @@ const read = (file) => readFileSync(resolve(ROOT, file), "utf8");
 const PAGES = ["extension/popup/popup.html", "extension/dashboard/dashboard.html"];
 
 const AUTHOR = "https://github.com/joaquinmuzzi";
-const REPOSITORY = "https://github.com/joaquinmuzzi/deuchan";
+const REPOSITORY = "https://github.com/joaquinmuzzi/inputly";
 const KOFI = "https://ko-fi.com/muzzijoaquin";
 
 /** The `<a>` tags of the footer of a page. */

@@ -94,7 +94,7 @@ test("the package has the manifest at the root and every file of the extension, 
     );
   }
   const { version } = JSON.parse(readFileSync(join(EXTENSION, "manifest.json"), "utf8"));
-  assert.equal(name, `deuchan-${version}.zip`);
+  assert.equal(name, `inputly-${version}.zip`);
 });
 
 test("nothing that is not part of the extension is in the package", () => {

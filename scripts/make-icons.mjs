@@ -1,4 +1,4 @@
-// Draws the icon of Deuchan into the PNG files of the manifest, with the same shape the toolbar icon
+// Draws the icon of Inputly into the PNG files of the manifest, with the same shape the toolbar icon
 // has (extension/src/icon.js): `npm run icons`. No dependency: the PNG is written by hand.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";

@@ -14,7 +14,7 @@ import {
   targetOptions,
 } from "../extension/src/target.js";
 
-test("the default target is German, so whoever used Deuchan before the setting notices nothing", () => {
+test("the default target is German, so whoever used the extension before the setting notices nothing", () => {
   assert.equal(DEFAULT_TARGET, "de");
   assert.equal(targetOf(undefined), "de");
   assert.equal(TARGET_KEY, "targetLanguage");

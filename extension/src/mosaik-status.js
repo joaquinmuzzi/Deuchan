@@ -23,7 +23,7 @@ const ERRORS = {
   "not-mosaik": "Something else answers at that address, not Mosaik.",
   outdated: "Mosaik does not take data yet. Update Mosaik.",
   "permission-missing":
-    "Deuchan needs your permission to reach Mosaik. Turn it off and on again to allow it.",
+    "Inputly needs your permission to reach Mosaik. Turn it off and on again to allow it.",
   "invalid-url":
     "Use the address of Mosaik on this computer (like http://127.0.0.1:7300) or of your Mosaik server (https://…).",
   "token-missing":

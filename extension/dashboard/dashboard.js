@@ -311,7 +311,7 @@ immersionBox.addEventListener("change", () => {
     .then(async (granted) => {
       if (!granted) {
         immersionBox.checked = false;
-        immersionError.textContent = "Without access to the sites, Deuchan cannot find their videos.";
+        immersionError.textContent = "Without access to the sites, Inputly cannot find their videos.";
         return;
       }
       await chrome.storage.local.set({ immersion: { enabled: true } });

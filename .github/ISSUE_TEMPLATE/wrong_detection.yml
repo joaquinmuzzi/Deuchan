@@ -13,7 +13,7 @@ body:
     id: target
     attributes:
       label: The language you learn
-      description: The language set in the settings of the Deuchan dashboard, for example Japanese.
+      description: The language set in the settings of the Inputly dashboard, for example Japanese.
     validations:
       required: true
   - type: dropdown

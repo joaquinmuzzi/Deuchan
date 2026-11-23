@@ -11,6 +11,10 @@ note on what to update.
 
 ### Changed
 
+- **Deuchan is now Inputly,** since the old name said German and the extension counts any language. The
+  store name is "Inputly – Track your language input", and the repository moves to
+  <https://github.com/joaquinmuzzi/inputly> (the old address redirects). Your history, settings and the link
+  to Mosaik keep working: nothing that is stored or sent changed.
 - **YouTube videos are detected in the language you learn,** not only German: the audio track and the
   automatic captions are compared with it, and for languages other than German the title and description go
   to Chrome's built-in language detector, on your computer. German keeps its word list, and "this video is /

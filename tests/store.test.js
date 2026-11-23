@@ -33,6 +33,12 @@ function jpegSize(path) {
   throw new Error(`no size in ${path}`);
 }
 
+test("the name of the listing is the name of the manifest, and fits the 75 characters", () => {
+  const name = /\*\*Name:\*\* (.+)\n/.exec(listing)?.[1];
+  assert.equal(name, manifest.name);
+  assert.ok(name.length <= 75);
+});
+
 test("the summary of the listing is the description of the manifest, and fits the 132 characters", () => {
   const summary = /\*\*Summary\*\*[^\n]*\n\n> (.+)\n/.exec(listing)?.[1];
   assert.ok(summary, "the listing has a summary");
@@ -78,7 +84,7 @@ test("the policy says what has to be said about Mosaik, the immersion profile an
 
 test("the listing links to the policy, and the manifest says where the project is", () => {
   assert.ok(listing.includes("blob/main/PRIVACY.md"));
-  assert.equal(manifest.homepage_url, "https://github.com/joaquinmuzzi/deuchan");
+  assert.equal(manifest.homepage_url, "https://github.com/joaquinmuzzi/inputly");
 });
 
 test("the description fits what the store allows, and does not claim to be YouTube", () => {

@@ -1,12 +1,14 @@
 # Chrome Web Store listing
 
 Everything to paste into the [developer dashboard](https://chrome.google.com/webstore/devconsole), and the
-files to upload. The package is made with `npm run package` (`dist/deuchan-<version>.zip`, only what is in
+files to upload. The package is made with `npm run package` (`dist/inputly-<version>.zip`, only what is in
 `extension/`). The privacy policy is [PRIVACY.md](../PRIVACY.md).
 
 ## Store listing tab
 
-**Name:** Deuchan
+**Name:** Inputly – Track your language input
+
+It is the `name` of the manifest (75 characters at most). The toolbar button says only "Inputly".
 
 **Summary** (it is the `description` of the manifest, 132 characters at most):
 
@@ -19,7 +21,7 @@ files to upload. The package is made with `npm run package` (`dist/deuchan-<vers
 **Description:**
 
 ```
-Deuchan counts the time you spend watching the language you learn on YouTube, by itself: Japanese,
+Inputly counts the time you spend watching the language you learn on YouTube, by itself: Japanese,
 Spanish, Korean, German, French, Chinese or any other. No timers to start or stop: you watch, and it adds up
 the minutes. It is made for people who learn a language by immersion and want to see how much input they
 really get.
@@ -50,15 +52,15 @@ PRIVATE BY DEFAULT
 Everything stays in your browser. Nothing is sent anywhere. No accounts, no ads, no analytics, no trackers.
 
 OPTIONAL: SEND TO MOSAIK
-If you use Mosaik, an app that puts together how you learn languages, Deuchan can send it what you watch:
+If you use Mosaik, an app that puts together how you learn languages, Inputly can send it what you watch:
 to Mosaik on your own computer, or on your own server with a device token. Every computer sends its own
 time, and the dashboard shows the total of all of them. Mosaik takes German only for now: with another
 language, sending pauses.
 
 OPEN SOURCE
-The extension is open source (MIT): https://github.com/joaquinmuzzi/deuchan
+The extension is open source (MIT): https://github.com/joaquinmuzzi/inputly
 
-Deuchan is an independent project. It is not affiliated with, endorsed by or sponsored by YouTube or
+Inputly is an independent project. It is not affiliated with, endorsed by or sponsored by YouTube or
 Google. YouTube is a trademark of Google LLC.
 ```
 
@@ -74,9 +76,9 @@ again in another language too.
 
 **Small promo tile** (440 × 280): [promo-small-440x280.jpg](store/promo-small-440x280.jpg)
 
-**Support site:** <https://github.com/joaquinmuzzi/deuchan/issues>
+**Support site:** <https://github.com/joaquinmuzzi/inputly/issues>
 
-**Homepage:** <https://github.com/joaquinmuzzi/deuchan> (it is also `homepage_url` in the manifest)
+**Homepage:** <https://github.com/joaquinmuzzi/inputly> (it is also `homepage_url` in the manifest)
 
 ## Privacy tab
 
@@ -121,7 +123,7 @@ could not see it):
 **Certifications** (all three can be ticked as they are true): the data is not sold to third parties, not
 used for purposes unrelated to the single purpose, and not used to decide credit or lending.
 
-**Privacy policy URL:** <https://github.com/joaquinmuzzi/deuchan/blob/main/PRIVACY.md>
+**Privacy policy URL:** <https://github.com/joaquinmuzzi/inputly/blob/main/PRIVACY.md>
 
 ## Notes for the reviewers (test instructions)
 
@@ -139,7 +141,7 @@ I (an assistant) cannot create the account or pay, so these are for the owner:
 
 1. Register as a Chrome Web Store developer (a one-time fee of US$5) at the
    [developer dashboard](https://chrome.google.com/webstore/devconsole).
-2. Run `npm run package` and upload `dist/deuchan-<version>.zip` as a new item.
+2. Run `npm run package` and upload `dist/inputly-<version>.zip` as a new item.
 3. Fill in the three tabs with the texts and the images of this page.
 4. Submit for review. The first review can take days, and a wide permission or a vague single purpose is
    what makes it longer: that is why each permission is justified above.

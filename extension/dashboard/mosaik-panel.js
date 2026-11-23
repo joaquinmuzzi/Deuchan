@@ -88,7 +88,7 @@ export function setUpMosaikPanel() {
       .catch(() => false)
       .then((granted) => {
         if (!granted) {
-          show({ error: "Without your permission Deuchan cannot reach Mosaik." });
+          show({ error: "Without your permission Inputly cannot reach Mosaik." });
           render();
           return;
         }

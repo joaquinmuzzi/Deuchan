@@ -185,7 +185,7 @@ chrome.idle.onStateChanged.addListener((state) => {
   }
 });
 // The pages each tab shows, to name the time of videos on other sites (see pages.js). Chrome only says
-// the address and title of the tabs Deuchan can see, which in the immersion profile is every one.
+// the address and title of the tabs Inputly can see, which in the immersion profile is every one.
 let tabPages = {};
 chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
   if (change.audible !== undefined || change.mutedInfo !== undefined || change.url !== undefined) {

@@ -16,7 +16,7 @@ body:
       placeholder: |
         1. Open a video in the language you learn on YouTube
         2. Watch it for two minutes
-        3. Open the Deuchan popup
+        3. Open the Inputly popup
     validations:
       required: true
   - type: textarea
@@ -42,5 +42,5 @@ body:
   - type: input
     id: version
     attributes:
-      label: Deuchan version
+      label: Inputly version
       description: Shown in chrome://extensions.

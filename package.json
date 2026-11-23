@@ -1,8 +1,8 @@
 {
-  "name": "deuchan",
+  "name": "inputly",
   "version": "0.0.0",
   "private": true,
-  "description": "Counts the time you spend watching German on YouTube.",
+  "description": "Counts the time you spend on input in the language you learn: YouTube by itself, any video or sound, and reading.",
   "license": "MIT",
   "type": "module",
   "engines": {
