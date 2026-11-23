@@ -18,6 +18,12 @@ note on what to update.
 
 ### Fixed
 
+- Time is no longer lost or invented when the browser crashes or its background script is stopped. A page
+  now keeps the time it sends until the background script says it is written, and sends it again if not.
+  A reading session left open by a browser that was closed or crashed, or a computer that slept, no longer
+  counts the hours in between (up to six): it ends at its last counted minute. The same for the sound of a
+  tab that was still playing when the computer went to sleep. At most the last minute of reading or sound
+  before a crash is lost, and at most two seconds of a video.
 - Ads on YouTube no longer count: YouTube plays them in the same player as the video, so a pre-roll, a
   mid-roll or a skippable ad counted as time in the language of the video. Now the count stops while an ad
   plays and goes on with the video, and the popup says "Ad, not counted". Ads on other sites of the

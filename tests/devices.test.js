@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { MAX_SILENCE_SECONDS } from "../extension/src/alive.js";
 import { immersionOf, immersionScript } from "../extension/src/immersion.js";
 import { cleanUrl, isItemId, itemUrl, siteOf, webItemId } from "../extension/src/items.js";
 import {
@@ -135,9 +136,31 @@ test("a computer left alone ends the reading, and the time counted while nobody 
 
 test("a reading nobody stopped ends after some hours", () => {
   const session = { ...startManual(tab, 0), lastFlushed: MAX_SESSION_SECONDS - 60 };
-  const last = flushManual(session, MAX_SESSION_SECONDS + 3600);
+  const last = flushManual(session, MAX_SESSION_SECONDS + 120);
   assert.deepEqual(last.interval, { from: MAX_SESSION_SECONDS - 60, to: MAX_SESSION_SECONDS });
   assert.equal(last.session, null);
+});
+
+test("a reading left open while the browser was not running ends at its last minute", () => {
+  const session = { ...startManual(tab, 1000), lastFlushed: 1600 };
+  // The computer slept, or the browser crashed and came back, hours later: none of that counts
+  const later = flushManual(session, 1600 + 3 * 3600);
+  assert.deepEqual(later, { interval: null, takeBack: 0, session: null });
+  // Not even when the person stops it before the alarm comes
+  assert.equal(flushManual(session, 1600 + 3 * 3600, { stop: true }).interval, null);
+  // A late alarm is still a minute of reading
+  const late = flushManual(session, 1600 + MAX_SILENCE_SECONDS);
+  assert.deepEqual(late.interval, { from: 1600, to: 1600 + MAX_SILENCE_SECONDS });
+  assert.equal(late.session.lastFlushed, 1600 + MAX_SILENCE_SECONDS);
+});
+
+test("a reading left open ends when the browser starts again, as its tab is gone", () => {
+  const session = { ...startManual(tab, 1000), lastFlushed: 1600 };
+  assert.deepEqual(flushManual(session, 1630, { restart: true }), {
+    interval: null,
+    takeBack: 0,
+    session: null,
+  });
 });
 
 test("the popup says what the reading is doing", () => {

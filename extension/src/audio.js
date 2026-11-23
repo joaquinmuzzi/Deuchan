@@ -13,10 +13,12 @@
  * target language (the popup, while a video plays there) does not count until it changes address.
  *
  * Kept as `sound` in the session storage, as the background script can be stopped while a podcast plays:
- * `{ open: { "<tab id>": { since, site, url, title } }, proven: { "<tab id>": site } }`, with `since` in
- * seconds and the page the tab showed the last time it was looked at. Every minute what is open is
- * counted, so the goal moves while listening.
+ * `{ open: { "<tab id>": { since, site, url, title } }, proven: { "<tab id>": site }, checkedAt }`, with
+ * `since` in seconds and the page the tab showed the last time it was looked at. Every minute what is open
+ * is counted, so the goal moves while listening. `checkedAt` is the last time the tabs were looked at: a
+ * computer that slept with a tab playing must not count the hours it slept (see `resumeSound`).
  */
+import { wasStopped } from "./alive.js";
 
 export const AUDIO_ALARM = "deuchan-audio";
 
@@ -59,7 +61,32 @@ export function readSound(saved) {
         .map(([tabId, { since, site, url, title }]) => [tabId, { since, site, url, title }]),
     ),
     proven: Object.fromEntries(entriesOf(saved?.proven).filter(([, site]) => typeof site === "string")),
+    ...(Number.isFinite(saved?.checkedAt) ? { checkedAt: saved.checkedAt } : {}),
   };
+}
+
+/**
+ * Before the tabs are looked at again: if nothing ran for longer than `MAX_SILENCE_SECONDS` since the last
+ * look (the computer slept, see alive.js), what each tab played counts until that look and starts again
+ * now, as Chrome may still say that the tab is audible. None of the wait counts.
+ * @returns {{ sound: object, parts: { tabId: number, interval: { from: number, to: number } }[] }}
+ */
+export function resumeSound(sound, nowSeconds) {
+  const { checkedAt } = sound;
+  if (checkedAt === undefined || !wasStopped(checkedAt, nowSeconds)) {
+    return { sound, parts: [] };
+  }
+  const parts = [];
+  const open = {};
+  const proven = { ...sound.proven };
+  for (const [tabId, stretch] of Object.entries(sound.open)) {
+    if (checkedAt > stretch.since && isCounting(sound, tabId, checkedAt)) {
+      parts.push({ tabId: Number(tabId), interval: { from: stretch.since, to: checkedAt } });
+      proven[tabId] = stretch.site;
+    }
+    open[tabId] = { ...stretch, since: nowSeconds };
+  }
+  return { sound: { open, proven, checkedAt }, parts };
 }
 
 /** Whether what a tab is playing counts: its site has proven itself there, or has played long enough. */
@@ -92,13 +119,14 @@ export function setHeard(sound, tab, heard, nowSeconds) {
     return { sound: { ...sound, open }, interval: null };
   }
   return {
-    sound: { open, proven: { ...sound.proven, [key]: stretch.site } },
+    sound: { ...sound, open, proven: { ...sound.proven, [key]: stretch.site } },
     interval: { from: stretch.since, to: nowSeconds },
   };
 }
 
 /** Nothing more is known of a tab: it was closed, or the person said its page is not in the target language. */
 export const forgetSound = (sound, tabId) => ({
+  ...sound,
   open: without(sound.open, String(tabId)),
   proven: without(sound.proven, String(tabId)),
 });
@@ -123,5 +151,5 @@ export function flushSound(sound, nowSeconds) {
     open[tabId] = { ...stretch, since: Math.max(stretch.since, nowSeconds) };
     proven[tabId] = stretch.site;
   }
-  return { sound: { open, proven }, parts };
+  return { sound: { ...sound, open, proven }, parts };
 }

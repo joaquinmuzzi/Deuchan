@@ -13,15 +13,19 @@
     return;
   }
 
-  const { Watcher } = await import(chrome.runtime.getURL("src/watcher.js"));
+  const [{ Watcher }, { createSender }] = await Promise.all([
+    import(chrome.runtime.getURL("src/watcher.js")),
+    import(chrome.runtime.getURL("src/delivery.js")),
+  ]);
 
   const FLUSH_EVERY_MS = 2_000;
   const now = () => Date.now() / 1000;
 
-  // The background script names the item after the page of the tab, which a frame cannot see
+  // The background script names the item after the page of the tab, which a frame cannot see. The time
+  // is kept until it says it is written, and sent again if it is not (see delivery.js)
+  const sender = createSender((message) => chrome.runtime.sendMessage(message));
   const watcher = new Watcher({
-    send: (intervals) =>
-      chrome.runtime.sendMessage({ type: "watched", intervals, page: true }).catch(() => {}),
+    send: (intervals) => sender.send({ type: "watched", intervals, page: true }),
   });
   const announce = (inTarget) =>
     chrome.runtime.sendMessage({ type: "language", inTarget, page: true }).catch(() => {});
@@ -90,6 +94,7 @@
   setInterval(() => {
     update();
     watcher.flush(now());
+    sender.retry(now());
   }, FLUSH_EVERY_MS);
   document.addEventListener("visibilitychange", () => document.hidden && watcher.flush(now()));
   window.addEventListener("pagehide", () => watcher.flush(now()));

@@ -85,7 +85,7 @@ the first release; each is its own task.
       Disney+ in the target language, from the audio or subtitle track the player says is playing.
       Investigate each player first; the store review needs a reason for each new host permission.
 - [x] **2.8 Leave out ads** on YouTube (and on the sites of 2.7): time an ad plays is not input.
-- [ ] **2.9 Recover after a crash.** Time counted while the browser or the service worker dies is not
+- [x] **2.9 Recover after a crash.** Time counted while the browser or the service worker dies is not
       lost.
 - [x] **2.10 Narrow the optional host permissions.** Drop `https://*/*` from `optional_host_permissions`:
       `<all_urls>` covers it, and a runtime request for the one Mosaik server host stays inside a declared
@@ -286,3 +286,25 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   the same) and the popup text live. Left out on purpose: the immersion profile on other sites
   (`generic.js`) has no ad detection, since no generic rule tells an ad from a video; the sites of 2.7 need
   their own rule each (their players mark ads differently), to add with each site.
+- 2026-11-23, task 2.9: before, what could be lost was a `watched` message the background script had received
+  but not yet written (it lived only in the single writer's promise chain); and a reading session or a sound
+  stretch left open across a browser crash, a browser restart or a sleep that did not lock the screen counted
+  everything up to the next alarm or Stop, up to six hours of a computer that was off. Now `delivery.js` keeps
+  each `watched` message in the page until the background script answers, which it does only after the write,
+  and sends it again with the next flush; a copy of time already written counts zero thanks to `covered`, so a
+  message is only retried for `RESEND_SECONDS` (300, half of `KEEP_SECONDS`). `alive.js` holds the one cap,
+  `MAX_SILENCE_SECONDS` (5 min, five alarm periods): longer than that since the last look and nothing ran in
+  between, so `flushManual` ends the session at `lastFlushed` and `resumeSound` counts each open stretch until
+  `checkedAt` (a new field of the session-storage `sound`, the log's shape did not change) and restarts it.
+  `runtime.onStartup` ends a reading session left open (its tab id is gone), and a waking background script
+  re-creates the reading alarm if the browser dropped it. Kept as is, and why: up to 2 s of a video (the
+  flush period) and up to a minute of reading or sound before a crash (only a heartbeat more frequent than the
+  alarm could tell when the browser died); `covered` and the Mosaik queue are written in the same `set` as the
+  log, and Mosaik reports resent event ids as duplicates. Checked in Chrome 157 through CDP (as in 2.8): a
+  YouTube video with the service worker stopped six times in 48 s counted 38.4 s of 40.5 s played (the rest
+  was the last flush, not yet sent); a reading session survived a killed browser process with its minute,
+  and a session made to look open for three hours counted nothing when stopped. Not exercised: the
+  `onStartup` path (an extension loaded through CDP does not survive a browser restart, so it was loaded again
+  instead) and the sleep path of the sound, both covered by unit tests. Follow-up: after an extension update
+  or reload, a tab opened before it keeps a content script that cannot reach the extension any more and
+  counts nothing until the page is reloaded; re-injecting the scripts on update needs `scripting` for YouTube.

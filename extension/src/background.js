@@ -5,7 +5,16 @@
 //
 // It also keeps the immersion profile going (immersion.js), with the tabs that play sound there
 // (audio.js), and the reading counted by hand (manual.js).
-import { AUDIO_ALARM, flushSound, forgetSound, hears, isCounting, readSound, setHeard } from "./audio.js";
+import {
+  AUDIO_ALARM,
+  flushSound,
+  forgetSound,
+  hears,
+  isCounting,
+  readSound,
+  resumeSound,
+  setHeard,
+} from "./audio.js";
 import { addCoverage, isValidInterval } from "./coverage.js";
 import { correctDay, isDayKey } from "./corrections.js";
 import { IDLE_COLOR, drawIcons, iconColor } from "./icon.js";
@@ -270,6 +279,12 @@ function stepAudio({ tabId, tab, notInTarget } = {}) {
     for (const [id, stretch] of Object.entries(sound.open)) {
       tabPages = knowPage(tabPages, id, stretch);
     }
+    // The computer may have slept since the tabs were looked at: the sound until then counts, not the wait
+    const resumed = resumeSound(sound, now);
+    for (const part of resumed.parts) {
+      await savePageTime(part.tabId, sound.open[part.tabId], [part.interval]);
+    }
+    sound = resumed.sound;
     for (const current of tabs) {
       const url = current.url ?? "";
       if (notInTarget !== undefined && current.id === tabId) {
@@ -302,7 +317,7 @@ function stepAudio({ tabId, tab, notInTarget } = {}) {
         await savePageTime(part.tabId, current, [part.interval]);
       }
     }
-    await chrome.storage.session.set({ sound, audioQuiet: quiet });
+    await chrome.storage.session.set({ sound: { ...sound, checkedAt: now }, audioQuiet: quiet });
     if (Object.keys(sound.open).length > 0) {
       if (!(await chrome.alarms.get(AUDIO_ALARM))) {
         await chrome.alarms.create(AUDIO_ALARM, { periodInMinutes: 1 });
@@ -349,10 +364,22 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 mosaik.schedule().catch(() => {});
 scheduleImmersion().catch(() => {});
 stepAudio().catch(() => {});
-chrome.storage.local
-  .get("manualSession")
-  .then(({ manualSession }) => showManual(readManual(manualSession) !== null))
-  .catch(() => {});
+// In the single writer, so that a session the browser start ends (below) is not shown again after it
+enqueue(async () => {
+  const { manualSession } = await chrome.storage.local.get("manualSession");
+  const reading = readManual(manualSession) !== null;
+  // The browser keeps alarms when the background script stops, but may lose them when it restarts:
+  // a session without its alarm would wait, with nothing counted, until someone stopped it
+  if (reading && !(await chrome.alarms.get(MANUAL_ALARM))) {
+    await chrome.alarms.create(MANUAL_ALARM, { periodInMinutes: 1 });
+  }
+  await showManual(reading);
+}).catch(() => {});
+// The browser starts again (it was closed, or it crashed): a reading session left open was on a tab that
+// is gone, so it ends at its last minute (see manual.js)
+chrome.runtime.onStartup.addListener(() => {
+  enqueue(() => stepManual({ restart: true })).catch(() => {});
+});
 chrome.alarms.onAlarm.addListener(({ name }) => {
   mosaik.onAlarm(name).catch(() => {});
   if (name === AUDIO_ALARM) {
@@ -425,13 +452,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
   if (message?.type === "watched" && Array.isArray(message.intervals)) {
-    if (message.page) {
-      // A video on another site is named after the page of its tab, which a frame cannot see
-      enqueue(() => savePageTime(sender.tab?.id, sender.tab, message.intervals)).catch(() => {});
-    } else {
-      const video = cleanVideo(message.video);
-      queue = queue.then(() => save(message.intervals, video)).catch(() => {});
-    }
+    const video = message.page ? null : cleanVideo(message.video);
+    // A video on another site is named after the page of its tab, which a frame cannot see
+    const saved = enqueue(() =>
+      message.page
+        ? savePageTime(sender.tab?.id, sender.tab, message.intervals)
+        : save(message.intervals, video),
+    );
+    // The answer says the time is written: until then it lives only in this script, which can be stopped
+    // at any moment, so the page keeps it and sends it again if no answer comes (see delivery.js)
+    saved.then(
+      () => sendResponse({}),
+      () => sendResponse({ error: "unknown" }),
+    );
+    return true;
   } else if (
     message?.type === "override" &&
     isVideoId(message.videoId) &&

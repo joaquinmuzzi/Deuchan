@@ -49,12 +49,13 @@
         "src/language.js",
         "src/overrides.js",
         "src/immersion.js",
-        "src/target.js"
+        "src/target.js",
+        "src/delivery.js"
       ],
       "matches": ["https://www.youtube.com/*"]
     },
     {
-      "resources": ["src/tracker.js", "src/watcher.js"],
+      "resources": ["src/tracker.js", "src/watcher.js", "src/delivery.js"],
       "matches": ["<all_urls>"]
     }
   ]
