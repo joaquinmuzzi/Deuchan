@@ -11,6 +11,10 @@ note on what to update.
 
 ### Changed
 
+- **One broad permission fewer:** the optional `https://*/*` host permission is gone, since `<all_urls>`
+  already covers it. "Send to Mosaik" with your own server still asks for that one host only, and a host you
+  already allowed keeps working; if the browser ever asks again, the dashboard says so and turning "Send to
+  Mosaik" off and on asks for it.
 - **The store summary and description lead with what Inputly does differently:** it decides the language
   of each YouTube video, one click corrects it, the day ends at 4:00, the immersion profile counts any site
   and sound, and reading counts by hand. The manifest `description` says the same.
