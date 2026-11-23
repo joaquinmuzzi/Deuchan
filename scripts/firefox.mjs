@@ -16,6 +16,14 @@ export const GECKO_ID = "inputly@joaquinmuzzi.github.io";
  */
 export const FIREFOX_MIN_VERSION = "140.0";
 
+/**
+ * The name in Firefox. Firefox refuses a `name` longer than 45 characters (web-ext lint: "/name must NOT have
+ * more than 45 characters"), while the Chrome name carries the words people search the Chrome Web Store for
+ * and is longer. AMO search reads the listing too, so the short name loses little.
+ */
+export const FIREFOX_NAME = "Inputly – Language Immersion Tracker";
+const FIREFOX_NAME_MAX = 45;
+
 /** Keys only Chrome reads: Firefox warns about them, so they are left out. */
 const CHROME_ONLY = ["minimum_chrome_version"];
 
@@ -34,6 +42,9 @@ export function firefoxManifest(manifest) {
     throw new Error("The Chrome manifest has no background service worker");
   }
   result.background = { ...background, scripts: [worker] };
+  if (result.name.length > FIREFOX_NAME_MAX) {
+    result.name = FIREFOX_NAME;
+  }
   result.browser_specific_settings = {
     gecko: {
       id: GECKO_ID,
