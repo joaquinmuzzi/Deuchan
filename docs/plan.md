@@ -9,7 +9,7 @@ request that finishes it.
 - Works well for one user, loaded unpacked. Not published anywhere. Since phase 1 it counts any language.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
-  any language; the screenshots still show German (task 2.2).
+  any language, and the screenshots show a Japanese learner (task 2.2).
 - Mosaik keeps only German apart, so sending to it pauses while the target is another language (see the
   note of task 1.4).
 
@@ -90,7 +90,7 @@ data stays German.
 - [x] **2.1 Chrome Web Store developer account.** Created and paid (2026-11-23). Declared as a
       non-trader under the EEA consumer rules: the extension is free and not a business. Revisit before
       charging (phase 4), since a trader account shows a name, address, phone and email to EEA users.
-- [ ] **2.2 New screenshots** with demo data in a language other than German, plus the German ones.
+- [x] **2.2 New screenshots** with demo data in a language other than German, plus the German ones.
       Depends on phase 1.
 - [ ] **2.3 Listing and privacy review.** Update [store-listing.md](store-listing.md) and
       [PRIVACY.md](../PRIVACY.md); check each permission has a justification ready for the review.
@@ -209,3 +209,14 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   everything Mosaik sees (`SOURCE = "deuchan"`, event ids, `/api/agent/deuchan/days`); the comments of the
   `mosaik-*.js` files were left alone too. The icon still draws a "D" (from Deuchan); a new icon is not done.
   Notes above this one keep the old name.
+- 2026-11-23, task 2.2: the store images are Japanese, and no German one is kept (the picker in screenshot 5
+  lists the other languages). Made again with `node scripts/screenshots/capture.mjs` (Chrome or Edge, found
+  by itself or set with `CHROME`): it serves the repository on a local port, puts the demo storage of
+  `scripts/screenshots/demo-data.mjs` and the `chrome` stand-in `chrome-stub.js` in the real extension pages,
+  freezes the clock at 2026-11-20 21:40 so every run gives the same images, opens them headless through the
+  DevTools protocol and writes the JPEGs to `docs/store/`. `popup-frame.html` puts the real popup beside a few
+  lines of text, and `promo.html` is the small tile. Each image (page, theme, size, what is clicked) is one
+  entry of `SHOTS` in `capture.mjs`; after a change to the pages, run it and look at every image. The
+  dialogs are drawn at 1.25 or 1.6 device pixels per CSS pixel so they stay readable at store size (the size
+  divided by it must be whole); the dashboard alone at 1. Nothing of it is packaged: `npm run package` takes only `extension/`. The icon still
+  draws a "D".

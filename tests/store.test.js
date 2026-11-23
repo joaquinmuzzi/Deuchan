@@ -96,9 +96,11 @@ test("the description fits what the store allows, and does not claim to be YouTu
 
 test("the screenshots are 1280 x 800 and the small tile is 440 x 280", () => {
   const screenshots = [
-    "docs/store/screenshot-1-dashboard-dark.jpg",
-    "docs/store/screenshot-2-dashboard-light.jpg",
-    "docs/store/screenshot-3-popup.jpg",
+    "docs/store/screenshot-1-day-videos.jpg",
+    "docs/store/screenshot-2-popup.jpg",
+    "docs/store/screenshot-3-dashboard-dark.jpg",
+    "docs/store/screenshot-4-dashboard-light.jpg",
+    "docs/store/screenshot-5-language.jpg",
   ];
   assert.ok(screenshots.length >= 1 && screenshots.length <= 5, "the store takes from 1 to 5");
   for (const path of screenshots) {

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <title>Inputly small promo tile</title>
+    <!-- The small promo tile of the store, 440 × 280: capture.mjs opens it at that size. -->
+    <link rel="stylesheet" href="../../extension/src/theme.css" />
+    <style>
+      body {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        width: 440px;
+        height: 280px;
+        margin: 0;
+        padding: 0 30px;
+        box-sizing: border-box;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      img {
+        flex: none;
+        width: 112px;
+        height: 112px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        color: var(--strong);
+        font-size: 44px;
+        line-height: 1;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.4;
+      }
+
+      .languages {
+        margin-top: 12px;
+        color: var(--strong);
+        font-size: 13px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="../../extension/icons/icon-128.png" alt="" />
+    <div>
+      <h1>Inputly</h1>
+      <p>Your input in the language you learn, counted by itself.</p>
+      <p class="languages">日本語 · Español · 한국어 · Deutsch</p>
+    </div>
+  </body>
+</html>
