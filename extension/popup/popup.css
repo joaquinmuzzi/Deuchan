@@ -170,10 +170,3 @@ header {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
-.scope {
-  margin: -4px 0 12px;
-  color: var(--muted);
-  font-size: 11px;
-  text-align: center;
-}

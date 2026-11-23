@@ -60,6 +60,8 @@ note on what to update.
 
 ### Fixed
 
+- The popup no longer shows "All your computers, with Mosaik" under the cards, where it overlapped them;
+  with Mosaik on, it is said when the pointer is over the cards.
 - In the dashboard, the minutes of a day follow the day until you type in them, and Save with the minutes
   untouched corrects nothing. Before, the minutes stayed as they were when the day was opened: Save after
   "Not German" put the time of the video back.
