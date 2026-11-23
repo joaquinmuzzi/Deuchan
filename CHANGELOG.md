@@ -11,6 +11,9 @@ note on what to update.
 
 ### Changed
 
+- **The store summary and description lead with what Inputly does differently:** it decides the language
+  of each YouTube video, one click corrects it, the day ends at 4:00, the immersion profile counts any site
+  and sound, and reading counts by hand. The manifest `description` says the same.
 - **Deuchan is now Inputly,** since the old name said German and the extension counts any language. The
   store name is "Inputly – Track your language input", and the repository moves to
   <https://github.com/joaquinmuzzi/inputly> (the old address redirects). Your history, settings and the link

@@ -9,7 +9,8 @@ request that finishes it.
 - Works well for one user, loaded unpacked. Not published anywhere. Since phase 1 it counts any language.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
-  any language, and the screenshots show a Japanese learner (task 2.2).
+  any language, the screenshots show a Japanese learner (task 2.2), and the listing is ready to paste
+  (task 2.3).
 - Mosaik keeps only German apart, so sending to it pauses while the target is another language (see the
   note of task 1.4).
 
@@ -92,7 +93,7 @@ data stays German.
       charging (phase 4), since a trader account shows a name, address, phone and email to EEA users.
 - [x] **2.2 New screenshots** with demo data in a language other than German, plus the German ones.
       Depends on phase 1.
-- [ ] **2.3 Listing and privacy review.** Update [store-listing.md](store-listing.md) and
+- [x] **2.3 Listing and privacy review.** Update [store-listing.md](store-listing.md) and
       [PRIVACY.md](../PRIVACY.md); check each permission has a justification ready for the review.
       Depends on D1 and phase 1.
 - [ ] **2.4 First release.** Version 0.1.0 (or 1.0.0) in the manifest and the changelog, then the zip
@@ -113,6 +114,12 @@ the first release; each is its own task.
 - [ ] **2.8 Leave out ads** on YouTube (and on the sites of 2.7): time an ad plays is not input.
 - [ ] **2.9 Recover after a crash.** Time counted while the browser or the service worker dies is not
       lost.
+- [ ] **2.10 Narrow the optional host permissions.** Drop `https://*/*` from `optional_host_permissions`:
+      `<all_urls>` covers it, and a runtime request for the one Mosaik server host stays inside a declared
+      pattern. Check by hand that turning on "Send to Mosaik" with an `https://` server still asks for that
+      host and sends, and update the listing table, PRIVACY.md and `tests/store.test.js` if needed. Asking
+      for each site in the immersion profile instead of `<all_urls>` is the bigger step: only if a review
+      asks for it (see [Review time](store-listing.md#review-time)). Small; can run before or after 2.4.
 
 ## Phase 3: users
 
@@ -220,3 +227,15 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   dialogs are drawn at 1.25 or 1.6 device pixels per CSS pixel so they stay readable at store size (the size
   divided by it must be whole); the dashboard alone at 1. Nothing of it is packaged: `npm run package` takes only `extension/`. The icon still
   draws a "D".
+- 2026-11-23, task 2.3: the listing is ready to paste ([store-listing.md](store-listing.md)): the
+  description leads with what only Inputly does, the summary (and the manifest `description`) says it
+  detects the language of each YouTube video, the reviewers pick English on the first-install page, the
+  data usage is a checklist (web history, user activity and website content ticked, since the user data
+  FAQ says data kept only on the device must be disclosed too), and "What has to be done by hand" starts
+  from the existing account. PRIVACY.md has a section on the target language setting. Review: the Chrome
+  Web Store review page says broad host permissions (it names `https://*/*` and `<all_urls>`) may make the
+  review longer, without saying whether optional ones count; developers report the in-depth review warning
+  mostly for required host permissions and content script matches. Both of Inputly's are optional and
+  requested at runtime, as the docs recommend, so the first review may still be slower than a few days.
+  Dropping the redundant `https://*/*` costs nothing (task 2.10); replacing `<all_urls>` would cost the
+  immersion profile its "any site with no setup", so only if a review asks.
