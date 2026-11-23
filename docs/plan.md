@@ -96,9 +96,9 @@ data stays German.
 - [x] **2.3 Listing and privacy review.** Update [store-listing.md](store-listing.md) and
       [PRIVACY.md](../PRIVACY.md); check each permission has a justification ready for the review.
       Depends on D1 and phase 1.
-- [ ] **2.4 First release.** Version 0.1.0 (or 1.0.0) in the manifest and the changelog, then the zip
-      from `npm run package`, which the maintainer uploads and submits for review. Version 0.1.0 is in the
-      changelog and the zip is made; ticked once the maintainer submits it.
+- [x] **2.4 First release.** Version 0.1.0 (or 1.0.0) in the manifest and the changelog, then the zip
+      from `npm run package`, which the maintainer uploads and submits for review. Version 0.1.0 was
+      submitted for review on 2026-11-23, set to publish automatically once approved.
 - [ ] **2.5 Edge Add-ons.** Same package, free to publish. After 2.4.
 - [ ] **2.6 Firefox.** Needs work: Firefox uses background scripts instead of a service worker, and
       some APIs differ. Investigate the gap first. It matters more than first thought: the main competitor
@@ -251,3 +251,7 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
 - 2026-11-23, by hand before 2.4: the maintainer updated their daily install to `main` (name Inputly, without
   `https://*/*`). History, German counting and sending to their https Mosaik server all kept working; the
   host granted under the old manifest survived the update, with no new prompt.
+- 2026-11-23, task 2.4: Inputly 0.1.0 submitted to the Chrome Web Store (item `imadljjebohcpkeopadcifnodmfbndel`),
+  free, public, all regions, publish automatically after review. The dashboard warned that the host
+  permissions may mean an in-depth review. The store description has no Mosaik section (readers cannot
+  install it); Mosaik stays in the permission justifications and PRIVACY.md.
