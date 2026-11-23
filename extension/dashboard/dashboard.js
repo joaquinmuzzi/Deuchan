@@ -5,7 +5,7 @@ import { itemUrl } from "../src/items.js";
 import { formatClock, migrate, shownLog } from "../src/log.js";
 import { dayItems, hasOthers, withOtherDevices } from "../src/mosaik-days.js";
 import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js";
-import { TARGET_HASH, TARGET_KEY, targetOf, targetOptions } from "../src/target.js";
+import { TARGET_HASH, TARGET_KEY, targetName, targetOf, targetOptions } from "../src/target.js";
 import { setUpTheme } from "../src/theme.js";
 import { dayVideos } from "../src/videos.js";
 import { setUpMosaikPanel } from "./mosaik-panel.js";
@@ -167,7 +167,7 @@ function render() {
 const dayDialog = byId("dayDialog");
 const dayInput = byId("dayInput");
 const dayError = byId("dayError");
-// Whether the person typed minutes: until then the field follows the day, which a "Not German" changes
+// Whether the person typed minutes: until then the field follows the day, which a "Not <language>" changes
 let dayInputEdited = false;
 
 /** The minutes of a day as the field shows them before anything is typed. */
@@ -200,7 +200,7 @@ function renderDetail() {
       row.append(element("span", "time", formatClock(video.seconds)));
       // Only what this computer counted can be taken out here
       if (video.here) {
-        const button = element("button", "button small", "Not German");
+        const button = element("button", "button small", `Not ${targetName(target)}`);
         button.type = "button";
         button.addEventListener("click", () => {
           button.disabled = true;
@@ -213,7 +213,7 @@ function renderDetail() {
   );
   byId("dayNote").textContent =
     list.length > 0
-      ? "Not German takes that video out of the day and stops counting it. What another computer counted is taken out there."
+      ? `Not ${targetName(target)} takes that video out of the day and stops counting it. What another computer counted is taken out there.`
       : "No videos are saved for this day. Time from before this version is not listed.";
 }
 
@@ -260,8 +260,15 @@ function renderTargets() {
   targetSelect.value = target;
 }
 
+/** The immersion note names the language picked, even before it is saved. */
+const renderImmersionLanguage = () => {
+  byId("immersionLanguage").textContent = targetName(targetSelect.value);
+};
+targetSelect.addEventListener("change", renderImmersionLanguage);
+
 function openSettings(focus) {
   renderTargets();
+  renderImmersionLanguage();
   input.value = String(goalMinutes);
   error.textContent = "";
   dialog.showModal();
@@ -337,6 +344,8 @@ videos = stored.videos;
 immersionBox.checked = immersionOf(stored.immersion);
 goalMinutes = goalMinutesOf(stored.goalMinutes);
 target = targetOf(stored[TARGET_KEY]);
+renderTargets();
+renderImmersionLanguage();
 range = RANGES.some(({ days }) => days === stored.range) ? stored.range : DEFAULT_RANGE;
 renderRanges();
 render();
@@ -370,6 +379,10 @@ chrome.storage.onChanged.addListener((changes) => {
   }
   if (changes[TARGET_KEY]) {
     target = targetOf(changes[TARGET_KEY].newValue);
+    if (!dialog.open) {
+      renderTargets();
+      renderImmersionLanguage();
+    }
   }
   render();
 });

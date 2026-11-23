@@ -35,8 +35,8 @@
       chrome.runtime.sendMessage({ type: "watched", intervals, video: currentVideo }).catch(() => {}),
   });
 
-  // The toolbar icon of this tab turns orange while the video is German
-  const announce = (german) => chrome.runtime.sendMessage({ type: "language", german }).catch(() => {});
+  // The toolbar icon of this tab turns orange while the video is in the target language
+  const announce = (inTarget) => chrome.runtime.sendMessage({ type: "language", inTarget }).catch(() => {});
 
   let currentVideoId = null;
   // What the language of the video was taken to be the last time, so that the same answer is not
@@ -76,9 +76,9 @@
     return lastLanguages;
   }
 
-  function setVerdict(german) {
-    watcher.setGerman(now(), german);
-    announce(german);
+  function setVerdict(inTarget) {
+    watcher.setInTarget(now(), inTarget);
+    announce(inTarget);
   }
 
   window.addEventListener("message", async (event) => {
@@ -102,10 +102,10 @@
     // The target may have changed while waiting: the answer of the next request will use the new one
     if (videoId === currentVideoId && asked === target) {
       const detected = detectTarget(event.data, { target: asked, textLanguages: languages }).inTarget;
-      const german = verdict(overrides, videoId, immersion || detected);
-      if (german !== decided) {
-        decided = german;
-        setVerdict(german);
+      const inTarget = verdict(overrides, videoId, immersion || detected);
+      if (inTarget !== decided) {
+        decided = inTarget;
+        setVerdict(inTarget);
       }
     }
   });
@@ -166,11 +166,11 @@
     }
     if (message?.type === "status") {
       sendResponse({ ...watcher.status, immersion });
-    } else if (message?.type === "setGerman" && typeof message.german === "boolean" && currentVideoId) {
-      decided = message.german;
-      setVerdict(message.german);
+    } else if (message?.type === "setInTarget" && typeof message.inTarget === "boolean" && currentVideoId) {
+      decided = message.inTarget;
+      setVerdict(message.inTarget);
       chrome.runtime
-        .sendMessage({ type: "override", videoId: currentVideoId, german: message.german })
+        .sendMessage({ type: "override", videoId: currentVideoId, inTarget: message.inTarget })
         .catch(() => {});
     }
   });

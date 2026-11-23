@@ -6,11 +6,11 @@ import { Tracker } from "./tracker.js";
  * and gives it a `send(intervals)` function, so it can be tested.
  *
  * While the language is still unknown (the page has not shown the captions yet), the time is kept
- * and credited as soon as the video turns out to be German, or dropped if it is not.
+ * and credited as soon as the video turns out to be in the target language, or dropped if it is not.
  */
 export class Watcher {
   #tracker = new Tracker();
-  #german = null;
+  #inTarget = null;
   #send;
 
   constructor({ send }) {
@@ -19,7 +19,7 @@ export class Watcher {
 
   /** What the popup shows: the verdict on the language (`null` while unknown) and whether it plays. */
   get status() {
-    return { german: this.#german, playing: this.#tracker.isPlaying };
+    return { inTarget: this.#inTarget, playing: this.#tracker.isPlaying };
   }
 
   play(now) {
@@ -31,10 +31,10 @@ export class Watcher {
     this.flush(now);
   }
 
-  /** The language of the current video is known: `true` for German, `false` for anything else. */
-  setGerman(now, german) {
+  /** The language of the current video is known: `true` for the target language, `false` for anything else. */
+  setInTarget(now, inTarget) {
     this.#tracker.tick(now);
-    this.#german = german;
+    this.#inTarget = inTarget;
     this.flush(now);
   }
 
@@ -42,17 +42,17 @@ export class Watcher {
   newVideo(now) {
     this.flush(now);
     this.#tracker.take();
-    this.#german = null;
+    this.#inTarget = null;
   }
 
-  /** Saves what has been counted if the video is German. Called every few seconds while playing. */
+  /** Saves what has been counted if the video is in the target language. Called every few seconds while playing. */
   flush(now) {
     this.#tracker.tick(now);
-    if (this.#german === null) {
+    if (this.#inTarget === null) {
       return;
     }
     const intervals = this.#tracker.take();
-    if (this.#german && intervals.length > 0) {
+    if (this.#inTarget && intervals.length > 0) {
       this.#send(intervals);
     }
   }

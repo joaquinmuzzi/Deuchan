@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { FILES, SIZES, renderIcon, renderPixels } from "../scripts/make-icons.mjs";
 import {
-  GERMAN_COLOR,
+  TARGET_COLOR,
   IDLE_COLOR,
   PATTERN,
   iconCells,
@@ -18,18 +18,18 @@ import {
 const ICONS = resolve(dirname(fileURLToPath(import.meta.url)), "..", "extension", "icons");
 
 test("the icon is orange for a German video", () => {
-  assert.equal(iconColor(true), GERMAN_COLOR);
+  assert.equal(iconColor(true), TARGET_COLOR);
 });
 
 test("the icon is grey for a video that is not German, for an unknown language and for no video", () => {
-  for (const german of [false, null, undefined]) {
-    assert.equal(iconColor(german), IDLE_COLOR, String(german));
+  for (const inTarget of [false, null, undefined]) {
+    assert.equal(iconColor(inTarget), IDLE_COLOR, String(inTarget));
   }
 });
 
 test("the two colours are different, and orange is the one of the app", () => {
-  assert.notEqual(GERMAN_COLOR, IDLE_COLOR);
-  assert.equal(GERMAN_COLOR, "#e8590c");
+  assert.notEqual(TARGET_COLOR, IDLE_COLOR);
+  assert.equal(TARGET_COLOR, "#e8590c");
 });
 
 test("the squares of the heatmap draw a D: a straight side, and the right corners cut", () => {
@@ -92,7 +92,7 @@ test("insideRoundedRect cuts the corners and nothing else", () => {
 
 test("the pixels have transparent corners, the colour of the icon and white squares", () => {
   const size = 128;
-  const pixels = renderPixels(size, GERMAN_COLOR);
+  const pixels = renderPixels(size, TARGET_COLOR);
   const at = (x, y) => [...pixels.subarray((y * size + x) * 4, (y * size + x) * 4 + 4)];
   assert.equal(at(0, 0)[3], 0, "the corner is transparent");
   const [first] = iconCells(size);

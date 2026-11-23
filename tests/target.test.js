@@ -9,6 +9,7 @@ import {
   isTarget,
   languageName,
   normalizeLanguage,
+  targetName,
   targetOf,
   targetOptions,
 } from "../extension/src/target.js";
@@ -69,6 +70,14 @@ test("languageName says the language in English, or in another locale", () => {
   assert.equal(languageName("de", "es"), "alemán");
   // Something that is not a language is shown as it is, rather than as nothing
   assert.equal(languageName("xx"), "xx");
+});
+
+test("targetName is the name of the saved target, German while nothing usable is saved", () => {
+  assert.equal(targetName(undefined), "German");
+  assert.equal(targetName("not a language"), "German");
+  assert.equal(targetName("ja"), "Japanese");
+  assert.equal(targetName("pt-BR"), "Portuguese");
+  assert.equal(targetName("de", "es"), "alemán");
 });
 
 test("the offered languages are valid, bare codes, German and the most learned among them", () => {

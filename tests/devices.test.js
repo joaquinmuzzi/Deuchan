@@ -82,10 +82,10 @@ test("the immersion profile is off unless it was turned on, and its script runs 
 
 test("the popup says when it counts because of the immersion profile", () => {
   assert.equal(
-    describeStatus({ german: true, playing: true, immersion: true }).text,
+    describeStatus({ inTarget: true, playing: true, immersion: true }).text,
     "Counting (immersion profile)",
   );
-  assert.equal(describeStatus({ german: true, playing: true }).text, "Counting German");
+  assert.equal(describeStatus({ inTarget: true, playing: true }).text, "Counting German");
 });
 
 const tab = { id: 7, url: "https://example.com/comic/3?page=2", title: "Asterix  3" };

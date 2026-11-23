@@ -32,9 +32,9 @@ export function verdict(overrides, videoId, detected) {
 }
 
 /** A new set of decisions with one more (or changed); the given one is not changed. */
-export function withOverride(overrides, videoId, german, limit = MAX_OVERRIDES) {
+export function withOverride(overrides, videoId, inTarget, limit = MAX_OVERRIDES) {
   const rest = Object.fromEntries(Object.entries(overrides ?? {}).filter(([id]) => id !== videoId));
   // The newest decision goes last, and what goes over the limit is the oldest
-  const entries = [...Object.entries(rest), [videoId, german]];
+  const entries = [...Object.entries(rest), [videoId, inTarget]];
   return Object.fromEntries(entries.slice(-limit));
 }

@@ -1,5 +1,5 @@
 /**
- * The log of watched time: how many seconds of German were watched on each day.
+ * The log of watched time: how many seconds in the target language were watched on each day.
  *
  * Everything here is a pure function on plain objects, so it can be tested without a browser. The
  * shape is `{ version, days: { "2026-10-24": 3600 }, adjust? }`: only what was counted on this computer
@@ -73,7 +73,7 @@ export function totalSeconds(log) {
 }
 
 /**
- * Days in a row with German, counting back from today. A day that has not started yet does not
+ * Days in a row with some input, counting back from today. A day that has not started yet does not
  * break the streak: if today is still empty, it counts from yesterday.
  */
 export function streak(log, today) {

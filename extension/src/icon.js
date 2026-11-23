@@ -1,18 +1,19 @@
 /**
  * The icon of Deuchan: a "D" made of the little squares of the activity heatmap, white on a rounded
- * square. The toolbar icon is grey while there is nothing German in the tab and orange (the colour of
- * the app) while the video of the tab is in German. It is drawn when needed, so the toolbar needs no
- * image file, and `scripts/make-icons.mjs` draws the same shape into the PNG files of the manifest.
+ * square. The toolbar icon is grey while there is nothing in the target language in the tab and
+ * orange (the colour of the app) while the video of the tab is in the target language. It is drawn
+ * when needed, so the toolbar needs no image file, and `scripts/make-icons.mjs` draws the same shape
+ * into the PNG files of the manifest.
  *
  * The shape is in units of a 48 x 48 square, and `iconCells` and `insideRoundedRect` are pure, so
  * both drawings share it.
  */
 
 export const IDLE_COLOR = "#8a8a8a";
-export const GERMAN_COLOR = "#e8590c";
+export const TARGET_COLOR = "#e8590c";
 
-/** The colour of the icon for what the tab says about its video: `true` only for German. */
-export const iconColor = (german) => (german === true ? GERMAN_COLOR : IDLE_COLOR);
+/** The colour of the icon for what the tab says about its video: `true` only for the target language. */
+export const iconColor = (inTarget) => (inTarget === true ? TARGET_COLOR : IDLE_COLOR);
 
 /** The squares of the heatmap that make the letter. `X` is a lit square and `.` is an empty one. */
 export const PATTERN = ["XXXX.", "X...X", "X...X", "X...X", "XXXX."];

@@ -9,8 +9,8 @@
  * does not. From then on the site has proven itself in that tab and its shorter stretches count too, so
  * that a podcast can be paused every few seconds. Another site in the same tab starts from nothing.
  *
- * YouTube is left to its own script, which knows each video. A page the person said is not German
- * (the popup, while a video plays there) does not count until it changes address.
+ * YouTube is left to its own script, which knows each video. A page the person said is not in the
+ * target language (the popup, while a video plays there) does not count until it changes address.
  *
  * Kept as `sound` in the session storage, as the background script can be stopped while a podcast plays:
  * `{ open: { "<tab id>": { since, site, url, title } }, proven: { "<tab id>": site } }`, with `since` in
@@ -97,7 +97,7 @@ export function setHeard(sound, tab, heard, nowSeconds) {
   };
 }
 
-/** Nothing more is known of a tab: it was closed, or the person said that its page is not German. */
+/** Nothing more is known of a tab: it was closed, or the person said its page is not in the target language. */
 export const forgetSound = (sound, tabId) => ({
   open: without(sound.open, String(tabId)),
   proven: without(sound.proven, String(tabId)),

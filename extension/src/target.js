@@ -86,6 +86,9 @@ export function languageName(code, locale = "en") {
   return (language && displayNames(locale).of(language)) ?? String(code);
 }
 
+/** The name of the saved target, as the pages say it: "German" while nothing is saved, "Japanese" for `"ja"`. */
+export const targetName = (saved, locale = "en") => languageName(targetOf(saved), locale);
+
 /**
  * What the picker shows, as `{ code, name }` sorted by name: the offered languages, plus the saved one
  * if it is not among them, so that a language set some other way is not lost by opening the settings.
