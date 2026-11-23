@@ -6,7 +6,8 @@ request that finishes it.
 
 ## Where it stands
 
-- Works well for one user, loaded unpacked. Not published anywhere. Since phase 1 it counts any language.
+- Works well for one user, loaded unpacked. Version 0.1.0 is in review in the Chrome Web Store and in Edge
+  Add-ons. Since phase 1 it counts any language.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
   any language, the screenshots show a Japanese learner (task 2.2), and the listing is ready to paste
@@ -99,7 +100,8 @@ data stays German.
 - [x] **2.4 First release.** Version 0.1.0 (or 1.0.0) in the manifest and the changelog, then the zip
       from `npm run package`, which the maintainer uploads and submits for review. Version 0.1.0 was
       submitted for review on 2026-11-23, set to publish automatically once approved.
-- [ ] **2.5 Edge Add-ons.** Same package, free to publish. After 2.4.
+- [x] **2.5 Edge Add-ons.** Same package, free to publish. After 2.4. Version 0.1.0 was submitted for
+      review on 2026-11-23.
 - [ ] **2.6 Firefox.** Needs work: Firefox uses background scripts instead of a service worker, and
       some APIs differ. Investigate the gap first. It matters more than first thought: the main competitor
       is on Firefox.
@@ -255,3 +257,11 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   free, public, all regions, publish automatically after review. The dashboard warned that the host
   permissions may mean an in-depth review. The store description has no Mosaik section (readers cannot
   install it); Mosaik stays in the permission justifications and PRIVACY.md.
+- 2026-11-23, task 2.5: Inputly 0.1.0 submitted to Edge Add-ons (Partner Center product
+  `db500bcf-ee3f-4544-ba78-b2b910026975`, Store ID `0RDCKDKZ04PB`), public, all markets; Microsoft says to
+  expect an answer within 7 business days. How Edge differs from the Chrome listing: there is no Education
+  category, so it is Productivity; it asks for justifications of `storage`, `alarms`, `idle` and
+  `activeTab` only; the promotional tile and the screenshots must be PNG (the JPEGs of `docs/store/` were
+  converted for the upload); the description says "the browser's built-in language detector" and "a
+  browser profile" instead of naming Chrome. The test instructions went in "Notes for certification",
+  which Edge asks for with every submission, so the next update needs them again.
