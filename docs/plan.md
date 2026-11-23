@@ -97,7 +97,8 @@ data stays German.
       [PRIVACY.md](../PRIVACY.md); check each permission has a justification ready for the review.
       Depends on D1 and phase 1.
 - [ ] **2.4 First release.** Version 0.1.0 (or 1.0.0) in the manifest and the changelog, then the zip
-      from `npm run package`, which the maintainer uploads and submits for review.
+      from `npm run package`, which the maintainer uploads and submits for review. Version 0.1.0 is in the
+      changelog and the zip is made; ticked once the maintainer submits it.
 - [ ] **2.5 Edge Add-ons.** Same package, free to publish. After 2.4.
 - [ ] **2.6 Firefox.** Needs work: Firefox uses background scripts instead of a service worker, and
       some APIs differ. Investigate the gap first. It matters more than first thought: the main competitor
@@ -247,3 +248,6 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   survive. If it does not, the runner stops at `permission-missing` (nothing is lost: events wait in the
   outbox) and the dashboard says to turn "Send to Mosaik" off and on, which asks again. Not checked by hand
   yet at the time of the pull request: see its Testing steps.
+- 2026-11-23, by hand before 2.4: the maintainer updated their daily install to `main` (name Inputly, without
+  `https://*/*`). History, German counting and sending to their https Mosaik server all kept working; the
+  host granted under the old manifest survived the update, with no new prompt.
