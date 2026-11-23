@@ -6,8 +6,10 @@ request that finishes it.
 
 ## Where it stands
 
-- Works well for one user, loaded unpacked. Version 0.1.0 is in review in the Chrome Web Store and in Edge
-  Add-ons. Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
+- Version 0.1.0 is published in the
+  [Chrome Web Store](https://chromewebstore.google.com/detail/imadljjebohcpkeopadcifnodmfbndel) and in
+  [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ofophfcnojdmdffnfljneagppnnjelpp) (both
+  approved on 2026-11-23). Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
   not yet submitted to Firefox Add-ons.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
@@ -101,7 +103,7 @@ users) and from what people write.
 
 - [x] **3.1 A simple landing page** (GitHub Pages) with what it does, the screenshots and the store link.
       Done in `site/`, published by `.github/workflows/pages.yml` at <https://joaquinmuzzi.github.io/Inputly/>
-      once Pages is switched on (see the note of task 3.1). The store buttons work only once each review passes.
+      (Pages is switched on). Its Chrome and Edge buttons work: both stores published 0.1.0.
 - [ ] **3.2 Announce it** where people count their input: r/LearnJapanese, r/languagelearning,
       r/German, the Refold community. Draft the posts in a session; the maintainer posts them.
 - [ ] **3.3 Listen.** Turn feedback into issues; fix what blocks people first. Watch which features
