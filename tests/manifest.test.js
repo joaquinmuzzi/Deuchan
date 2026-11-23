@@ -5,6 +5,7 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { IMMERSION_PERMISSIONS, immersionScript } from "../extension/src/immersion.js";
+import { hubOrigins } from "../extension/src/mosaik-client.js";
 
 const EXTENSION = resolve(dirname(fileURLToPath(import.meta.url)), "..", "extension");
 const manifest = JSON.parse(readFileSync(resolve(EXTENSION, "manifest.json"), "utf8"));
@@ -47,13 +48,21 @@ test("it may talk to no address at all until the person allows one", () => {
 
 test("the hub on this computer, a Mosaik server and the immersion profile are optional permissions", () => {
   // Asked for from the dashboard: a new permission in host_permissions would show a warning to every
-  // person who has the extension. https://*/* is never asked for whole: only the host of the server set
+  // person who has the extension. <all_urls> is asked for whole only by the immersion profile; for a Mosaik
+  // server only its host is asked for (https://<host>/*), which Chrome accepts as a subset of <all_urls>. A
+  // separate https://*/* would add one more broad pattern to the store review for nothing.
   assert.deepEqual(manifest.optional_host_permissions, [
     "http://127.0.0.1/*",
     "http://localhost/*",
-    "https://*/*",
     "<all_urls>",
   ]);
+});
+
+test("the host of a Mosaik server is asked for alone, inside a declared optional pattern", () => {
+  const origins = hubOrigins("https://mosaik.example.com");
+  assert.deepEqual(origins, ["https://mosaik.example.com/*"]);
+  // Chrome only grants origins covered by a declared optional pattern; <all_urls> covers any https host
+  assert.ok(manifest.optional_host_permissions.includes("<all_urls>"));
 });
 
 test("the immersion profile asks for optional permissions only, the same that the code asks for", () => {

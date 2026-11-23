@@ -114,7 +114,7 @@ the first release; each is its own task.
 - [ ] **2.8 Leave out ads** on YouTube (and on the sites of 2.7): time an ad plays is not input.
 - [ ] **2.9 Recover after a crash.** Time counted while the browser or the service worker dies is not
       lost.
-- [ ] **2.10 Narrow the optional host permissions.** Drop `https://*/*` from `optional_host_permissions`:
+- [x] **2.10 Narrow the optional host permissions.** Drop `https://*/*` from `optional_host_permissions`:
       `<all_urls>` covers it, and a runtime request for the one Mosaik server host stays inside a declared
       pattern. Check by hand that turning on "Send to Mosaik" with an `https://` server still asks for that
       host and sends, and update the listing table, PRIVACY.md and `tests/store.test.js` if needed. Asking
@@ -239,3 +239,11 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   requested at runtime, as the docs recommend, so the first review may still be slower than a few days.
   Dropping the redundant `https://*/*` costs nothing (task 2.10); replacing `<all_urls>` would cost the
   immersion profile its "any site with no setup", so only if a review asks.
+- 2026-11-23, task 2.10: `https://*/*` is out of `optional_host_permissions`; `<all_urls>` now covers the
+  Mosaik server too. The code never relied on the pattern itself: the dashboard requests and the runner
+  checks `hubOrigins(url)`, the exact `https://<host>/*`, and the permissions API docs allow requesting a
+  subset of a declared optional origin pattern. What happens to a host granted under the old manifest is not
+  documented; Chromium keeps runtime grants that intersect the new declared patterns, so it is expected to
+  survive. If it does not, the runner stops at `permission-missing` (nothing is lost: events wait in the
+  outbox) and the dashboard says to turn "Send to Mosaik" off and on, which asks again. Not checked by hand
+  yet at the time of the pull request: see its Testing steps.
