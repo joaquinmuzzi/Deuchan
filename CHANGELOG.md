@@ -9,6 +9,10 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-23
+
+The first version submitted to the Chrome Web Store, as Inputly.
+
 ### Changed
 
 - **One broad permission fewer:** the optional `https://*/*` host permission is gone, since `<all_urls>`
