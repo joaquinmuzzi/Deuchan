@@ -9,6 +9,10 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-23
+
+Fixes that make the count more honest: ads, a failed player and crashes no longer add or lose time.
+
 ### Added
 
 - **A Firefox build** (Firefox 140 or later, desktop): `npm run package:firefox` makes

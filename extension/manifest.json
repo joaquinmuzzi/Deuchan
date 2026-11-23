@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Inputly – Track your language input",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Counts your input in the language you learn: detects the language of each YouTube video. Daily goal, charts, private, no account.",
   "homepage_url": "https://github.com/joaquinmuzzi/inputly",
   "minimum_chrome_version": "111",
