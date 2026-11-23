@@ -1,7 +1,8 @@
 /**
- * The icon of Deuchan: a "D" made of the little squares of the activity heatmap, white on a rounded
- * square. The toolbar icon is grey while there is nothing in the target language in the tab and
- * orange (the colour of the app) while the video of the tab is in the target language. It is drawn
+ * The icon of Inputly: a "D" (from Deuchan, its first name) made of the little squares of the
+ * activity heatmap, white on a rounded square. The toolbar icon is grey while there is nothing in
+ * the target language in the tab and orange (the colour of the app) while the video of the tab is
+ * in the target language. It is drawn
  * when needed, so the toolbar needs no image file, and `scripts/make-icons.mjs` draws the same shape
  * into the PNG files of the manifest.
  *

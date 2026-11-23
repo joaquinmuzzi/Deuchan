@@ -97,5 +97,11 @@ test("the modules those modules import can be reached too", () => {
 });
 
 test("the manifest and the package have the same name", () => {
-  assert.equal(manifest.name.toLowerCase(), packageJson.name);
+  // The manifest name is the store name, "Inputly – Track your language input": its first word is the name
+  assert.equal(manifest.name.split(" ")[0].toLowerCase(), packageJson.name);
+  assert.equal(manifest.action.default_title, "Inputly");
+});
+
+test("the name fits what the Chrome Web Store allows", () => {
+  assert.ok(manifest.name.length <= 75, `${manifest.name.length} characters`);
 });

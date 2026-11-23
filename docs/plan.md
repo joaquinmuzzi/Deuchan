@@ -1,6 +1,6 @@
 # Plan
 
-Where Deuchan stands and what comes next. Every session reads it at the start and updates it at the
+Where Inputly stands and what comes next. Every session reads it at the start and updates it at the
 end (see [CLAUDE.md](../CLAUDE.md#how-work-is-split-across-sessions)). Tick a task in the same pull
 request that finishes it.
 
@@ -32,7 +32,7 @@ Checked in the Chrome Web Store on 2026-11-23. The niche is small and young: no 
 - Smaller or abandoned: Tracking Languages, Mikan (Firefox, Japanese), Lingo Immersion, LangMetrics, Ears
   Time. On phones, manual loggers: Lingua Logger (freemium), Vervu, TrackMyLang, Input Logger.
 
-**What only Deuchan does**, to lead the listing with: it decides the language of each video (the others
+**What only Inputly does**, to lead the listing with: it decides the language of each video (the others
 count everything, or need an account or profile used only for the language); the day ends at 4:00; each
 day and each video can be corrected; the immersion profile counts any site and any sound; reading is
 counted by hand; Anki statistics through Mosaik.
@@ -77,7 +77,7 @@ data stays German.
       Mosaik cannot take other languages yet (check its ingest contract). Depends on 1.1.
 - [x] **1.5 Docs.** README, CONTRIBUTING (the wrong detection issue template too) and the store listing
       speak of any language. Depends on 1.2 and 1.3.
-- [ ] **1.6 Rename to Inputly** (D1). Everything a person sees: the manifest `name` and `default_title`,
+- [x] **1.6 Rename to Inputly** (D1). Everything a person sees: the manifest `name` and `default_title`,
       the popup and dashboard headings, page titles, README, CONTRIBUTING, PRIVACY, SECURITY, the store
       listing (name "Inputly – Track your language input"), the package name and the zip
       (`dist/inputly-<version>.zip`), and links to the repository (`joaquinmuzzi/Inputly`). Not what is
@@ -104,7 +104,7 @@ data stays German.
 
 ## Phase 2b: close the gap with the competition
 
-What jp343 does and Deuchan does not (see [Competition](#competition)). Worth doing before or soon after
+What jp343 does and Inputly does not (see [Competition](#competition)). Worth doing before or soon after
 the first release; each is its own task.
 
 - [ ] **2.7 Streaming sites without the immersion profile.** Count Netflix, Prime Video, Crunchyroll and
@@ -198,3 +198,14 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   automatic captions, and `chrome.i18n.detectLanguage` on titles), the popup and dashboard labels in another
   language, overrides kept per language, and Mosaik pausing (and resuming) when the target changes. Try them
   by hand before task 2.2 takes the new screenshots.
+- 2026-11-23, task 1.6: the extension is called Inputly. The manifest `name` is the store name, "Inputly – Track
+  your language input" (35 of 75 characters; `tests/manifest.test.js` and `tests/store.test.js` check it and
+  that the listing says the same), and `action.default_title` is "Inputly". Links point to
+  `github.com/joaquinmuzzi/inputly` (GitHub ignores the case, so they work once the repository is renamed to
+  `Inputly`, and the old address redirects). The package is `inputly` and the zip `dist/inputly-<version>.zip`.
+  Still "deuchan" on purpose, because it is stored or sent: storage keys, alarm names (`deuchan-audio`,
+  `deuchan-manual`, `deuchan-mosaik`, the legacy `deuchan-sync`), the immersion script id, the
+  `deuchan:request`/`deuchan:video` page messages, `data-deuchan` and `globalThis.deuchanGeneric`, and
+  everything Mosaik sees (`SOURCE = "deuchan"`, event ids, `/api/agent/deuchan/days`); the comments of the
+  `mosaik-*.js` files were left alone too. The icon still draws a "D" (from Deuchan); a new icon is not done.
+  Notes above this one keep the old name.

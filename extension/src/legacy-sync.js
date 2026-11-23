@@ -1,5 +1,5 @@
 /**
- * Deuchan used to sync the time of several computers itself, through a server of its own. Now every
+ * The extension used to sync the time of several computers itself, through a server of its own. Now every
  * computer sends to Mosaik, which adds them up, and this is what is left to move the old data: once,
  * when the extension updates.
  *

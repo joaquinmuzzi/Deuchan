@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea for Deuchan.
+description: Suggest an idea for Inputly.
 labels: ["enhancement"]
 body:
   - type: textarea
@@ -13,7 +13,7 @@ body:
   - type: textarea
     id: solution
     attributes:
-      label: How could Deuchan help?
+      label: How could Inputly help?
   - type: textarea
     id: alternatives
     attributes:

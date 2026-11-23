@@ -2,22 +2,22 @@
 
 _Last updated: 23 November 2026._
 
-**In short:** Deuchan keeps what it counts on your own computer, and sends nothing to the internet. If you turn
+**In short:** Inputly keeps what it counts on your own computer, and sends nothing to the internet. If you turn
 on "Send to Mosaik", it sends what you watched and read to Mosaik, an app of yours (on your own computer, or on
 a server you run), and to nowhere else. There are no accounts, no ads, no analytics and no trackers, and nothing
 is sold or shared.
 
-## Who is behind Deuchan
+## Who is behind Inputly
 
-Deuchan is a free, open-source browser extension by Joaquín Muzzi (Frodouwu). The code is in
-<https://github.com/joaquinmuzzi/deuchan>, so everything this policy says can be checked there.
+Inputly (called Deuchan until November 2026) is a free, open-source browser extension by Joaquín Muzzi (Frodouwu). The code is in
+<https://github.com/joaquinmuzzi/inputly>, so everything this policy says can be checked there.
 
 Contact: joaquin.hola.muzzi@gmail.com, or an
-[issue](https://github.com/joaquinmuzzi/deuchan/issues) for anything that is not private.
+[issue](https://github.com/joaquinmuzzi/inputly/issues) for anything that is not private.
 
-## What Deuchan does by default
+## What Inputly does by default
 
-Deuchan runs on `youtube.com` pages. To count the time you watch the language you learn, it reads, **in your
+Inputly runs on `youtube.com` pages. To count the time you watch the language you learn, it reads, **in your
 browser**:
 
 - whether the video is playing or paused;
@@ -41,7 +41,7 @@ It stores on your computer (in `chrome.storage.local`):
   server), the events that wait to be sent to it, and the totals per day it answers with.
 
 All of this stays in your browser. It is deleted when you uninstall the extension, and you can look at it
-in the dashboard. Deuchan does not read your YouTube account, your history, your searches or your
+in the dashboard. Inputly does not read your YouTube account, your history, your searches or your
 recommendations.
 
 ## The immersion profile
@@ -49,7 +49,7 @@ recommendations.
 The immersion profile is **optional and off by default**, and is set for each Chrome profile apart. It is for a
 Chrome profile you use only for the language you learn: every video that plays with sound counts, on any site, without guessing
 its language. When you turn it on in the dashboard settings, your browser asks you for two permissions:
-`scripting`, and access to the sites you visit. Then Deuchan:
+`scripting`, and access to the sites you visit. Then Inputly:
 
 - runs a small script in every page you open in that profile, which only looks for videos and whether they
   play, with sound;
@@ -63,9 +63,9 @@ Turning it off stops the script. The permissions stay granted until you remove t
 
 ## Reading counted by hand
 
-The popup has a button to count reading with no video (a comic, for example). While it runs, Deuchan counts the
+The popup has a button to count reading with no video (a comic, for example). While it runs, Inputly counts the
 time and keeps the address and the title of the tab where you started it, as above. It uses the `idle`
-permission to stop when nobody has used the computer for 15 minutes; that permission tells Deuchan only
+permission to stop when nobody has used the computer for 15 minutes; that permission tells Inputly only
 whether the computer is in use, nothing about what you do.
 
 ## What happens when you turn on Send to Mosaik
@@ -79,10 +79,10 @@ dashboard (the squares button). Then:
   port (`http://127.0.0.1:7300` unless you change it); or your own Mosaik server, an `https://` address.
   A plain `http://` address of another computer is refused, so nothing travels unencrypted.
 - A Mosaik server only takes data with a **device token** that you make in that server (Fuentes →
-  Dispositivos) and paste in Deuchan. It is kept only in this browser and sent only to that address, with
+  Dispositivos) and paste in Inputly. It is kept only in this browser and sent only to that address, with
   every request. You can revoke it in the server at any time.
 - Your browser asks you for the permission to reach that one address; without it, nothing is sent.
-- Every minute, Deuchan sends Mosaik, each item with the language it was counted in:
+- Every minute, Inputly sends Mosaik, each item with the language it was counted in:
   - each **stretch of a video or a reading**: when it started and ended, the seconds counted, and the id, the
     title and the address of what it was;
   - the **total of each day on this computer**, with the videos and readings of that day (id, title,
@@ -94,7 +94,7 @@ dashboard (the squares button). Then:
 - Mosaik only counts German for now: while the language you learn is another one, nothing new is sent and
   nothing is asked for (what was counted in German before still goes).
 - All of it goes only to the address you set: not to the developer and not to anyone else. What Mosaik
-  does with it is up to your Mosaik. If it is a server, it is yours: the developer of Deuchan does not run
+  does with it is up to your Mosaik. If it is a server, it is yours: the developer of Inputly does not run
   it and has no access to it, and whoever hosts it (for example, Railway) keeps it, and the IP address of
   each request, under their own terms.
 - While Mosaik is not running, what is to be sent waits in your browser (at most about 5000 events; if there
@@ -115,7 +115,7 @@ dashboard (the squares button). Then:
 
 ## Who gets the data
 
-Nobody. Deuchan has no analytics, no advertising and no trackers; it does not sell data and does not share
+Nobody. Inputly has no analytics, no advertising and no trackers; it does not sell data and does not share
 it with anyone. With "Send to Mosaik" on, it gives your data to your Mosaik, at the address you set. It does
 not use or transfer data for anything other than showing you your progress and sending it to Mosaik if you ask
 for it.
@@ -131,7 +131,7 @@ problem, is in [SECURITY.md](SECURITY.md).
 
 ## Children
 
-Deuchan is not aimed at children, and it does not know the age of anyone: it knows nothing about who uses
+Inputly is not aimed at children, and it does not know the age of anyone: it knows nothing about who uses
 it.
 
 ## Changes to this policy
@@ -140,6 +140,6 @@ If this policy changes, the date at the top changes, and the changes are in the
 [changelog](CHANGELOG.md) of the project. A change that sends more data than described here will not be
 made without asking you first.
 
-Until 18 November 2026 Deuchan could sync the time of several computers through a server of its own. That
+Until 18 November 2026 Inputly could sync the time of several computers through a server of its own. That
 sync is gone: the extension deletes what it kept of it when it updates, and the time of several computers is
 now put together by Mosaik, if you use it.

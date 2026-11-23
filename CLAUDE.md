@@ -5,7 +5,7 @@ Instructions for Claude Code sessions in this repository. Read this first, then
 
 ## The project
 
-Deuchan is a Manifest V3 browser extension that counts the time someone spends on input in the
+Inputly (called Deuchan until task 1.6 of the plan) is a Manifest V3 browser extension that counts the time someone spends on input in the
 language they learn (any language since phase 1 of the plan): YouTube videos by default, every video and sound of an
 "immersion profile", and reading counted by hand. It shows the time against a daily goal, with a
 dashboard. Everything stays in the browser unless "Send to Mosaik" is turned on. The maintainer is
@@ -28,7 +28,7 @@ npm ci                 # once
 npm test               # node --test, every test in tests/
 npm run lint           # ESLint
 npm run format:check   # Prettier, as CI runs it (npm run format fixes it)
-npm run package        # dist/deuchan-<version>.zip for the Chrome Web Store
+npm run package        # dist/inputly-<version>.zip for the Chrome Web Store
 ```
 
 Run all three checks (test, lint, format:check) before saying a change is done. `tests/docs.test.js`
@@ -53,6 +53,9 @@ To try it by hand: `chrome://extensions`, Developer mode, Load unpacked, the `ex
 
 - **Stored data:** if the shape of what is kept in `chrome.storage` changes, bump `STORAGE_VERSION`
   in `extension/src/log.js` and migrate old data. The maintainer has months of real history; never lose it.
+- **The old name stays where it is stored or sent:** storage keys, alarm and message names, and
+  `SOURCE = "deuchan"` in `mosaik-events.js` (Mosaik knows the extension by it). Renaming them would
+  lose history or break the link to Mosaik.
 - **Privacy is a feature:** no analytics, trackers or remote code. A new permission or a new host
   needs a reason the store review will accept, and a line in `PRIVACY.md`.
 - **Comments explain why**, especially thresholds and heuristics. Language detection fixes come with

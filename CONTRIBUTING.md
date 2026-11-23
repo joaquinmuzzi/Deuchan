@@ -1,19 +1,19 @@
-# Contributing to Deuchan
+# Contributing to Inputly
 
-Thanks for your interest in Deuchan! This guide explains how to report problems, set up a
+Thanks for your interest in Inputly! This guide explains how to report problems, set up a
 development environment and send changes. By taking part you agree to follow the
 [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Ways to contribute
 
-- **Report a wrong language detection.** Deuchan only counts videos in the language you learn, and
+- **Report a wrong language detection.** Inputly only counts videos in the language you learn, and
   deciding the language of a video is a guess. Open a
-  [Wrong language detection](https://github.com/joaquinmuzzi/deuchan/issues/new?template=wrong_detection.yml)
-  issue with a link to the video, the language you set in Deuchan and what went wrong.
+  [Wrong language detection](https://github.com/joaquinmuzzi/inputly/issues/new?template=wrong_detection.yml)
+  issue with a link to the video, the language you set in Inputly and what went wrong.
 - **Report a bug** (time is not counted, the popup is empty, the extension breaks a page) with the
-  [Bug report](https://github.com/joaquinmuzzi/deuchan/issues/new?template=bug_report.yml) form.
+  [Bug report](https://github.com/joaquinmuzzi/inputly/issues/new?template=bug_report.yml) form.
 - **Suggest a feature** with the
-  [Feature request](https://github.com/joaquinmuzzi/deuchan/issues/new?template=feature_request.yml) form.
+  [Feature request](https://github.com/joaquinmuzzi/inputly/issues/new?template=feature_request.yml) form.
 - **Send a pull request.** For anything bigger than a small fix, open an issue first so we can
   agree on the approach before you spend time on it.
 

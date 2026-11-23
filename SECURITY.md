@@ -2,11 +2,11 @@
 
 ## Supported versions
 
-Deuchan is a small project: only the latest release (and `main`) receives fixes.
+Inputly is a small project: only the latest release (and `main`) receives fixes.
 
-## How Deuchan is exposed
+## How Inputly is exposed
 
-Deuchan is a browser extension that runs on `youtube.com` pages. It reads the state of the video
+Inputly is a browser extension that runs on `youtube.com` pages. It reads the state of the video
 player (playing, paused and the language of the audio and the captions) and stores a log of how long you
 watched in `chrome.storage.local`, on your own computer. **By default nothing leaves your browser.** It has
 no remote code, its pages load nothing from the internet, and it may talk to no address at all until you
@@ -28,12 +28,12 @@ Examples of problems we want to hear about:
 - the script of the immersion profile running, or reading anything, while it is off, or reading more of a
   page than whether a video plays;
 - a permission that is broader than what the extension needs;
-- a vulnerable dependency that Deuchan actually uses in a vulnerable way.
+- a vulnerable dependency that Inputly actually uses in a vulnerable way.
 
 ## Reporting a vulnerability
 
 Please **do not open a public issue**. Report it privately through GitHub instead:
-[Report a vulnerability](https://github.com/joaquinmuzzi/deuchan/security/advisories/new)
+[Report a vulnerability](https://github.com/joaquinmuzzi/inputly/security/advisories/new)
 (the _Security_ tab of the repository, then _Report a vulnerability_).
 
 Include what you found, how to reproduce it, and what an attacker could do with it. You will get

@@ -1,4 +1,4 @@
-// Makes the zip that is uploaded to the Chrome Web Store: `npm run package` writes `dist/deuchan-<version>.zip`
+// Makes the zip that is uploaded to the Chrome Web Store: `npm run package` writes `dist/inputly-<version>.zip`
 // with what is in `extension/`, and only that: the tests, the server and the docs are not part of it.
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -35,7 +35,7 @@ export function buildPackage(directory = EXTENSION) {
   const manifest = JSON.parse(readFileSync(join(directory, "manifest.json"), "utf8"));
   const files = collectFiles(directory);
   const bytes = createZip(files.map((name) => ({ name, data: readFileSync(join(directory, name)) })));
-  return { name: `deuchan-${manifest.version}.zip`, files, bytes };
+  return { name: `inputly-${manifest.version}.zip`, files, bytes };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

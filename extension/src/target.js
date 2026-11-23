@@ -1,8 +1,8 @@
 /**
- * The target language: the one the person learns, whose input Deuchan counts. It is kept as
+ * The target language: the one the person learns, whose input Inputly counts. It is kept as
  * `targetLanguage` in the storage of the extension, a bare language code ("de", "ja", "yue"), and is
- * missing until the person picks one, which means German: Deuchan counted only German before it had
- * this setting, so whoever had it then notices nothing.
+ * missing until the person picks one, which means German: the extension counted only German before it
+ * had this setting, so whoever had it then notices nothing.
  *
  * Codes come from many places (the setting, YouTube's caption and audio tracks, `chrome.i18n`) and in
  * many shapes ("de-AT", "pt_BR", "iw" for Hebrew), so everything is compared after `normalizeLanguage`.

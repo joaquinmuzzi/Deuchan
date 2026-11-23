@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Deuchan",
+  "name": "Inputly – Track your language input",
   "version": "0.1.0",
   "description": "Counts your input in the language you learn (Japanese, Spanish, Korean, German...) on YouTube, automatically. Daily goal and charts.",
-  "homepage_url": "https://github.com/joaquinmuzzi/deuchan",
+  "homepage_url": "https://github.com/joaquinmuzzi/inputly",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "alarms", "idle", "activeTab"],
   "optional_permissions": ["scripting"],
@@ -15,7 +15,7 @@
     "128": "icons/icon-128.png"
   },
   "action": {
-    "default_title": "Deuchan",
+    "default_title": "Inputly",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/idle-16.png",

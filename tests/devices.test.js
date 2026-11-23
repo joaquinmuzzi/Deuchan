@@ -1,4 +1,4 @@
-// What makes Deuchan count on any site and by hand, and show the time of every computer with Mosaik.
+// What makes Inputly count on any site and by hand, and show the time of every computer with Mosaik.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
