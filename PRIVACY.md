@@ -87,6 +87,8 @@ dashboard (the squares button). Then:
 - Every few minutes, and when you open the popup or the dashboard, it asks Mosaik for the **totals of every
   computer** that sends to it, so that it can show the time of all of them. That answer is kept in your
   browser.
+- Mosaik only counts German for now: while the language you learn is another one, nothing new is sent and
+  nothing is asked for (what was counted in German before still goes).
 - All of it goes only to the address you set: not to the developer and not to anyone else. What Mosaik
   does with it is up to your Mosaik. If it is a server, it is yours: the developer of Deuchan does not run
   it and has no access to it, and whoever hosts it (for example, Railway) keeps it, and the IP address of

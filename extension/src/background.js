@@ -45,6 +45,7 @@ async function save(intervals, video) {
     "videos",
     "mosaikSettings",
     "mosaikOutbox",
+    TARGET_KEY,
   ]);
   let log = migrate(stored.log);
   let videos = stored.videos ?? {};
@@ -103,6 +104,7 @@ async function removeFromDay(day, id) {
     "mosaikDays",
     "mosaikSettings",
     "mosaikOutbox",
+    TARGET_KEY,
   ]);
   const seconds = stored.videos?.[day]?.[id]?.seconds ?? 0;
   const total = (shownLog(migrate(stored.log)).days[day] ?? 0) + othersOn(stored.mosaikDays, day);
