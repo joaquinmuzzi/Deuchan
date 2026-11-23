@@ -58,11 +58,6 @@ WHAT YOU SEE
 • The toolbar icon turns orange while the video you are watching is in your language.
 • Light and dark mode.
 
-OPTIONAL: SEND TO MOSAIK
-If you run Mosaik, an app that puts together how you learn languages, Inputly can send it what you watch
-and read: to Mosaik on your own computer, or on your own server with a device token. It is off by default,
-and nothing goes anywhere else. Mosaik takes German only for now: with another language, sending pauses.
-
 OPEN SOURCE
 The extension is open source (MIT): https://github.com/joaquinmuzzi/inputly
 
