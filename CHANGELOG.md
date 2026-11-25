@@ -9,6 +9,8 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-25
+
 ### Added
 
 - After 10 hours counted, the popup asks once for a store rating, with "Rate Inputly" and "Not now". Either

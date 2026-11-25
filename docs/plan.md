@@ -10,7 +10,7 @@ request that finishes it.
   [Chrome Web Store](https://chromewebstore.google.com/detail/imadljjebohcpkeopadcifnodmfbndel) and in
   [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ofophfcnojdmdffnfljneagppnnjelpp) (both
   approved on 2026-11-23). Version 0.1.1 (the fixes of 2.8, 2.9 and the failed YouTube player) is
-  published too. 0.2.0 (the streaming sites of 2.7) followed on both, and 0.2.1 (the store name, summary, description and screenshots of 3.4) is live on both since 2026-11-25. Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
+  published too. 0.2.0 (the streaming sites of 2.7) followed on both, and 0.2.1 (the store name, summary, description and screenshots of 3.4) is live on both since 2026-11-25. 0.2.2 (the rating request of 3.5 and the fix for videos for learners with uploaded captions) follows it. Since phase 1 it counts any language. A Firefox build exists (task 2.6), tried in Firefox 160 and
   not yet submitted to Firefox Add-ons.
 - The store listing, the privacy policy, the screenshots and the packaging script are ready:
   [store-listing.md](store-listing.md), [PRIVACY.md](../PRIVACY.md), `npm run package`. The text speaks of
