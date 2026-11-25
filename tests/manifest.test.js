@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { IMMERSION_PERMISSIONS, immersionScript } from "../extension/src/immersion.js";
 import { hubOrigins } from "../extension/src/mosaik-client.js";
+import { LOCALES, listingOf } from "./locales.js";
 
 const EXTENSION = resolve(dirname(fileURLToPath(import.meta.url)), "..", "extension");
 const manifest = JSON.parse(readFileSync(resolve(EXTENSION, "manifest.json"), "utf8"));
@@ -108,10 +109,15 @@ test("the modules those modules import can be reached too", () => {
 test("the manifest and the package have the same name", () => {
   // The manifest name is the store name, "Inputly – Language Immersion Tracker for YouTube & Netflix": its
   // first word is the name, and the toolbar says only that
-  assert.equal(manifest.name.split(" ")[0].toLowerCase(), packageJson.name);
+  for (const locale of LOCALES) {
+    assert.equal(listingOf(locale).name.split(" ")[0].toLowerCase(), packageJson.name, locale);
+  }
   assert.equal(manifest.action.default_title, "Inputly");
 });
 
 test("the name fits what the Chrome Web Store allows", () => {
-  assert.ok(manifest.name.length <= 75, `${manifest.name.length} characters`);
+  for (const locale of LOCALES) {
+    const { name } = listingOf(locale);
+    assert.ok(name.length <= 75, `${locale}: ${name.length} characters`);
+  }
 });

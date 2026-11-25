@@ -123,6 +123,10 @@ users) and from what people write.
       10 counted hours the popup shows a small card: "Rate Inputly" opens the store's review page (Chrome or
       Edge, by the user agent), "Not now" hides it; either one ends it for good. Never shown in Firefox, which
       is not on Firefox Add-ons yet. Logic in `extension/src/rating.js`.
+- [x] **3.6 A Spanish store listing.** Spanish searches in the Chrome Web Store and Edge Add-ons find Inputly: the
+      package declares `en` and `es` locales (`extension/_locales/`) with the name and the summary only, and
+      [store-listing.md](store-listing.md#spanish-listing-es) has the Spanish name, summary and description, whose
+      first lines say the extension's pages are in English. The pages themselves are not translated.
 
 ## Later
 
@@ -383,3 +387,14 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   language, no automatic captions, uploaded `ja` (and `en`) captions, and an English title. Uploaded captions in
   the target now decide when the title or the description names the language (in English or in itself, see
   `namesLanguage` in `language.js`); alone they still say nothing, as they may be a translation.
+- 2026-11-25, task 3.6: `name` and `description` of the manifest are now `__MSG_extName__` and
+  `__MSG_extDescription__`, with `default_locale: "en"`; the English texts did not change. Tests read the name
+  and the summary through `tests/locales.js`, which resolves the placeholders as Chrome does. Firefox points at a
+  third message, `extNameFirefox` (45 characters at most in every locale, checked by `tests/locales.test.js`):
+  web-ext lint measures only the placeholder and passed a 74-character message, so that test is the only guard.
+  The Spanish name is "Inputly – Contador de horas de inmersión en idiomas para YouTube y Netflix" (74 of 75);
+  the description says "lengua" where English says "language", to keep "idioma" under the 5 uses the spam policy
+  allows (`tests/store.test.js` counts the keywords). It reaches the stores with the next package: then paste the
+  Spanish description in both dashboards. Nothing in the extension reads the manifest name; loaded unpacked in Edge with `--lang=en` and
+  `--lang=es`, `chrome.runtime.getManifest().name` returned the localized name, not the placeholder. Only
+  scripts and tests that read `manifest.json` from disk see `__MSG_…__`, so they go through `tests/locales.js`.

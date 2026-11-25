@@ -7,6 +7,8 @@ import { dirname, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { listingOf } from "./locales.js";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // On Windows git checks files out with CRLF line endings, and the patterns below look for LF
 const read = (file) => readFileSync(resolve(ROOT, file), "utf8").replaceAll("\r\n", "\n");
@@ -35,14 +37,14 @@ function jpegSize(path) {
 
 test("the name of the listing is the name of the manifest, and fits the 75 characters", () => {
   const name = /\*\*Name:\*\* (.+)\n/.exec(listing)?.[1];
-  assert.equal(name, manifest.name);
+  assert.equal(name, listingOf("en").name);
   assert.ok(name.length <= 75);
 });
 
 test("the summary of the listing is the description of the manifest, and fits the 132 characters", () => {
   const summary = /\*\*Summary\*\*[^\n]*\n\n> (.+)\n/.exec(listing)?.[1];
   assert.ok(summary, "the listing has a summary");
-  assert.equal(summary, manifest.description);
+  assert.equal(summary, listingOf("en").description);
   assert.ok(summary.length <= 132);
 });
 
@@ -108,4 +110,49 @@ test("the screenshots are 1280 x 800 and the small tile is 440 x 280", () => {
     assert.ok(listing.includes(path.replace("docs/", "")), `${path} is in the listing`);
   }
   assert.deepEqual(jpegSize("docs/store/promo-small-440x280.jpg"), { width: 440, height: 280 });
+});
+
+/** The Spanish name, summary and description of the listing. */
+function spanishListing() {
+  const name = /\*\*Name \(es\):\*\* (.+)\n/.exec(listing)?.[1];
+  const summary = /\*\*Summary \(es\)\*\*[^\n]*\n\n> (.+)\n/.exec(listing)?.[1];
+  const description = /\*\*Description \(es\):\*\*\n\n```\n([\s\S]+?)\n```/.exec(listing)?.[1];
+  assert.ok(name && summary && description, "the listing has a Spanish name, summary and description");
+  return { name, summary, description };
+}
+
+test("the Spanish name and summary of the listing are the ones of the package's Spanish messages", () => {
+  const { name, summary } = spanishListing();
+  assert.deepEqual({ name, description: summary }, listingOf("es"));
+});
+
+test("the Spanish description says first that the pages are in English, and is as honest as the English one", () => {
+  const { description } = spanishListing();
+  const text = description.replaceAll(/\s+/g, " ");
+  assert.ok(description.length <= 16_000);
+  assert.match(description, /^La interfaz de la extensión está en inglés por ahora\./);
+  assert.ok(text.includes("salvo que actives la exportación opcional a Mosaik"));
+  assert.ok(text.includes("Sin registro, sin anuncios, sin analíticas, sin rastreadores."));
+  assert.ok(text.includes("No está afiliado a YouTube, Netflix ni Crunchyroll"));
+});
+
+test("no search keyword appears more than 5 times in the Spanish listing (store spam policy)", () => {
+  const { name, summary, description } = spanishListing();
+  const text = `${name} ${summary} ${description}`.toLowerCase();
+  const keywords = [
+    "inmersión",
+    "idioma",
+    "idiomas",
+    "horas",
+    "input",
+    "contador",
+    "youtube",
+    "netflix",
+    "crunchyroll",
+  ];
+  for (const keyword of keywords) {
+    // Whole words only: "input" is not counted inside "Inputly"
+    const uses = text.match(new RegExp(`(?<!\\p{L})${keyword}(?!\\p{L})`, "gu"))?.length ?? 0;
+    assert.ok(uses <= 5, `"${keyword}" appears ${uses} times`);
+  }
 });

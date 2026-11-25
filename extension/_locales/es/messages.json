@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "Inputly – Contador de horas de inmersión en idiomas para YouTube y Netflix",
+    "description": "The store name (75 characters at most). The words after the dash are the ones people search the stores for."
+  },
+  "extNameFirefox": {
+    "message": "Inputly – Contador de inmersión en idiomas",
+    "description": "The name in the Firefox build, which allows 45 characters at most."
+  },
+  "extDescription": {
+    "message": "Cuenta tus horas de input en cualquier idioma en YouTube, Netflix y Crunchyroll. Meta diaria, racha, privado y sin cuenta.",
+    "description": "The store summary (132 characters at most)."
+  }
+}

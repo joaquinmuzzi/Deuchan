@@ -9,6 +9,11 @@ note on what to update.
 
 ## [Unreleased]
 
+### Added
+
+- A Spanish store listing: the Chrome Web Store and Edge Add-ons show Inputly's name and summary in Spanish to
+  people who browse them in Spanish. The extension's pages are still in English.
+
 ## [0.2.2] - 2026-11-25
 
 ### Added
