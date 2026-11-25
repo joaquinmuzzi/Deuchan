@@ -314,6 +314,12 @@ dialog h2 {
   font-size: 12px;
 }
 
+.backup-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .actions {
   display: flex;
   gap: 8px;

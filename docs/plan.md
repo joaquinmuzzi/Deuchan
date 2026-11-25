@@ -127,6 +127,10 @@ users) and from what people write.
       package declares `en` and `es` locales (`extension/_locales/`) with the name and the summary only, and
       [store-listing.md](store-listing.md#spanish-listing-es) has the Spanish name, summary and description, whose
       first lines say the extension's pages are in English. The pages themselves are not translated.
+- [x] **3.7 Export and import.** Moving between browsers, or from the unpacked build to the store build, starts
+      from an empty history because storage belongs to one extension id. The dashboard settings export a JSON
+      file (`inputly-backup-<date>.json`, a Blob download, no new permission) and import it with "Replace" or
+      "Merge", after showing the days, range and hours. Logic in `extension/src/backup.js`.
 
 ## Later
 
@@ -398,3 +402,9 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   Spanish description in both dashboards. Nothing in the extension reads the manifest name; loaded unpacked in Edge with `--lang=en` and
   `--lang=es`, `chrome.runtime.getManifest().name` returned the localized name, not the placeholder. Only
   scripts and tests that read `manifest.json` from disk see `__MSG_…__`, so they go through `tests/locales.js`.
+- **3.7 (export and import):** the backup carries `log`, `videos`, the goal, range, theme, target language,
+  rating answer and the `overrides*` decisions. Left out on purpose: the Mosaik settings (the token is a
+  secret), the Mosaik queue and days, what is playing now, and the immersion profile and streaming sites, whose
+  permissions belong to each install. A backup with a newer `storageVersion` is refused; older ones go through
+  `migrate`. Merge keeps per day the larger time (adding would double a day counted in both), joins the items,
+  and keeps the settings and corrections already there. Not tried by hand in a browser yet.

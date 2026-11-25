@@ -9,6 +9,14 @@ note on what to update.
 
 ## [Unreleased]
 
+### Added
+
+- Export and import your data from the dashboard settings: "Export data" saves your history and settings to a
+  JSON file, and "Import data" opens it in another browser or another install (for example, from a build loaded
+  unpacked to the store build). Before anything is written it shows the days and hours in the file, and asks
+  whether to replace what is here or merge both (per day, the larger time). The Mosaik token is never in the
+  file.
+
 ## [0.2.3] - 2026-11-25
 
 ### Added
