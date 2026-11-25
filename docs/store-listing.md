@@ -1,7 +1,7 @@
 # Chrome Web Store listing
 
 Everything to paste into the [developer dashboard](https://chrome.google.com/webstore/devconsole), and the
-files to upload. The package is made with `npm run package` (`dist/inputly-<version>.zip`, only what is in
+files to upload. There is a [Spanish listing](#spanish-listing-es) too. The package is made with `npm run package` (`dist/inputly-<version>.zip`, only what is in
 `extension/`). The privacy policy is [PRIVACY.md](../PRIVACY.md). What Firefox Add-ons asks is at the end,
 in [Firefox Add-ons (AMO)](#firefox-add-ons-amo).
 
@@ -9,12 +9,13 @@ in [Firefox Add-ons (AMO)](#firefox-add-ons-amo).
 
 **Name:** Inputly – Language Immersion Tracker for YouTube & Netflix
 
-It is the `name` of the manifest (75 characters at most; this one is 58). The toolbar button says only
-"Inputly". The words after the dash are the ones people search for ("immersion", "tracker", the sites):
-store search weighs the name first and the summary second. Prime Video and Disney+ stay out of the name and
-the summary while they are experimental, and Crunchyroll is in the summary.
+It is the `name` of the manifest, which points at the `extName` message of `extension/_locales/en/messages.json`
+(75 characters at most; this one is 58). The toolbar button says only "Inputly". The words after the dash are
+the ones people search for ("immersion", "tracker", the sites): store search weighs the name first and the
+summary second. Prime Video and Disney+ stay out of the name and the summary while they are experimental, and
+Crunchyroll is in the summary. The summary is the `description` of the manifest, the `extDescription` message.
 
-**Summary** (it is the `description` of the manifest, 132 characters at most; this one is 117):
+**Summary** (132 characters at most; this one is 117):
 
 > Counts your input hours in any language on YouTube, Netflix and Crunchyroll. Daily goal, streak, private, no account.
 
@@ -101,6 +102,84 @@ They are made with `node scripts/screenshots/capture.mjs` (see task 2.2 in the [
 **Support site:** <https://github.com/joaquinmuzzi/inputly/issues>
 
 **Homepage:** <https://github.com/joaquinmuzzi/inputly> (it is also `homepage_url` in the manifest)
+
+## Spanish listing (es)
+
+The package declares two locales (`extension/_locales/en` and `es`), so both stores offer a listing per
+language: each one takes its name and summary from that locale's messages, and the long description is pasted
+by hand in the dashboard, in the Spanish tab of the listing (Chrome: the language picker at the top of the
+Store listing tab; Edge: Add a language, Spanish). The images and the other fields are the ones of the English
+listing. Only the store texts are translated: **the extension's pages stay in English for now**, which is why
+the Spanish description says so in its first lines. The texts are in neutral Latin American Spanish, with "tú".
+
+Search keywords: the name carries "contador", "horas", "inmersión", "idiomas" and the two sites; the summary
+"horas de input" and the three sites. The Chrome Web Store
+[spam policy](https://developer.chrome.com/docs/webstore/program-policies/spam-and-abuse) frowns on
+repeated keywords, so each of them appears 5 times at most across the name, the summary and the description
+(`tests/store.test.js` counts them).
+
+**Name (es):** Inputly – Contador de horas de inmersión en idiomas para YouTube y Netflix
+
+The `extName` message of `extension/_locales/es/messages.json` (75 characters at most; this one is 74).
+
+**Summary (es)** (the `extDescription` message, 132 characters at most; this one is 122):
+
+> Cuenta tus horas de input en cualquier idioma en YouTube, Netflix y Crunchyroll. Meta diaria, racha, privado y sin cuenta.
+
+**Description (es):**
+
+```
+La interfaz de la extensión está en inglés por ahora. Se entiende con pocas palabras: "Counting Japanese"
+quiere decir que el video cuenta, y "Not Japanese, not counted", que no.
+
+Inputly cuenta los minutos que miras en la lengua que estudias, en YouTube, Netflix y Crunchyroll, y los
+compara con una meta diaria. Sirve para cualquier idioma, sin cronómetros y sin crear una cuenta.
+
+Está pensada para quienes aprenden por inmersión (japonés, inglés, coreano, alemán, francés, chino o cualquier
+otra) y quieren saber cuánto input reciben de verdad. Tú miras; Inputly suma los minutos.
+
+QUÉ LA HACE DISTINTA
+• Decide la lengua de cada video. No necesitas una cuenta ni un perfil reservado para eso: Inputly mira la
+  pista de audio que suena y los subtítulos automáticos generados a partir del habla o, si no los hay, el
+  título y la descripción (con el detector de lenguas integrado del navegador, en tu computadora). Lo que
+  está en otra lengua no se cuenta.
+• Un clic lo corrige. Si se equivoca con un video, un botón de la ventana emergente lo marca como de tu
+  lengua, o como que no, y la elección queda guardada. Haz clic en un día del panel para ver los videos que
+  lo forman, quitar uno o corregir los minutos de todo el día.
+• Tu día termina a las 4:00, no a medianoche: un episodio que ves tarde por la noche cuenta para ese día.
+• Un perfil de inmersión cuenta cualquier sitio y cualquier sonido. Actívalo en un perfil del navegador que
+  uses solo para la lengua que estudias: cuenta todo video que se reproduzca con sonido, en cualquier sitio,
+  y también cualquier pestaña que suene 30 segundos o más, como un podcast. Viene desactivado.
+• La lectura también cuenta. Un botón de la ventana emergente cuenta un manga, un libro o un artículo hasta
+  que lo detienes, o hasta que te alejas de la computadora 15 minutos.
+• Privado y sin cuenta. Tu historial se queda en tu navegador, salvo que actives la exportación opcional a
+  Mosaik, una app que tú mismo instalas y controlas. Sin registro, sin anuncios, sin analíticas, sin
+  rastreadores.
+
+CÓMO CUENTA
+• Cuenta los segundos reales que se reproduce un video en tu lengua. Las pausas, los retrocesos y las
+  repeticiones se tienen en cuenta, y a 2x un minuto sigue siendo un minuto. Dos pestañas a la vez cuentan
+  una sola vez.
+• YouTube cuenta desde que la instalas. Netflix y Crunchyroll cuentan cuando los activas en la
+  configuración (hay otros dos sitios en modo experimental): Inputly lee qué pista de audio reproduce el
+  reproductor y solo la cuenta si está en tu lengua, así que los subtítulos nunca deciden. Los demás sitios
+  cuentan con el perfil de inmersión activado.
+• Elige tu lengua al instalarla y cámbiala cuando quieras en la configuración. La ventana emergente te lo
+  dice: "Counting Japanese" (cuenta japonés) o "Not Japanese, not counted" (no es japonés, no se cuenta).
+
+LO QUE VES
+• Una meta diaria que tú eliges, lo que te falta hoy, una barra de progreso y tu racha.
+• Un panel con totales, promedios por día y por mes, un mapa de actividad por mes, un gráfico de tu tiempo
+  por día (de 7 días a 1 año, con tu meta como línea) y tu promedio de cada día de la semana.
+• El ícono de la barra de herramientas se pone naranja mientras el video que miras está en tu lengua.
+• Modo claro y oscuro.
+
+CÓDIGO ABIERTO
+La extensión es de código abierto (MIT): https://github.com/joaquinmuzzi/inputly
+
+Inputly es un proyecto independiente. No está afiliado a YouTube, Netflix ni Crunchyroll, ni cuenta con su
+respaldo o patrocinio. Los nombres son marcas de sus dueños.
+```
 
 ## Privacy tab
 
@@ -194,7 +273,8 @@ is for the owner:
    the zip.
 3. **Store listing tab:** paste the description, choose the category and the language, upload the five
    screenshots in their order and the small promo tile from `docs/store/`, and fill in the support site and
-   the homepage. The name and the summary come from the manifest.
+   the homepage. The name and the summary come from the manifest. Then open the Spanish listing and paste its
+   [description](#spanish-listing-es); its name and summary come from the package too.
 4. **Privacy tab:** paste the single purpose, each permission justification, answer "No" to remote code,
    tick the data usage boxes and the three certifications as listed above, and paste the privacy policy URL.
 5. **Distribution tab:** free, public, all regions.

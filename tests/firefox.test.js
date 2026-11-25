@@ -4,7 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { FIREFOX_MIN_VERSION, GECKO_ID, firefoxManifest } from "../scripts/firefox.mjs";
+import { FIREFOX_MIN_VERSION, FIREFOX_NAME, GECKO_ID, firefoxManifest } from "../scripts/firefox.mjs";
 import { EXTENSION, buildPackage, packageEntries } from "../scripts/package.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -76,11 +76,14 @@ test("the Chrome package keeps the manifest byte for byte", () => {
   assert.ok(manifest.data.equals(readFileSync(join(ROOT, "extension", "manifest.json"))));
 });
 
-test("the Firefox name fits the 45 characters Firefox allows, as the longer Chrome name does not", () => {
+test("the Firefox name points at the short message, as the longer Chrome name does not fit Firefox", () => {
   const chrome = chromeManifest();
-  const { name } = firefoxManifest(chrome);
-  assert.ok(name.length <= 45, `${name} has ${name.length} characters`);
-  assert.ok(name.startsWith("Inputly"));
-  // A short name is kept as it is
+  // The text of each locale is measured in locales.test.js
+  assert.equal(firefoxManifest(chrome).name, FIREFOX_NAME);
+  assert.equal(FIREFOX_NAME, "__MSG_extNameFirefox__");
+  // A short literal name is kept as it is; a long one cannot be shortened by guessing, so it fails the build
   assert.equal(firefoxManifest({ ...chrome, name: "Inputly" }).name, "Inputly");
+  assert.throws(() =>
+    firefoxManifest({ ...chrome, name: "Inputly – Language Immersion Tracker for YouTube" }),
+  );
 });

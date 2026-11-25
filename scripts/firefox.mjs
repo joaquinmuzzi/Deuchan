@@ -20,9 +20,14 @@ export const FIREFOX_MIN_VERSION = "140.0";
  * The name in Firefox. Firefox refuses a `name` longer than 45 characters (web-ext lint: "/name must NOT have
  * more than 45 characters"), while the Chrome name carries the words people search the Chrome Web Store for
  * and is longer. AMO search reads the listing too, so the short name loses little.
+ *
+ * The Chrome name is a message of `_locales/` (`__MSG_extName__`), so that each store language gets its own
+ * name: the Firefox build points at a second message, `extNameFirefox`, kept short in every locale (a test
+ * checks each one), so Firefox shows a translated name too. That test is the only guard: web-ext lint measures
+ * the placeholder, not its messages, and passes a 74-character message.
  */
-export const FIREFOX_NAME = "Inputly – Language Immersion Tracker";
-const FIREFOX_NAME_MAX = 45;
+export const FIREFOX_NAME = "__MSG_extNameFirefox__";
+export const FIREFOX_NAME_MAX = 45;
 
 /** Keys only Chrome reads: Firefox warns about them, so they are left out. */
 const CHROME_ONLY = ["minimum_chrome_version"];
@@ -42,8 +47,13 @@ export function firefoxManifest(manifest) {
     throw new Error("The Chrome manifest has no background service worker");
   }
   result.background = { ...background, scripts: [worker] };
-  if (result.name.length > FIREFOX_NAME_MAX) {
+  if (result.name === "__MSG_extName__") {
     result.name = FIREFOX_NAME;
+  } else if (result.name.length > FIREFOX_NAME_MAX) {
+    // A placeholder's length says nothing about its message, so only a literal name is measured here
+    throw new Error(
+      `The name "${result.name}" is longer than the ${FIREFOX_NAME_MAX} characters Firefox allows`,
+    );
   }
   result.browser_specific_settings = {
     gecko: {

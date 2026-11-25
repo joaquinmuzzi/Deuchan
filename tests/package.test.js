@@ -7,6 +7,7 @@ import { inflateRawSync } from "node:zlib";
 
 import { EXTENSION, buildPackage, collectFiles } from "../scripts/package.mjs";
 import { crc32, createZip } from "../scripts/zip.mjs";
+import { LOCALES, listingOf } from "./locales.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -117,6 +118,8 @@ test("every file the manifest names is in the package", () => {
     manifest.action.default_popup,
     ...Object.values(manifest.icons),
     ...Object.values(manifest.action.default_icon),
+    // without its messages, a manifest with `__MSG_…__` placeholders does not load
+    ...LOCALES.map((locale) => `_locales/${locale}/messages.json`),
   ];
   for (const file of needed) {
     assert.ok(names.has(file), file);
@@ -136,7 +139,10 @@ test("the package is small, and the store limits on the manifest are respected",
   const { bytes } = buildPackage();
   assert.ok(bytes.length < 1_000_000, `${bytes.length} bytes`);
   const manifest = JSON.parse(readFileSync(join(ROOT, "extension", "manifest.json"), "utf8"));
-  assert.ok(manifest.name.length <= 75, "the name");
-  assert.ok(manifest.description.length > 0 && manifest.description.length <= 132, "the summary");
+  for (const locale of LOCALES) {
+    const { name, description } = listingOf(locale, manifest);
+    assert.ok(name.length <= 75, `the name in ${locale}`);
+    assert.ok(description.length > 0 && description.length <= 132, `the summary in ${locale}`);
+  }
   assert.match(manifest.version, /^\d+(\.\d+){0,3}$/);
 });
