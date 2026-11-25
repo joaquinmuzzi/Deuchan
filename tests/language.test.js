@@ -6,6 +6,7 @@ import {
   audioLanguage,
   detectTarget,
   germanScore,
+  namesLanguage,
   needsTextLanguages,
   textIsTarget,
   videoText,
@@ -262,4 +263,76 @@ test("videoText weighs the title twice and leaves the links out", () => {
     "Título Título Mirá   y",
   );
   assert.equal(videoText({}), "");
+});
+
+// Real videos for learners of Japanese (2026-11-25): no audio language, no automatic captions, uploaded
+// captions in Japanese (and English), and an English title and description that name Japanese
+test("uploaded captions in the target count when the title names the language", () => {
+  const morningRoutine = {
+    captionTracks: [{ languageCode: "en" }, { languageCode: "ja" }],
+    title: "Comprehensible Japanese Beginner - My Morning Routine",
+    description:
+      "Hello guys! This is a Comprehensible Japanese video! In this video, I talked about my morning routine!",
+  };
+  assert.deepEqual(detectTarget(morningRoutine, { target: "ja" }), {
+    inTarget: true,
+    reason: "uploaded-captions",
+  });
+  const listening = {
+    captionTracks: [{ languageCode: "en" }, { languageCode: "ja" }],
+    title: "1 Hour N5 Beginner Japanese Listening Practice / Immersion Learning! #168",
+  };
+  assert.equal(detectTarget(listening, { target: "ja" }).inTarget, true);
+  const unpacking = {
+    captionTracks: [{ languageCode: "ja" }],
+    title: "Let's Play Unpacking EP01 | Complete Beginner Japanese Comprehensible Input",
+  };
+  assert.equal(detectTarget(unpacking, { target: "ja" }).inTarget, true);
+  // The text no longer has to be asked about: the captions decided
+  assert.equal(needsTextLanguages(morningRoutine, "ja"), false);
+});
+
+test("the language can be named in the language itself", () => {
+  const video = {
+    captionTracks: [{ languageCode: "ja" }],
+    title: "日本語の聞き取り練習 | Listening practice",
+  };
+  assert.equal(detectTarget(video, { target: "ja" }).inTarget, true);
+  const spanish = {
+    captionTracks: [{ languageCode: "es" }],
+    title: "Cuento corto en español para principiantes",
+  };
+  assert.equal(detectTarget(spanish, { target: "es" }).inTarget, true);
+});
+
+test("uploaded captions in the target do not count when the text does not name the language", () => {
+  // An English video with an uploaded Japanese translation
+  const video = {
+    captionTracks: [{ languageCode: "en" }, { languageCode: "ja" }],
+    title: "How I edit my videos in one hour",
+  };
+  assert.equal(needsTextLanguages(video, "ja"), true);
+  assert.deepEqual(detectTarget(video, { target: "ja" }), { inTarget: false, reason: "none" });
+});
+
+test("naming the language without uploaded captions in it does not count", () => {
+  const video = { captionTracks: [{ languageCode: "en" }], title: "Japanese grammar explained in English" };
+  assert.equal(detectTarget(video, { target: "ja" }).inTarget, false);
+});
+
+test("automatic captions still decide over uploaded ones and the title", () => {
+  const video = {
+    captionTracks: [{ languageCode: "ja" }, { languageCode: "en", kind: "asr" }],
+    title: "Learn Japanese: 10 phrases for travel",
+  };
+  assert.deepEqual(detectTarget(video, { target: "ja" }), { inTarget: false, reason: "automatic-captions" });
+});
+
+test("namesLanguage matches whole words in Latin scripts and anywhere in others", () => {
+  assert.equal(namesLanguage({ title: "Easy JAPANESE stories" }, "ja"), true);
+  assert.equal(namesLanguage({ title: "日本語で話そう" }, "ja"), true);
+  assert.equal(namesLanguage({ title: "Thailand travel vlog" }, "th"), false);
+  assert.equal(namesLanguage({ title: "An Englishman in New York" }, "en"), false);
+  assert.equal(namesLanguage({ description: "Deutsch lernen mit Geschichten" }, "de"), true);
+  assert.equal(namesLanguage({}, "ja"), false);
 });

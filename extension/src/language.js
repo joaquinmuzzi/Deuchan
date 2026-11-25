@@ -10,7 +10,9 @@
  *    video dubbed into Spanish is not German to the ears, and an English one dubbed into German is.
  * 1. The automatic captions. YouTube makes them by recognising the speech, in the language it
  *    recognised, so a video with automatic German captions is German and one with automatic
- *    English captions is not. Uploaded captions say nothing: they are often translations.
+ *    English captions is not. Uploaded captions alone say nothing: they are often translations.
+ *    Uploaded captions in the target count only when the title or the description also names the
+ *    language, as videos for learners say "Comprehensible Japanese" and often have no automatic ones.
  * 2. The text of the title and the description, when there are no automatic captions (a new
  *    video, music, or a channel that turned them off). For German, a list of German function words;
  *    for any other language, the language Chrome detects in the text (`chrome.i18n.detectLanguage`).
@@ -20,7 +22,7 @@
  * `needsTextLanguages` says the text will decide, and passes its answer in as `textLanguages`.
  */
 
-import { isTarget, targetOf } from "./target.js";
+import { isTarget, languageName, targetOf } from "./target.js";
 
 /** The language whose text fallback is the word list below instead of Chrome's detector. */
 const WORD_LIST_LANGUAGE = "de";
@@ -114,8 +116,26 @@ export function textIsTarget(textLanguages, target) {
   );
 }
 
-/** The clue that decides before the text does, if any: the audio track, or a single automatic caption track. */
-function trackClue({ audioTrackId = null, captionTracks = [] }, target) {
+/**
+ * Whether the title or the description names the language, in English or in the language itself:
+ * "Comprehensible Japanese", "日本語の聞き取り", "Spanish listening", "español para principiantes".
+ */
+export function namesLanguage({ title = "", description = "" } = {}, target) {
+  const text = `${title} ${description}`.toLocaleLowerCase();
+  const names = [languageName(target, "en"), languageName(target, target)]
+    .filter((name) => name && name !== target)
+    .map((name) => name.toLocaleLowerCase());
+  return names.some((name) =>
+    // Names in scripts without spaces (日本語, 中文) are matched anywhere; Latin ones as whole words, so
+    // "English" is not found in "Englishman" nor "Thai" in "Thailand"
+    /^[\p{Script=Latin}\s]+$/u.test(name)
+      ? new RegExp(`(?<![\\p{L}])${name}(?![\\p{L}])`, "u").test(text)
+      : text.includes(name),
+  );
+}
+
+/** The clue that decides before the text does, if any: the audio track, automatic captions, or uploaded ones. */
+function trackClue({ audioTrackId = null, captionTracks = [], title = "", description = "" }, target) {
   const spoken = audioLanguage(audioTrackId);
   if (spoken) {
     return { inTarget: isTarget(spoken, target), reason: "audio" };
@@ -125,6 +145,19 @@ function trackClue({ audioTrackId = null, captionTracks = [] }, target) {
   const automatic = (captionTracks ?? []).filter((track) => track?.kind === "asr");
   if (automatic.length === 1) {
     return { inTarget: isTarget(automatic[0].languageCode, target), reason: "automatic-captions" };
+  }
+  // Uploaded captions are often a translation, so alone they say nothing. But videos for learners
+  // (comprehensible input) often have no automatic captions, only uploaded ones in the spoken language
+  // and in English, and an English title and description that name the language taught: "Comprehensible
+  // Japanese Beginner - My Morning Routine". Uploaded captions in the target and a text that names it
+  // count; an English video whose uploaded translation is in the target rarely names the target too.
+  if (automatic.length === 0) {
+    const uploaded = (captionTracks ?? []).some(
+      (track) => track && track.kind !== "asr" && isTarget(track.languageCode, target),
+    );
+    if (uploaded && namesLanguage({ title, description }, target)) {
+      return { inTarget: true, reason: "uploaded-captions" };
+    }
   }
   return null;
 }
@@ -142,7 +175,7 @@ export function needsTextLanguages(video, target) {
  * @param {{ target?: string, textLanguages?: { isReliable: boolean, languages: { language: string, percentage: number }[] } | null }} [options]
  *   `target` is the target language (German if missing); `textLanguages` is what
  *   `chrome.i18n.detectLanguage` said about `videoText(video)`, needed only for a target other than German.
- * @returns {{ inTarget: boolean, reason: "audio" | "automatic-captions" | "text" | "none" }}
+ * @returns {{ inTarget: boolean, reason: "audio" | "automatic-captions" | "uploaded-captions" | "text" | "none" }}
  */
 export function detectTarget(video, { target, textLanguages = null } = {}) {
   const language = targetOf(target);

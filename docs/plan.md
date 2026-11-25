@@ -379,3 +379,7 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   stays 1. The total is this computer's log with its corrections, reading by hand included, not Mosaik's other
   computers. It lives in the popup, not the dashboard, because the popup is what people open every day. When
   Inputly is published on Firefox Add-ons, add its review URL to `STORE_URLS` and `storeOf` in `rating.js`.
+- 2026-11-25, task 3.3: 3 of 5 Japanese comprehensible-input videos sampled were "not Japanese": no audio
+  language, no automatic captions, uploaded `ja` (and `en`) captions, and an English title. Uploaded captions in
+  the target now decide when the title or the description names the language (in English or in itself, see
+  `namesLanguage` in `language.js`); alone they still say nothing, as they may be a translation.
