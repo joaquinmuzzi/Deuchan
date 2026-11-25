@@ -9,6 +9,8 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-11-25
+
 ### Added
 
 - Export and import your data from the dashboard settings: "Export data" saves your history and settings to a
