@@ -9,6 +9,8 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-11-25
+
 ### Added
 
 - A Spanish store listing: the Chrome Web Store and Edge Add-ons show Inputly's name and summary in Spanish to
