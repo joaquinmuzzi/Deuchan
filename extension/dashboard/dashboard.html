@@ -161,17 +161,45 @@
             </p>
           </fieldset>
           <p class="error" id="streamingError" role="alert"></p>
-          <p class="label">Export</p>
-          <p class="note">
-            Your time per day and item as a CSV file, in the format Kechimochi imports (Activity Logs). Any
-            spreadsheet opens it too.
-          </p>
-          <div class="actions spread">
-            <button class="button" id="exportCsv" type="button">Export CSV</button>
-          </div>
+          <fieldset class="sites" id="backup">
+            <legend>Your data</legend>
+            <p class="note">
+              Save your history to a file, and open it in another browser or another install of Inputly. The
+              file stays on your computer. "Export CSV" saves your time per day and item in the format
+              Kechimochi imports (Activity Logs), which any spreadsheet opens too.
+            </p>
+            <div class="backup-buttons">
+              <button class="button small" id="exportData" type="button">Export data</button>
+              <button class="button small" id="importData" type="button">Import data</button>
+              <button class="button small" id="exportCsv" type="button">Export CSV</button>
+              <input id="importFile" type="file" accept="application/json,.json" hidden />
+            </div>
+          </fieldset>
+          <p class="error" id="backupError" role="alert"></p>
           <div class="actions">
             <button class="button" id="goalCancel" type="button">Cancel</button>
             <button class="button primary" type="submit">Save</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="importDialog" aria-labelledby="importTitle">
+      <form method="dialog">
+        <h2 id="importTitle">Import data</h2>
+        <div class="dialog-body">
+          <p id="importSummary"></p>
+          <p class="note">
+            <strong>Replace</strong> deletes the history here and keeps the one in the file.
+            <strong>Merge</strong> keeps both: for each day the larger time, and the settings already here.
+            The immersion profile, streaming sites and Send to Mosaik are not in the file: turn them on again
+            here.
+          </p>
+          <p class="error" id="importError" role="alert"></p>
+          <div class="actions">
+            <button class="button" id="importCancel" type="button">Cancel</button>
+            <button class="button danger" id="importReplace" type="button">Replace</button>
+            <button class="button primary" id="importMerge" type="button">Merge</button>
           </div>
         </div>
       </form>

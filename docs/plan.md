@@ -127,12 +127,16 @@ users) and from what people write.
       package declares `en` and `es` locales (`extension/_locales/`) with the name and the summary only, and
       [store-listing.md](store-listing.md#spanish-listing-es) has the Spanish name, summary and description, whose
       first lines say the extension's pages are in English. The pages themselves are not translated.
-- [x] **3.7 Send to Kechimochi.** Kechimochi is the desktop immersion tracker of the Japanese immersion community
+- [x] **3.7 Export and import.** Moving between browsers, or from the unpacked build to the store build, starts
+      from an empty history because storage belongs to one extension id. The dashboard settings export a JSON
+      file (`inputly-backup-<date>.json`, a Blob download, no new permission) and import it with "Replace" or
+      "Merge", after showing the days, range and hours. Logic in `extension/src/backup.js`.
+- [x] **3.8 Send to Kechimochi.** Kechimochi is the desktop immersion tracker of the Japanese immersion community
       (GameSentenceMiner already writes to it), and moving history between trackers is a real request. Optional and
       off by default, in the dashboard next to "Send to Mosaik": the minutes per day of each video, sound and reading
       go to Kechimochi's local HTTP API (this computer or a private address of the home network, with the host
       permission of that address only), as media entries and logs, never twice. For everyone, in the settings, the
-      whole history exports as a CSV in Kechimochi's Activity Logs format, which doubles as the generic export.
+      whole history exports as a CSV in Kechimochi's Activity Logs format, next to the JSON backup of 3.7.
       Logic in `extension/src/kechimochi-*.js`.
 
 ## Later
@@ -405,7 +409,13 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   Spanish description in both dashboards. Nothing in the extension reads the manifest name; loaded unpacked in Edge with `--lang=en` and
   `--lang=es`, `chrome.runtime.getManifest().name` returned the localized name, not the placeholder. Only
   scripts and tests that read `manifest.json` from disk see `__MSG_…__`, so they go through `tests/locales.js`.
-- 2026-11-25, task 3.7: one Kechimochi media entry per (title, site) and one log per day and item, in whole
+- **3.7 (export and import):** the backup carries `log`, `videos`, the goal, range, theme, target language,
+  rating answer and the `overrides*` decisions. Left out on purpose: the Mosaik settings (the token is a
+  secret), the Mosaik queue and days, what is playing now, and the immersion profile and streaming sites, whose
+  permissions belong to each install. A backup with a newer `storageVersion` is refused; older ones go through
+  `migrate`. Merge keeps per day the larger time (adding would double a day counted in both), joins the items,
+  and keeps the settings and corrections already there. Not tried by hand in a browser yet.
+- 2026-11-25, task 3.8: one Kechimochi media entry per (title, site) and one log per day and item, in whole
   minutes; an existing entry with the exact title and variant is reused. A day corrected down shrinks its items in
   proportion, and what the items do not explain (a day corrected up, rounding, days older than the 60 days of items)
   goes as "Other input" (variant "Inputly"), so a day adds up in Kechimochi as in Inputly. What was sent is kept in

@@ -314,6 +314,12 @@ dialog h2 {
   font-size: 12px;
 }
 
+.backup-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .actions {
   display: flex;
   gap: 8px;
@@ -462,8 +468,7 @@ dialog h2 {
   font-size: 12px;
 }
 
-.sync .label,
-#goalDialog .label {
+.sync .label {
   margin: 0 0 6px;
   color: var(--muted);
   font-size: 12px;

@@ -133,6 +133,13 @@ dashboard (the squares button). Then:
 - **Turning it off** stops it and deletes what was waiting to be sent. What Mosaik already received stays
   in Mosaik.
 
+## Export and import
+
+"Export data" in the dashboard settings saves what Inputly keeps (the time per day, the items of the recent
+days and the settings) to a JSON file on your computer, through your browser's own download. Nothing is sent
+anywhere, and the file holds no Mosaik token. "Import data" reads a file you choose, only in that page, and
+writes it to the extension's storage after you confirm. What you do with the file is up to you.
+
 ## What happens when you turn on Send to Kechimochi
 
 "Send to Kechimochi" is **optional and off by default**. Kechimochi is a separate, open-source immersion
@@ -171,6 +178,7 @@ the minutes. The file is made in your browser and saved where you choose; nothin
 - **Turn off the immersion profile** in the dashboard settings: no more pages are looked at.
 - **Turn off a streaming site** in the dashboard settings: its pages are no longer looked at.
 - **Turn off "Send to Mosaik"** in the dashboard: nothing more is sent, and what was waiting is deleted.
+- **Export your data** to a file in the dashboard settings, to keep it or move it to another browser.
 - **Turn off "Send to Kechimochi"** in the dashboard: nothing more is sent.
 - **Uninstall** the extension to delete everything it kept on that computer.
 
