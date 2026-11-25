@@ -93,3 +93,21 @@ test("a video can be taken out of a day, and an empty day goes", () => {
   assert.deepEqual(removeVideo(without, DAY, OTHER), {});
   assert.deepEqual(removeVideo(undefined, DAY, ID), {});
 });
+
+test("sound is kept as a kind only while all the time of the item was sound", () => {
+  const page = { id: "web:abc123", title: "A podcast", url: "https://example.com/ep/1" };
+  let videos = addVideoSeconds({}, DAY, { ...page, kind: "sound" }, 60);
+  assert.equal(dayVideos(videos, DAY)[0].kind, "sound");
+  videos = addVideoSeconds(videos, DAY, { ...page, kind: "sound" }, 60);
+  assert.equal(dayVideos(videos, DAY)[0].kind, "sound");
+  // A video counted on the same page makes it a video
+  videos = addVideoSeconds(videos, DAY, page, 60);
+  assert.equal(dayVideos(videos, DAY)[0].kind, "video");
+  videos = addVideoSeconds(videos, DAY, { ...page, kind: "sound" }, 60);
+  assert.equal(dayVideos(videos, DAY)[0].kind, "video");
+  // Reading by hand stays reading
+  let reading = addVideoSeconds({}, DAY, { ...page, kind: "reading" }, 60);
+  reading = addVideoSeconds(reading, DAY, { ...page, kind: "sound" }, 60);
+  assert.equal(dayVideos(reading, DAY)[0].kind, "reading");
+  assert.equal(cleanVideo({ ...page, kind: "other" }).kind, undefined);
+});

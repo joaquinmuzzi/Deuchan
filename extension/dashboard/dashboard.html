@@ -45,6 +45,23 @@
               <rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
           </button>
+          <button class="icon-button" id="kechimochi" type="button" aria-label="Send to Kechimochi">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M4 20h16" />
+              <path d="M7 16v-5" />
+              <path d="M12 16V6" />
+              <path d="M17 16v-8" />
+            </svg>
+          </button>
           <button class="icon-button" id="theme" type="button"></button>
         </div>
       </header>
@@ -144,6 +161,14 @@
             </p>
           </fieldset>
           <p class="error" id="streamingError" role="alert"></p>
+          <p class="label">Export</p>
+          <p class="note">
+            Your time per day and item as a CSV file, in the format Kechimochi imports (Activity Logs). Any
+            spreadsheet opens it too.
+          </p>
+          <div class="actions spread">
+            <button class="button" id="exportCsv" type="button">Export CSV</button>
+          </div>
           <div class="actions">
             <button class="button" id="goalCancel" type="button">Cancel</button>
             <button class="button primary" type="submit">Save</button>
@@ -200,6 +225,38 @@
           <p class="error" id="mosaikError" role="alert"></p>
           <div class="actions">
             <button class="button" id="mosaikClose" type="button">Close</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="kechimochiDialog" aria-labelledby="kechimochiTitle">
+      <div class="sync">
+        <h2 id="kechimochiTitle">Send to Kechimochi</h2>
+        <div class="dialog-body">
+          <p class="sync-status" id="kechimochiStatus" data-tone="off">Off</p>
+          <p class="note">
+            Kechimochi is a desktop immersion tracker. Inputly can send it your minutes per day for each
+            video, sound and reading (their titles and sites), only to the address you write here. Turn on its
+            HTTP API in its profile tab first; Allowed Browser Origins can stay empty.
+          </p>
+          <label class="switch-row"
+            ><input id="kechimochiEnabled" type="checkbox" /> Send to Kechimochi</label
+          >
+          <label for="kechimochiUrl">Address of Kechimochi's HTTP API</label>
+          <input id="kechimochiUrl" type="text" autocomplete="off" spellcheck="false" />
+          <p class="note">
+            On this computer, or another one on your home network (turn on LAN mode in Kechimochi). Use either
+            this or the CSV export for the same days, not both: each would add the time again.
+          </p>
+          <div class="actions spread">
+            <button class="button" id="kechimochiTest" type="button">Test connection</button>
+            <button class="button" id="kechimochiSendNow" type="button">Send now</button>
+          </div>
+          <p class="note" id="kechimochiResult" aria-live="polite"></p>
+          <p class="error" id="kechimochiError" role="alert"></p>
+          <div class="actions">
+            <button class="button" id="kechimochiClose" type="button">Close</button>
           </div>
         </div>
       </div>

@@ -9,6 +9,16 @@ note on what to update.
 
 ## [Unreleased]
 
+### Added
+
+- "Send to Kechimochi", optional and off by default: the dashboard (bars button) sends your minutes per day
+  for each video, sound and reading to Kechimochi's local HTTP API, on this computer or your home network. A
+  day that grows or is corrected updates its logs; nothing is sent twice.
+- Export to CSV in the dashboard settings, in Kechimochi's Activity Logs format: one row per day and item,
+  for your whole history. Any spreadsheet opens it too.
+- Tabs heard in the immersion profile with no video on them (a podcast) are kept as sound, so they reach
+  Kechimochi and the CSV as Listening.
+
 ## [0.2.3] - 2026-11-25
 
 ### Added

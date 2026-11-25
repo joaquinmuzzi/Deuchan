@@ -37,7 +37,7 @@ days, weeks and months, so you can see how much input you really get.
 - **Reading by hand.** "Count reading" in the popup counts reading with no video, like a comic, until you
   stop it or leave the computer for 15 minutes. It counts toward your goal.
 - **Local and private.** The log stays in your browser. Nothing is sent anywhere unless you turn on
-  "Send to Mosaik".
+  "Send to Mosaik" or "Send to Kechimochi".
 - **Send to Mosaik, if you use it.** Mosaik is a hub that puts together how you learn languages, on your
   own computer or on your own server. Turn on "Send to Mosaik" in the dashboard and Inputly sends it your
   time per day and what you watched and read. It talks only to the address you set: your computer
@@ -46,6 +46,11 @@ days, weeks and months, so you can see how much input you really get.
   show the total of all of them. It is off unless you turn it on. Mosaik only keeps German apart for
   now, so while the language you learn is another one, sending pauses: nothing new is sent, and the
   Mosaik panel says it is paused.
+- **Send to Kechimochi, and export to CSV.** [Kechimochi](https://github.com/Morgawr/kechimochi) is a desktop
+  immersion tracker. Turn on its HTTP API, then "Send to Kechimochi" in the dashboard: Inputly sends it your
+  minutes per day for each video, sound and reading, only to the address you set (this computer or your home
+  network), and updates a day as it grows, never sending the same minutes twice. For everyone, "Export CSV" in
+  the settings saves your whole history in Kechimochi's Activity Logs format, which any spreadsheet opens too.
 
 ## Status
 

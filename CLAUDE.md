@@ -8,7 +8,7 @@ Instructions for Claude Code sessions in this repository. Read this first, then
 Inputly (called Deuchan until task 1.6 of the plan) is a Manifest V3 browser extension that counts the time someone spends on input in the
 language they learn (any language since phase 1 of the plan): YouTube videos by default, every video and sound of an
 "immersion profile", and reading counted by hand. It shows the time against a daily goal, with a
-dashboard. Everything stays in the browser unless "Send to Mosaik" is turned on. The maintainer is
+dashboard. Everything stays in the browser unless "Send to Mosaik" or "Send to Kechimochi" is turned on. The maintainer is
 also its main user.
 
 The goal now is to turn it into a small product: any language, published in the Chrome Web Store,
@@ -58,6 +58,8 @@ Firefox: `about:debugging`, Load Temporary Add-on, `dist/firefox/manifest.json` 
 - `extension/popup/`, `extension/dashboard/`: the pages of the extension.
 - `extension/src/mosaik-*.js`: the optional link to Mosaik, a separate project (its contract is
   tested in `tests/mosaik-contract.test.js`).
+- `extension/src/kechimochi-*.js`: the optional link to Kechimochi's local HTTP API and the CSV export in its
+  format (tested against `tests/kechimochi-stub.js`, which follows Kechimochi's documented API).
 - `docs/store-listing.md` and `docs/store/`: the text and images for the Chrome Web Store.
 - `PRIVACY.md`: the privacy policy linked from the store. Any change in what leaves the browser must
   update it.

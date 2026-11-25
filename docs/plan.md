@@ -127,6 +127,13 @@ users) and from what people write.
       package declares `en` and `es` locales (`extension/_locales/`) with the name and the summary only, and
       [store-listing.md](store-listing.md#spanish-listing-es) has the Spanish name, summary and description, whose
       first lines say the extension's pages are in English. The pages themselves are not translated.
+- [x] **3.7 Send to Kechimochi.** Kechimochi is the desktop immersion tracker of the Japanese immersion community
+      (GameSentenceMiner already writes to it), and moving history between trackers is a real request. Optional and
+      off by default, in the dashboard next to "Send to Mosaik": the minutes per day of each video, sound and reading
+      go to Kechimochi's local HTTP API (this computer or a private address of the home network, with the host
+      permission of that address only), as media entries and logs, never twice. For everyone, in the settings, the
+      whole history exports as a CSV in Kechimochi's Activity Logs format, which doubles as the generic export.
+      Logic in `extension/src/kechimochi-*.js`.
 
 ## Later
 
@@ -398,3 +405,21 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   Spanish description in both dashboards. Nothing in the extension reads the manifest name; loaded unpacked in Edge with `--lang=en` and
   `--lang=es`, `chrome.runtime.getManifest().name` returned the localized name, not the placeholder. Only
   scripts and tests that read `manifest.json` from disk see `__MSG_…__`, so they go through `tests/locales.js`.
+- 2026-11-25, task 3.7: one Kechimochi media entry per (title, site) and one log per day and item, in whole
+  minutes; an existing entry with the exact title and variant is reused. A day corrected down shrinks its items in
+  proportion, and what the items do not explain (a day corrected up, rounding, days older than the 60 days of items)
+  goes as "Other input" (variant "Inputly"), so a day adds up in Kechimochi as in Inputly. What was sent is kept in
+  `kechimochiSent` (`{ day: { item: { log, minutes } } }`); a grown or corrected day updates its logs (`PUT`), an
+  item taken out of a day deletes its log, a log the person deleted in Kechimochi stays deleted, and days that leave
+  the 60-day list are sealed (`true`): their later corrections do not reach Kechimochi. Each log carries
+  `[Inputly:<item id>]` in its notes, and every sending with work reads `GET /api/logs` first, so a lost answer, or
+  turning it off and on again, never doubles a log. CORS: the background script's fetch with the host permission
+  reads Kechimochi's answers with no "Allowed Browser Origins" (Kechimochi's source only adds CORS headers, it
+  never refuses a request for its Origin); checked in headless Edge against `scripts/kechimochi-stub.mjs`, a stub
+  that follows Kechimochi 0.3.3's API and sends no CORS headers (without the permission the answer is blocked,
+  with it the extension made 3 media entries and 3 logs, and a second sending made none). Kechimochi itself was
+  not installed, and Firefox was not tried. IPv6 addresses are refused on purpose. Tabs heard in the immersion
+  profile are now kept with `kind: "sound"` in `videos` (Listening in Kechimochi); older versions read it as a
+  video, so `STORAGE_VERSION` stays 1. The CSV has no byte order mark (Kechimochi would take it as part of the
+  first header) and gives each media entry one default activity, as Kechimochi's import requires. Follow-up idea:
+  import Kechimochi's CSV into Inputly.

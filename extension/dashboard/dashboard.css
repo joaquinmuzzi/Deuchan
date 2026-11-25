@@ -462,7 +462,8 @@ dialog h2 {
   font-size: 12px;
 }
 
-.sync .label {
+.sync .label,
+#goalDialog .label {
   margin: 0 0 6px;
   color: var(--muted);
   font-size: 12px;

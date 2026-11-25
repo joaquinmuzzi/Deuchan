@@ -5,7 +5,9 @@ _Last updated: 25 November 2026._
 **In short:** Inputly keeps what it counts, and the language you learn, on your own computer, and sends nothing
 to the internet. If you turn on "Send to Mosaik", it sends what you watched and read (the times, and the id,
 title and address of each video or reading) to Mosaik, an app of yours (on your own computer, or on a server
-you run), and to nowhere else. There are no accounts, no ads, no analytics and no trackers, and nothing
+you run), and to nowhere else. If you turn on "Send to Kechimochi", it sends your minutes per day for each video,
+sound and reading (with its title and site) to Kechimochi, a tracker on your own computer or home network, and
+to nowhere else. There are no accounts, no ads, no analytics and no trackers, and nothing
 is sold or shared.
 
 ## Who is behind Inputly
@@ -40,7 +42,9 @@ It stores on your computer (in `chrome.storage.local`):
 - the **ids of the videos you marked** as in the language you learn or not, for each language, so the
   decision is remembered;
 - only if you turn on "Send to Mosaik": its settings (with the device token, if your Mosaik is on a
-  server), the events that wait to be sent to it, and the totals per day it answers with.
+  server), the events that wait to be sent to it, and the totals per day it answers with;
+- only if you turn on "Send to Kechimochi": its address, the ids Kechimochi gave to the logs Inputly made
+  there with the minutes of each, and how the last sending went.
 
 All of this stays in your browser. It is deleted when you uninstall the extension, and you can look at it
 in the dashboard. Inputly does not read your YouTube account, your history, your searches or your
@@ -129,6 +133,34 @@ dashboard (the squares button). Then:
 - **Turning it off** stops it and deletes what was waiting to be sent. What Mosaik already received stays
   in Mosaik.
 
+## What happens when you turn on Send to Kechimochi
+
+"Send to Kechimochi" is **optional and off by default**. Kechimochi is a separate, open-source immersion
+tracker that runs on your computer (<https://github.com/Morgawr/kechimochi>), not made by the author of
+Inputly. If you use it and turn on its HTTP API, you can turn this on in the dashboard (the bars button). Then:
+
+- You set the address of Kechimochi's HTTP API: on this computer (`http://127.0.0.1:3031` unless you change
+  it), or another computer on your home network (a private address such as `http://192.168.1.50:3031`, with
+  Kechimochi's LAN mode on). Any other address is refused, so nothing leaves your home network.
+- Your browser asks you for the permission to reach that one address; without it, nothing is sent.
+- Every few minutes, and when you press "Send now", Inputly sends Kechimochi what changed: for each day and
+  each video, sound or reading counted on this computer, its **title, its site** (such as `YouTube`) and the
+  **minutes**, with the language you learn; for the days older than the list of items, only their total.
+  To find its own logs again, it reads the media entries and logs Kechimochi has, and it puts a short marker
+  (such as `[Inputly:dQw4w9WgXcQ]`, the id of the item) in the notes of each log it makes.
+- When a day grows or you correct it, its logs get the new minutes; when you take a video out of a day, its
+  log is deleted. A log you delete in Kechimochi is left deleted.
+- All of it goes only to the address you set: not to the developer of Inputly and not to anyone else. What
+  Kechimochi does with it is up to Kechimochi and to you.
+- **Turning it off** stops it and forgets what was sent (turned on again, the markers keep it from sending
+  anything twice). What Kechimochi already received stays in Kechimochi.
+
+## Export to CSV
+
+The dashboard settings can export your history as a CSV file (in Kechimochi's activity format, which any
+spreadsheet opens too): each day with its videos, sounds and readings, their titles, sites and addresses, and
+the minutes. The file is made in your browser and saved where you choose; nothing is sent anywhere.
+
 ## How long the data is kept
 
 - On your computer: until you delete it or uninstall the extension.
@@ -139,12 +171,14 @@ dashboard (the squares button). Then:
 - **Turn off the immersion profile** in the dashboard settings: no more pages are looked at.
 - **Turn off a streaming site** in the dashboard settings: its pages are no longer looked at.
 - **Turn off "Send to Mosaik"** in the dashboard: nothing more is sent, and what was waiting is deleted.
+- **Turn off "Send to Kechimochi"** in the dashboard: nothing more is sent.
 - **Uninstall** the extension to delete everything it kept on that computer.
 
 ## Who gets the data
 
 Nobody. Inputly has no analytics, no advertising and no trackers; it does not sell data and does not share
-it with anyone. With "Send to Mosaik" on, it gives your data to your Mosaik, at the address you set. It does
+it with anyone. With "Send to Mosaik" on, it gives your data to your Mosaik, at the address you set; with
+"Send to Kechimochi" on, to your Kechimochi, at the address you set. It does
 not use or transfer data for anything other than showing you your progress and sending it to Mosaik if you ask
 for it.
 
