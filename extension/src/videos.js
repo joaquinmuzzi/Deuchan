@@ -4,7 +4,8 @@
  * counted here: what the other computers counted comes from Mosaik (see `mosaik-days.js`).
  *
  * An item is a YouTube video or anything else (see `items.js`). `kind` is `"reading"` for time counted
- * by hand; there is none for a video.
+ * by hand and `"sound"` for a tab heard in the immersion profile with no video counted on it (a podcast);
+ * there is none for a video. Older versions kept no `"sound"` and read it as a video, which is harmless.
  *
  * It only holds the recent days and the longest items of each, so that the storage does not grow
  * forever.
@@ -35,8 +36,24 @@ export function cleanVideo(video) {
     id: video.id,
     title: title.slice(0, MAX_TITLE_LENGTH),
     ...(url ? { url } : {}),
-    ...(video.kind === "reading" ? { kind: "reading" } : {}),
+    ...(KINDS.has(video.kind) ? { kind: video.kind } : {}),
   };
+}
+
+const KINDS = new Set(["reading", "sound"]);
+
+/**
+ * The kind of an item that was counted before as `before` (`undefined` if it was not counted that day)
+ * and now as `now`: reading by hand stays reading, and an item is sound only while all its time was sound.
+ */
+function mergeKind(before, now, counted) {
+  if (before === "reading" || now === "reading") {
+    return "reading";
+  }
+  if (now === "sound" && (!counted || before === "sound")) {
+    return "sound";
+  }
+  return undefined;
 }
 
 /** A new set of items with `seconds` more on a day for one item; the given one is not changed. */
@@ -47,7 +64,7 @@ export function addVideoSeconds(videos, day, video, seconds) {
   }
   const before = videos?.[day]?.[clean.id];
   const url = clean.url ?? before?.url;
-  const kind = clean.kind ?? before?.kind;
+  const kind = mergeKind(before?.kind, clean.kind, before !== undefined);
   const entries = {
     ...videos?.[day],
     // The title of the last time wins: a video can be renamed
@@ -74,7 +91,7 @@ export function dayVideos(videos, day) {
       title,
       seconds,
       url: cleanUrl(url),
-      kind: kind === "reading" ? "reading" : "video",
+      kind: KINDS.has(kind) ? kind : "video",
     }))
     .sort((a, b) => b.seconds - a.seconds);
 }

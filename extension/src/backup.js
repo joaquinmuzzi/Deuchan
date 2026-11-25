@@ -24,6 +24,8 @@ export const APP_MARKER = "inputly";
  *   its days come back from the server.
  * - `immersion`, `streamingSites`: they only work with permissions granted in that browser, so a
  *   restored "on" without its permission would count nothing. They are turned on again by hand.
+ * - `kechimochiSettings`, `kechimochiSent`, `kechimochiState`: its address needs a permission granted in
+ *   that browser, and turned on there it finds the logs it made by their markers (see kechimochi-runner.js).
  * - The keys of the old sync (`legacy-sync.js`).
  */
 const PLAIN_KEYS = ["log", "videos", "goalMinutes", "range", "theme", "targetLanguage", "ratingPromptDone"];

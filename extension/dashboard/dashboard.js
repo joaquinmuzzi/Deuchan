@@ -10,6 +10,7 @@ import { DEFAULT_RANGE, RANGES, dashboardData, timeline } from "../src/stats.js"
 import { TARGET_HASH, TARGET_KEY, targetName, targetOf, targetOptions } from "../src/target.js";
 import { setUpTheme } from "../src/theme.js";
 import { dayVideos } from "../src/videos.js";
+import { setUpKechimochiPanel } from "./kechimochi-panel.js";
 import { setUpMosaikPanel } from "./mosaik-panel.js";
 
 const byId = (id) => document.getElementById(id);
@@ -447,6 +448,7 @@ byId("ranges").addEventListener("change", (event) => {
 
 setUpTheme(byId("theme"));
 setUpMosaikPanel();
+setUpKechimochiPanel();
 const stored = await chrome.storage.local.get([
   "log",
   "mosaikDays",

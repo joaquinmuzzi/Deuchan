@@ -20,6 +20,7 @@ import { correctDay, isDayKey } from "./corrections.js";
 import { IDLE_COLOR, drawIcons, iconColor } from "./icon.js";
 import { IMMERSION_PERMISSIONS, IMMERSION_SCRIPT_ID, immersionOf, immersionScript } from "./immersion.js";
 import { isItemId, webItemId } from "./items.js";
+import { createKechimochiRunner } from "./kechimochi-runner.js";
 import { LEGACY_ALARMS, LEGACY_KEYS, localizeCorrections } from "./legacy-sync.js";
 import { addSeconds, dayKey, migrate, shownLog } from "./log.js";
 import { IDLE_SECONDS, MANUAL_ALARM, flushManual, manualItem, readManual, startManual } from "./manual.js";
@@ -55,6 +56,13 @@ const mosaik = createMosaikRunner({
   exclusive: enqueue,
 });
 
+// "Send to Kechimochi" only reads the log and the items: it needs no place in the single writer
+const kechimochi = createKechimochiRunner({
+  storage: chrome.storage.local,
+  alarms: chrome.alarms,
+  permissions: chrome.permissions,
+});
+
 async function save(intervals, video) {
   const stored = await chrome.storage.local.get([
     "log",
@@ -86,12 +94,12 @@ async function save(intervals, video) {
 
 /**
  * Saves time on a page of another site: each part after the page of the tab it was on (see pages.js).
- * In the single writer.
+ * In the single writer. `kind` is `"sound"` for what a tab played with no video counted on it.
  */
-async function savePageTime(tabId, tab, intervals) {
+async function savePageTime(tabId, tab, intervals, kind) {
   const parts = splitByPage(tabPages, tabId, intervals, tab, Date.now() / 1000);
   for (const part of parts) {
-    const video = cleanVideo({ id: webItemId(part.url), title: pageTitle(part.title), url: part.url });
+    const video = cleanVideo({ id: webItemId(part.url), title: pageTitle(part.title), url: part.url, kind });
     await save(part.intervals, video);
   }
 }
@@ -320,7 +328,7 @@ function stepAudio({ tabId, tab, notInTarget } = {}) {
     // The computer may have slept since the tabs were looked at: the sound until then counts, not the wait
     const resumed = resumeSound(sound, now);
     for (const part of resumed.parts) {
-      await savePageTime(part.tabId, sound.open[part.tabId], [part.interval]);
+      await savePageTime(part.tabId, sound.open[part.tabId], [part.interval], "sound");
     }
     sound = resumed.sound;
     for (const current of tabs) {
@@ -344,7 +352,7 @@ function stepAudio({ tabId, tab, notInTarget } = {}) {
       const changed = setHeard(sound, current, heard, now);
       sound = current.closed ? forgetSound(changed.sound, current.id) : changed.sound;
       if (changed.interval) {
-        await savePageTime(current.id, current.closed ? null : current, [changed.interval]);
+        await savePageTime(current.id, current.closed ? null : current, [changed.interval], "sound");
       }
     }
     if (tabId === undefined) {
@@ -352,7 +360,7 @@ function stepAudio({ tabId, tab, notInTarget } = {}) {
       sound = flushed.sound;
       for (const part of flushed.parts) {
         const current = tabs.find((each) => each.id === part.tabId);
-        await savePageTime(part.tabId, current, [part.interval]);
+        await savePageTime(part.tabId, current, [part.interval], "sound");
       }
     }
     await chrome.storage.session.set({ sound: { ...sound, checkedAt: now }, audioQuiet: quiet });
@@ -400,6 +408,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 // The alarms that start the sending to Mosaik are kept by the browser, but this makes sure they are
 // there (and that there is none while it is off); the same for the script of the immersion profile
 mosaik.schedule().catch(() => {});
+kechimochi.schedule().catch(() => {});
 scheduleImmersion().catch(() => {});
 scheduleStreaming().catch(() => {});
 stepAudio().catch(() => {});
@@ -421,6 +430,7 @@ chrome.runtime.onStartup.addListener(() => {
 });
 chrome.alarms.onAlarm.addListener(({ name }) => {
   mosaik.onAlarm(name).catch(() => {});
+  kechimochi.onAlarm(name).catch(() => {});
   if (name === AUDIO_ALARM) {
     stepAudio().catch(() => {});
   }
@@ -474,6 +484,10 @@ const CONTROLS = {
   "mosaik:backfill": () => mosaik.backfill(),
   "mosaik:send-now": () => mosaik.flush(),
   "mosaik:refresh-days": (message) => mosaik.refreshDays(message.force === true),
+  "kechimochi:enable": (message) => kechimochi.enable(message.url),
+  "kechimochi:disable": () => kechimochi.disable(),
+  "kechimochi:test": (message) => kechimochi.test(message.url),
+  "kechimochi:send-now": () => kechimochi.flush(),
 };
 
 // The icon of every tab starts grey; a tab with a video in the target language paints its own in orange
