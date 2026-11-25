@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 23 November 2026._
+_Last updated: 25 November 2026._
 
 **In short:** Inputly keeps what it counts, and the language you learn, on your own computer, and sends nothing
 to the internet. If you turn on "Send to Mosaik", it sends what you watched and read (the times, and the id,
@@ -35,7 +35,8 @@ It stores on your computer (in `chrome.storage.local`):
   Mosaik" on, it goes to your Mosaik: [see below](#what-happens-when-you-turn-on-send-to-mosaik));
 - the **corrections** you make to a day (a number of seconds, and when you made it);
 - your **daily goal** and your settings (the language you learn, light or dark, the range of the chart, the
-  immersion profile, the streaming sites you turned on);
+  immersion profile, the streaming sites you turned on), and whether you answered the one-time request for a
+  store rating;
 - the **ids of the videos you marked** as in the language you learn or not, for each language, so the
   decision is remembered;
 - only if you turn on "Send to Mosaik": its settings (with the device token, if your Mosaik is on a

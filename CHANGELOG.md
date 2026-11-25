@@ -9,6 +9,11 @@ note on what to update.
 
 ## [Unreleased]
 
+### Added
+
+- After 10 hours counted, the popup asks once for a store rating, with "Rate Inputly" and "Not now". Either
+  answer hides it for good. It is not shown in Firefox.
+
 ## [0.2.1] - 2026-11-23
 
 ### Changed

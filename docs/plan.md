@@ -119,6 +119,10 @@ users) and from what people write.
 - [x] **3.4 Store listing for search.** A name and a summary with the words people search for (immersion,
       tracker, the sites), a description that leads with the sites and any language, a first screenshot of
       the popup on a streaming episode, and the landing page's meta and hero to match. For 0.2.1.
+- [x] **3.5 Ask for a rating, once.** Store ranking leans on ratings, and the stores ban rewarded reviews. After
+      10 counted hours the popup shows a small card: "Rate Inputly" opens the store's review page (Chrome or
+      Edge, by the user agent), "Not now" hides it; either one ends it for good. Never shown in Firefox, which
+      is not on Firefox Add-ons yet. Logic in `extension/src/rating.js`.
 
 ## Later
 
@@ -370,3 +374,8 @@ Sessions add here what the next one needs to know: decisions taken, dead ends, f
   `capture.mjs` also writes PNG copies to `dist/subir-a-la-tienda/` for Edge. The new name and summary reach
   the stores only with the next package (0.2.1); the description and images are pasted and uploaded by hand
   with it, in both stores.
+- 2026-11-25, task 3.5: the rating prompt's answer is kept in its own key, `ratingPromptDone` (`true` once
+  either button is pressed; missing means not answered), so no stored shape changed and `STORAGE_VERSION`
+  stays 1. The total is this computer's log with its corrections, reading by hand included, not Mosaik's other
+  computers. It lives in the popup, not the dashboard, because the popup is what people open every day. When
+  Inputly is published on Firefox Add-ons, add its review URL to `STORE_URLS` and `storeOf` in `rating.js`.
