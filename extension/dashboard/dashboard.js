@@ -1,3 +1,4 @@
+import { backupFileName, buildBackup, mergeBackup, parseBackup, replacePlan } from "../src/backup.js";
 import { parseDayMinutes } from "../src/corrections.js";
 import { goalMinutesOf, goalSeconds, parseGoalMinutes } from "../src/goal.js";
 import { IMMERSION_PERMISSIONS, immersionOf } from "../src/immersion.js";
@@ -295,6 +296,84 @@ byId("goalForm").addEventListener("submit", (event) => {
     return;
   }
   chrome.storage.local.set({ goalMinutes: minutes, [TARGET_KEY]: targetOf(targetSelect.value) });
+});
+
+// Export and import: the history moves between browsers as a file (see backup.js)
+const backupError = byId("backupError");
+const importDialog = byId("importDialog");
+const importFile = byId("importFile");
+let pendingImport = null;
+
+byId("exportData").addEventListener("click", async () => {
+  backupError.textContent = "";
+  const backup = buildBackup(await chrome.storage.local.get(null), {
+    version: chrome.runtime.getManifest().version,
+  });
+  // A Blob link downloads without the downloads permission, in Chrome and Firefox alike
+  const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
+  const link = Object.assign(document.createElement("a"), {
+    href: url,
+    download: backupFileName(new Date()),
+  });
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+byId("importData").addEventListener("click", () => {
+  backupError.textContent = "";
+  importFile.value = "";
+  importFile.click();
+});
+
+importFile.addEventListener("change", async () => {
+  const [file] = importFile.files;
+  if (!file) {
+    return;
+  }
+  const result = parseBackup(await file.text());
+  if (!result.ok) {
+    backupError.textContent = result.error;
+    return;
+  }
+  pendingImport = result.data;
+  const { days, first, last, seconds } = result.summary;
+  byId("importSummary").textContent =
+    days === 0
+      ? "This backup has no counted days."
+      : `This backup has ${days} ${days === 1 ? "day" : "days"}, from ${first} to ${last}, ` +
+        `${formatClock(seconds)} in all.`;
+  byId("importError").textContent = "";
+  importDialog.showModal();
+});
+
+async function applyImport(merge) {
+  if (!pendingImport) {
+    return;
+  }
+  try {
+    const current = await chrome.storage.local.get(null);
+    const { set, remove } = merge ? mergeBackup(current, pendingImport) : replacePlan(current, pendingImport);
+    await chrome.storage.local.set(set);
+    if (remove.length > 0) {
+      await chrome.storage.local.remove(remove);
+    }
+    pendingImport = null;
+    importDialog.close();
+    dialog.close();
+    // Every part of the page reads the new data at once
+    location.reload();
+  } catch (failure) {
+    byId("importError").textContent = `Could not import: ${failure.message}`;
+  }
+}
+
+byId("importMerge").addEventListener("click", () => applyImport(true));
+byId("importReplace").addEventListener("click", () => applyImport(false));
+byId("importCancel").addEventListener("click", () => {
+  pendingImport = null;
+  importDialog.close();
 });
 
 // The immersion profile: every video of this Chrome profile counts, on any site
