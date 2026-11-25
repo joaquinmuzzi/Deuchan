@@ -131,7 +131,10 @@ function serve() {
     if (extname(path) === ".html" && url.pathname.startsWith("/extension/")) {
       const demo = {
         now: DEMO_NOW,
-        storage: demoStorage({ theme: url.searchParams.get("theme") ?? "dark" }),
+        storage: demoStorage({
+          theme: url.searchParams.get("theme") ?? "dark",
+          rating: url.searchParams.has("rating"),
+        }),
         status: STATUSES[url.searchParams.get("status") ?? "youtube"],
       };
       const head =

@@ -141,6 +141,51 @@ header {
   gap: 8px;
 }
 
+/* The one-time request for a rating: a quiet card under the totals, so it never hides what the popup is for */
+.rating {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+.rating[hidden] {
+  display: none;
+}
+
+.rating-text {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+
+.rating-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.rating-actions .quiet {
+  margin-left: 0;
+}
+
+.rating-rate {
+  padding: 5px 10px;
+  border: 1px solid var(--strong);
+  border-radius: 8px;
+  background: var(--strong);
+  color: var(--on-strong);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rating-rate:hover,
+.rating-rate:focus-visible {
+  filter: brightness(1.08);
+}
+
 .manual {
   display: flex;
   gap: 8px;

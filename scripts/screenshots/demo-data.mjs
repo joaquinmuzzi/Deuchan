@@ -93,8 +93,11 @@ function dayItems(next, seconds) {
   return items;
 }
 
-/** Everything the pages read from `chrome.storage.local`. */
-export function demoStorage({ theme = "dark" } = {}) {
+/**
+ * Everything the pages read from `chrome.storage.local`. The demo has far more than 10 hours, so the request for a
+ * rating is marked answered, to keep it out of the store screenshots; `rating: true` shows it, to check it by eye.
+ */
+export function demoStorage({ theme = "dark", rating = false } = {}) {
   const next = random(343);
   const now = new Date(DEMO_NOW);
   const days = {};
@@ -125,5 +128,6 @@ export function demoStorage({ theme = "dark" } = {}) {
     targetLanguage: "ja",
     range: 30,
     theme,
+    ...(rating ? {} : { ratingPromptDone: true }),
   };
 }

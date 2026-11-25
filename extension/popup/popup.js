@@ -1,7 +1,8 @@
 import { goalMinutesOf } from "../src/goal.js";
-import { migrate, shownLog } from "../src/log.js";
+import { migrate, shownLog, totalSeconds } from "../src/log.js";
 import { readManual } from "../src/manual.js";
 import { hasOthers, withOtherDevices } from "../src/mosaik-days.js";
+import { RATING_DONE_KEY, ratingUrl, shouldAskForRating } from "../src/rating.js";
 import { describeManual, describeStatus } from "../src/status.js";
 import { summarize } from "../src/summary.js";
 import { TARGET_KEY, targetName } from "../src/target.js";
@@ -16,6 +17,8 @@ let manualSession = null;
 let goalMinutes;
 // The name of the language the person learns, which the status says: "Counting German"
 let language;
+// Whether the one-time request for a rating was answered (either way)
+let ratingDone = false;
 
 function render() {
   // This computer, live, and what Mosaik says of the others
@@ -36,7 +39,34 @@ function render() {
       ? "All your computers, with Mosaik"
       : "This computer only";
   renderManual();
+  renderRating();
 }
+
+// The request for a rating counts what this computer counted, corrections included, not what Mosaik says of the
+// others: the hours someone spent with this copy of Inputly
+function renderRating() {
+  const total = totalSeconds(shownLog(migrate(log)));
+  const show = shouldAskForRating({ totalSeconds: total, done: ratingDone, userAgent: navigator.userAgent });
+  byId("rating").hidden = !show;
+  if (show) {
+    byId("ratingHours").textContent = `${Math.floor(total / 3600)} hours counted.`;
+  }
+}
+
+// Either answer ends the request for good; the answer is saved before the store opens, as the popup closes then
+async function answerRating(rate) {
+  ratingDone = true;
+  byId("rating").hidden = true;
+  await chrome.storage.local.set({ [RATING_DONE_KEY]: true });
+  const url = ratingUrl(navigator.userAgent);
+  if (rate && url) {
+    chrome.tabs.create({ url });
+    window.close();
+  }
+}
+
+byId("ratingRate").addEventListener("click", () => answerRating(true));
+byId("ratingLater").addEventListener("click", () => answerRating(false));
 
 function renderManual() {
   const { running, label, text } = describeManual(manualSession, Date.now() / 1000);
@@ -109,6 +139,7 @@ const stored = await chrome.storage.local.get([
   "manualSession",
   "goalMinutes",
   TARGET_KEY,
+  RATING_DONE_KEY,
 ]);
 log = stored.log;
 mosaikDays = stored.mosaikDays;
@@ -116,6 +147,7 @@ mosaikOn = stored.mosaikSettings?.enabled === true;
 manualSession = readManual(stored.manualSession);
 goalMinutes = goalMinutesOf(stored.goalMinutes);
 language = targetName(stored[TARGET_KEY]);
+ratingDone = stored[RATING_DONE_KEY] === true;
 render();
 renderStatus();
 // The time of the other computers, if Mosaik has something newer
@@ -141,6 +173,9 @@ chrome.storage.onChanged.addListener((changes) => {
   if (changes[TARGET_KEY]) {
     language = targetName(changes[TARGET_KEY].newValue);
     renderStatus();
+  }
+  if (changes[RATING_DONE_KEY]) {
+    ratingDone = changes[RATING_DONE_KEY].newValue === true;
   }
   render();
 });
