@@ -14,6 +14,11 @@ note on what to update.
 - After 10 hours counted, the popup asks once for a store rating, with "Rate Inputly" and "Not now". Either
   answer hides it for good. It is not shown in Firefox.
 
+### Fixed
+
+- YouTube videos for learners with uploaded captions in the language and a title that names it ("Comprehensible
+  Japanese Beginner - My Morning Routine") are counted, even with no automatic captions and an English title.
+
 ## [0.2.1] - 2026-11-23
 
 ### Changed
