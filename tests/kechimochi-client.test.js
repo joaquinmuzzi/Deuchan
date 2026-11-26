@@ -64,6 +64,17 @@ test("the version says whether Kechimochi answers, and something else is not tak
     fetchImpl: async () => new Response('{"name":"mosaik"}', { status: 200 }),
   });
   assert.equal((await other.version()).error, "not-kechimochi");
+  // Kechimochi's web server (src-tauri/src/bin/web_server.rs) answers "web-<version>", its desktop app "http-"
+  const webServer = kechimochiClient({
+    baseUrl: DEFAULT_KECHIMOCHI_URL,
+    fetchImpl: async () => new Response('"web-0.3.3"', { status: 200 }),
+  });
+  assert.deepEqual(await webServer.version(), { ok: true, value: "web-0.3.3" });
+  const otherString = kechimochiClient({
+    baseUrl: DEFAULT_KECHIMOCHI_URL,
+    fetchImpl: async () => new Response('"ok"', { status: 200 }),
+  });
+  assert.equal((await otherString.version()).error, "not-kechimochi");
   const missing = kechimochiClient({
     baseUrl: DEFAULT_KECHIMOCHI_URL,
     fetchImpl: async () => new Response("<html>Not found</html>", { status: 404 }),

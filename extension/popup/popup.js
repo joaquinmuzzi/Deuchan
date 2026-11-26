@@ -68,11 +68,16 @@ async function answerRating(rate) {
 byId("ratingRate").addEventListener("click", () => answerRating(true));
 byId("ratingLater").addEventListener("click", () => answerRating(false));
 
+// Why reading could not start, kept for a few seconds: the popup redraws this line every second
+let manualNotice = null;
+const MANUAL_NOTICE_MS = 5000;
+
 function renderManual() {
   const { running, label, text } = describeManual(manualSession, Date.now() / 1000);
+  const notice = !running && manualNotice && Date.now() < manualNotice.until ? manualNotice.text : null;
   byId("manual").dataset.running = String(running);
   byId("manualButton").textContent = label;
-  byId("manualText").textContent = text;
+  byId("manualText").textContent = notice ?? text;
 }
 
 // Reading with no video: counted from now on the page of this tab, until it is stopped
@@ -86,7 +91,11 @@ byId("manualButton").addEventListener("click", async () => {
     ? await chrome.runtime.sendMessage({ type: "manual:start", tabId: tab.id }).catch(() => null)
     : null;
   if (!result?.session) {
-    byId("manualText").textContent = "This page cannot be counted: open the page you read on";
+    manualNotice = {
+      text: "This page cannot be counted: open the page you read on",
+      until: Date.now() + MANUAL_NOTICE_MS,
+    };
+    renderManual();
   }
 });
 
@@ -117,11 +126,11 @@ async function renderStatus() {
 
 // Corrects the guess about the language of the video in the tab, and remembers it for that video
 byId("override").addEventListener("click", async (event) => {
+  // Read before any await: once the click has been dispatched, event.currentTarget is null
+  const inTarget = event.currentTarget.dataset.inTarget === "true";
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab) {
-    await chrome.tabs
-      .sendMessage(tab.id, { type: "setInTarget", inTarget: event.currentTarget.dataset.inTarget === "true" })
-      .catch(() => {});
+    await chrome.tabs.sendMessage(tab.id, { type: "setInTarget", inTarget }).catch(() => {});
   }
   renderStatus();
 });

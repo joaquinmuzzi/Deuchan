@@ -45,7 +45,10 @@ function statusOf(reply, sound, language) {
   if (!reply.inTarget) {
     return {
       kind: "off",
-      text: `Not ${language}, not counted`,
+      // YouTube may play a dub in the viewer's language (see otherTrackInTarget in language.js)
+      text: reply.otherTrack
+        ? `Audio not in ${language}: pick the ${language} audio track in the player settings`
+        : `Not ${language}, not counted`,
       action: { inTarget: true, label: `Mark as ${language}` },
     };
   }

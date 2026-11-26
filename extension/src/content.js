@@ -5,7 +5,7 @@
 (async () => {
   const [
     { Watcher },
-    { detectTarget, needsTextLanguages, videoText },
+    { detectTarget, needsTextLanguages, otherTrackInTarget, videoText },
     { overridesKey, verdict },
     { immersionOf },
     { TARGET_KEY, targetOf },
@@ -32,6 +32,8 @@
   const now = () => Date.now() / 1000;
   // The video that is playing, so that the time can be explained afterwards: which videos made a day
   let currentVideo = null;
+  // Whether the video has an audio track in the target that is not the one playing (an automatic dub)
+  let otherTrack = false;
   // The time is kept until the background script says it is written, and sent again if it is not
   const sender = createSender((message) => chrome.runtime.sendMessage(message));
   const watcher = new Watcher({
@@ -95,6 +97,8 @@
       decided = null;
     }
     currentVideo = { id: videoId, title: event.data.title };
+    // Said by the popup when the video is not counted: the person can switch to that track
+    otherTrack = !immersion && otherTrackInTarget(event.data, target);
     // What the user decided about this video, for this target language, wins over the guess
     const asked = target;
     const key = overridesKey(asked);
@@ -199,7 +203,7 @@
       return;
     }
     if (message?.type === "status") {
-      sendResponse({ ...watcher.status, immersion, title: currentVideo?.title ?? "" });
+      sendResponse({ ...watcher.status, immersion, otherTrack, title: currentVideo?.title ?? "" });
     } else if (message?.type === "setInTarget" && typeof message.inTarget === "boolean" && currentVideoId) {
       decided = message.inTarget;
       setVerdict(message.inTarget);
