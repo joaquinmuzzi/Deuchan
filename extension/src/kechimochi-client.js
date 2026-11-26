@@ -161,7 +161,7 @@ export function kechimochiClient({ baseUrl, fetchImpl = globalThis.fetch, timeou
 
   return {
     /**
-     * Whether Kechimochi answers: its API version, as `http-0.3.3`. Something else at that address (a
+     * Whether Kechimochi answers: its API version, as `http-0.3.3` (or `web-0.3.3`). Something else at that address (a
      * 404, or an answer that is not that) is `not-kechimochi`.
      */
     async version() {
@@ -169,7 +169,9 @@ export function kechimochiClient({ baseUrl, fetchImpl = globalThis.fetch, timeou
       if (!result.ok) {
         return result.error === "not-found" ? { ...result, error: "not-kechimochi" } : result;
       }
-      return typeof result.value === "string" && result.value.startsWith("http-")
+      // The desktop app answers "http-0.3.3" (src-tauri/src/http_api.rs) and the web server, which people
+      // run on another computer of the home network, "web-0.3.3" (src-tauri/src/bin/web_server.rs)
+      return typeof result.value === "string" && /^(http|web)-/.test(result.value)
         ? { ok: true, value: result.value.slice(0, 40) }
         : { ok: false, error: "not-kechimochi", detail: "" };
     },

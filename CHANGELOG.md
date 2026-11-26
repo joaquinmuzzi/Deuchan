@@ -12,12 +12,19 @@ note on what to update.
 ### Added
 
 - "Send to Kechimochi", optional and off by default: the dashboard (bars button) sends your minutes per day
-  for each video, sound and reading to Kechimochi's local HTTP API, on this computer or your home network. A
-  day that grows or is corrected updates its logs; nothing is sent twice.
+  for each video, sound and reading to Kechimochi's local HTTP API (its desktop app or its web server), on this
+  computer or your home network. A day that grows or is corrected updates its logs; nothing is sent twice.
 - Export to CSV in the dashboard settings, in Kechimochi's Activity Logs format: one row per day and item,
   for your whole history. Any spreadsheet opens it too.
 - Tabs heard in the immersion profile with no video on them (a podcast) are kept as sound, so they reach
   Kechimochi and the CSV as Listening.
+
+### Fixed
+
+- The button in the popup that corrects the language of a video ("Mark as Japanese", "Not Japanese?") did
+  nothing when clicked. It now marks the video and remembers it.
+- When reading cannot be counted on a page, the popup's message saying so now stays for a few seconds instead
+  of vanishing at once.
 
 ## [0.2.4] - 2026-11-25
 
