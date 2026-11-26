@@ -9,9 +9,15 @@ window.addEventListener("message", (event) => {
   const tracks = response?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? [];
   // The audio that is playing: a dubbed video has one for each language, and YouTube picks the viewer's
   let audioTrackId = null;
+  // Every audio track the video has, to tell the person when one in their language is not the one playing
+  let audioTrackIds = [];
   try {
-    const id = document.getElementById("movie_player")?.getAudioTrack?.()?.id;
+    const player = document.getElementById("movie_player");
+    const id = player?.getAudioTrack?.()?.id;
     audioTrackId = typeof id === "string" ? id : null;
+    audioTrackIds = [...(player?.getAvailableAudioTracks?.() ?? [])]
+      .map((track) => track?.id)
+      .filter((trackId) => typeof trackId === "string");
   } catch {
     // an older player has no such thing: the other clues decide
   }
@@ -19,6 +25,7 @@ window.addEventListener("message", (event) => {
     {
       type: "deuchan:video",
       audioTrackId,
+      audioTrackIds,
       videoId: response?.videoDetails?.videoId ?? null,
       title: response?.videoDetails?.title ?? "",
       description: response?.videoDetails?.shortDescription ?? "",

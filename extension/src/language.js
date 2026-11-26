@@ -70,6 +70,24 @@ export function audioLanguage(audioTrackId) {
 }
 
 /**
+ * Whether the video has an audio track in the target language that is not the one playing. YouTube dubs
+ * videos into the viewer's language on its own ("Auto-dubbed"): a Japanese video plays in English for
+ * someone whose browser is in English, and is rightly not counted. The popup then says to pick the
+ * Japanese track, instead of only "Not Japanese", which looks like a wrong guess.
+ */
+export function otherTrackInTarget({ audioTrackId = null, audioTrackIds = [] } = {}, target) {
+  const language = targetOf(target);
+  const spoken = audioLanguage(audioTrackId);
+  if (!spoken || isTarget(spoken, language) || !Array.isArray(audioTrackIds)) {
+    return false;
+  }
+  return audioTrackIds.some((id) => {
+    const lang = audioLanguage(id);
+    return lang !== null && isTarget(lang, language);
+  });
+}
+
+/**
  * The share of the words of a text that are German function words, and how many there are.
  * Letters with an umlaut or ß count as extra evidence, as few other languages that write like
  * this use them.

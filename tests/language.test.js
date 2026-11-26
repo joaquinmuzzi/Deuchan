@@ -8,6 +8,7 @@ import {
   germanScore,
   namesLanguage,
   needsTextLanguages,
+  otherTrackInTarget,
   textIsTarget,
   videoText,
 } from "../extension/src/language.js";
@@ -335,4 +336,27 @@ test("namesLanguage matches whole words in Latin scripts and anywhere in others"
   assert.equal(namesLanguage({ title: "An Englishman in New York" }, "en"), false);
   assert.equal(namesLanguage({ description: "Deutsch lernen mit Geschichten" }, "de"), true);
   assert.equal(namesLanguage({}, "ja"), false);
+});
+
+test("an automatic dub over a video in the target is told apart, so the popup can say which track to pick", () => {
+  const japanese = audioId("original", "ja");
+  const englishDub = audioId("dubbed-auto", "en-US");
+  const tracks = [englishDub, japanese];
+  assert.equal(otherTrackInTarget({ audioTrackId: englishDub, audioTrackIds: tracks }, "ja"), true);
+  // The Japanese track plays: it counts, and there is nothing to say
+  assert.equal(otherTrackInTarget({ audioTrackId: japanese, audioTrackIds: tracks }, "ja"), false);
+  // No track in the target, or a video with one audio track (no language in its id)
+  assert.equal(otherTrackInTarget({ audioTrackId: englishDub, audioTrackIds: tracks }, "de"), false);
+  assert.equal(otherTrackInTarget({ audioTrackId: "251;", audioTrackIds: ["251;"] }, "ja"), false);
+  assert.equal(otherTrackInTarget({ audioTrackId: englishDub }, "ja"), false);
+  assert.equal(otherTrackInTarget({ audioTrackId: englishDub, audioTrackIds: "x" }, "ja"), false);
+  // A Spanish dub of an English video, for someone who learns Spanish and hears the original
+  const english = audioId("original", "en-US");
+  assert.equal(
+    otherTrackInTarget(
+      { audioTrackId: english, audioTrackIds: [english, audioId("dubbed-auto", "es-US")] },
+      "es",
+    ),
+    true,
+  );
 });

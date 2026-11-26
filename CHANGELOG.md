@@ -25,6 +25,8 @@ note on what to update.
   nothing when clicked. It now marks the video and remembers it.
 - When reading cannot be counted on a page, the popup's message saying so now stays for a few seconds instead
   of vanishing at once.
+- When YouTube plays its automatic dub in your browser's language over a video in the language you learn, the
+  popup now says to pick that language's audio track in the player settings, instead of only "Not Japanese".
 
 ## [0.2.4] - 2026-11-25
 

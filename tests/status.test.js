@@ -109,3 +109,11 @@ test("the title of what plays goes under the status, but not during an ad", () =
   assert.equal(describeStatus({ ...reply, title: "" }).title, undefined);
   assert.equal(describeStatus(undefined).title, undefined);
 });
+
+test("a video with a track in the target that is not playing says to pick it", () => {
+  assert.deepEqual(describeStatus({ inTarget: false, playing: true, otherTrack: true }, null, "Japanese"), {
+    kind: "off",
+    text: "Audio not in Japanese: pick the Japanese audio track in the player settings",
+    action: { inTarget: true, label: "Mark as Japanese" },
+  });
+});
