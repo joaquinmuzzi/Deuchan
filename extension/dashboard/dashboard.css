@@ -316,8 +316,13 @@ dialog h2 {
 
 .backup-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
+}
+
+.backup-buttons .button {
+  white-space: nowrap;
 }
 
 .actions {
@@ -419,6 +424,36 @@ dialog h2 {
   font-size: 12px;
 }
 
+/* Settings: it fits the window, the body scrolls and Save stays in sight */
+#goalDialog {
+  width: min(380px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+}
+
+#goalForm {
+  display: flex;
+  max-height: calc(100vh - 34px);
+  flex-direction: column;
+}
+
+#goalForm .dialog-body {
+  overflow-y: auto;
+  padding-bottom: 0;
+}
+
+/* An error line takes room only while it says something, so the sections sit evenly apart */
+#goalForm .error:empty {
+  min-height: 0;
+  margin: 0 0 14px;
+}
+
+#goalForm .actions {
+  position: sticky;
+  bottom: 0;
+  padding: 12px 0 16px;
+  background: var(--card);
+}
+
 /* The Mosaik panel */
 #mosaikDialog {
   width: 360px;
@@ -435,6 +470,7 @@ dialog h2 {
 }
 
 .dialog-body .switch-row input {
+  flex: none;
   width: 16px;
   height: 16px;
   accent-color: var(--strong);
