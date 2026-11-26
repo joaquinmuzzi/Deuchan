@@ -9,6 +9,8 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-11-26
+
 ### Added
 
 - "Send to Kechimochi", optional and off by default: the dashboard (bars button) sends your minutes per day
