@@ -9,6 +9,8 @@ note on what to update.
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-11-26
+
 ### Fixed
 
 - The settings panel fits the window: it scrolls inside and Save stays in sight, the data buttons keep their whole labels, every switch has the same size, and the sections sit evenly apart.
